@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# $0 = runme
+# $1 = inputfile
+# $2 = outputfile
+
+./a.out $1 $2
