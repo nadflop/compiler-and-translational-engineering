@@ -9,17 +9,17 @@ void WriteOutput(char * tokentype);
 
 %% 
 
-(prog|func|read|write)			WriteOutput("KEYWORD"); 
+prog|func|read|write			WriteOutput("KEYWORD"); 
 
-(begin|if|else|while|for)		WriteOutput("KEYWORD"); 
+begin|if|else|while|for			WriteOutput("KEYWORD"); 
 
-(end|endif|endwhile|endfor)		WriteOutput("KEYWORD"); 
+end|endif|endwhile|endfor		WriteOutput("KEYWORD"); 
 
-(int|void|str|float)			WriteOutput("KEYWORD"); 
+int|void|str|float				WriteOutput("KEYWORD"); 
 
-(return|break)					WriteOutput("KEYWORD");
+return|break					WriteOutput("KEYWORD");
 
-(==|!=|<|>|<=|>=)				WriteOutput("OPERATOR");
+==|!=|<|>|<=|>=					WriteOutput("OPERATOR");
 
 =								WriteOutput("OPERATOR"); 
 
@@ -41,9 +41,9 @@ void WriteOutput(char * tokentype);
 
 \"[^"]+\"						WriteOutput("STRINGLITERAL");
 
-#.*			
+[ \t\n\r]+ 
 
-[^\w]
+#.*			
 
 %% 
 
