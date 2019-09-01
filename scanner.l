@@ -43,7 +43,7 @@ void WriteOutput(char * tokentype);
 
 #.*			
 
-[^0-9]
+[^\w]
 
 %% 
 

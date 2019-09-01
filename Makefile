@@ -21,21 +21,18 @@ compiler:
 		gcc lex.yy.c -lfl
 
 test: compiler
-		./runme inputs/fibonacci.micro fibonacci.out
-		diff -b fibonacci.out outputs/fibonacci.out
-		./runme inputs/loop.micro loop.out
-		diff -b loop.out outputs/loop.out
-		./runme inputs/nested.micro nested.out
-		diff -b nested.out outputs/nested.out
-		./runme inputs/sqrt.micro sqrt.out
-		diff -b sqrt.out outputs/sqrt.out
-
-
-memory: 
-		$(GCC) $(VALGRIND) 
+		./runme step1/inputs/fibonacci.micro fibonacci.out
+		diff -b fibonacci.out step1/outputs/fibonacci.out
+		./runme step1/inputs/loop.micro loop.out
+		diff -b loop.out step1/outputs/loop.out
+		./runme step1/inputs/nested.micro nested.out
+		diff -b nested.out step1/outputs/nested.out
+		./runme step1/inputs/sqrt.micro sqrt.out
+		diff -b sqrt.out step1/outputs/sqrt.out
 
 clean: 
 		/bin/rm -f *.gcda *.gcno gmon.out *gcov
 		/bin/rm -f *.o
 		/bin/rm -f *.out
 		/bin/rm -f lex.yy.c
+
