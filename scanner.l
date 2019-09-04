@@ -9,37 +9,39 @@ void WriteOutput(char * tokentype);
 
 %% 
 
-prog|func|read|write			WriteOutput("KEYWORD"); 
+prog|func|read|write		WriteOutput("KEYWORD"); 
 
-begin|if|else|while|for			WriteOutput("KEYWORD"); 
+begin|if|else|while			WriteOutput("KEYWORD"); 
 
-end|endif|endwhile|endfor		WriteOutput("KEYWORD"); 
+end|endif|endwhile			WriteOutput("KEYWORD"); 
 
-int|void|str|float				WriteOutput("KEYWORD"); 
+int|void|str|float			WriteOutput("KEYWORD"); 
 
-return|break					WriteOutput("KEYWORD");
+return						WriteOutput("KEYWORD");
 
-==|!=|<|>|<=|>=					WriteOutput("OPERATOR");
+true|false					WriteOutput("KEYWORD");
 
-=								WriteOutput("OPERATOR"); 
+==|!=|<|>|<=|>=				WriteOutput("OPERATOR");
 
-[\+\-\*\/]						WriteOutput("OPERATOR");
+=							WriteOutput("OPERATOR"); 
 
-\(								WriteOutput("OPERATOR"); 
+[\+\-\*\/]					WriteOutput("OPERATOR");
 
-\)								WriteOutput("OPERATOR"); 
+\(							WriteOutput("OPERATOR"); 
 
-;								WriteOutput("OPERATOR"); 
+\)							WriteOutput("OPERATOR"); 
 
-,								WriteOutput("OPERATOR"); 
+;							WriteOutput("OPERATOR"); 
 
-{L}({L}|{D})*					WriteOutput("IDENTIFIER"); 
+,							WriteOutput("OPERATOR"); 
 
-{D}*\.{D}+						WriteOutput("FLOATLITERAL");
+{L}({L}|{D})*				WriteOutput("IDENTIFIER"); 
 
-{D}+							WriteOutput("INTLITERAL");
+{D}*\.{D}+					WriteOutput("FLOATLITERAL");
 
-\"[^"]+\"						WriteOutput("STRINGLITERAL");
+{D}+						WriteOutput("INTLITERAL");
+
+\"[^"]+\"					WriteOutput("STRINGLITERAL");
 
 [ \t\n\r]+ 
 
