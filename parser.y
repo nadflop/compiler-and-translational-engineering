@@ -176,6 +176,6 @@ int main(int argc, char **argv){
 }
 
 void yyerror(const char *s){
-	printf("%s at Line %d\n%s\n", s, yylineno, yytext); 
+	//printf("%s at Line %d\n%s\n", s, yylineno, yytext); 
 	fprintf(yyout, "Not Accepted"); 
 }
