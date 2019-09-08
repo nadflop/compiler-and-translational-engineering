@@ -4,49 +4,56 @@ L	[A-Za-z]
 %{
 #include <stdio.h> 
 #include "parser.tab.h" 
-%} 
+%}
+
+%option yylineno
 
 %% 
 
-prog|func|read|write		return KEYWORD;
+prog	return _PROG;
+func	return _FUNC;
+read	return _READ;
+write	return _WRITE;
 
-begin|if|else|while			return KEYWORD; 
+begin	return _BEGIN;
+if		return _IF;
+else	return _ELSE;
+while	return _WHILE;
 
-end|endif|endwhile			return KEYWORD; 
+end			return _END;
+endif		return _ENDIF;
+endwhile	return _ENDWHILE;
 
-int|void|str|float			return KEYWORD; 
+int		return _INT;
+void	return _VOID;
+str		return _STR;
+float	return _FLOAT;
 
-return						return KEYWORD;
+return	return _RETURN;
 
-true|false					return BOOLEAN;
+true	return _TRUE;
+false	return _FALSE;
 
-==|!=|<|>|<=|>=				return OPERATOR;
+==|!=|<|>|<=|>=		return COMPARATOR;
+=					return ASSIGNMENT; 
 
-=							return OPERATOR; 
+[\+\-]		return ADDOP;
+[\*\/]		return MULOP;
 
-[\+\-\*\/]					return OPERATOR;
+\(				return OPENPARENT; 
+\)				return CLOSEPARENT; 
+;				return TERMINATOR; 
+,				return COMMA; 
 
-\(							return OPERATOR; 
-
-\)							return OPERATOR; 
-
-;							return OPERATOR; 
-
-,							return OPERATOR; 
-
-{L}({L}|{D})*				return IDENTIFIER; 
-
-{D}*\.{D}+					{	//yylval.fval = atof(yytext);
-								return FLOATLITERAL;	}
-
-{D}+						{	//yylval.fval = atoi(yytext);
-								return INTLITERAL;	}
-
-\"[^"]+\"					return STRINGLITERAL;
+{L}({L}|{D})*	return IDENTIFIER; 
+{D}*\.{D}+		return FLOATLITERAL;
+{D}+			return INTLITERAL;	
+\"[^"]+\"		return STRINGLITERAL;
 
 [ \t\n\r]+ 
 
-#.*			
+#.*
+
 
 %% 
 
