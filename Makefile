@@ -16,9 +16,10 @@ team:
 .c.o: 
 		$(GCC) -c $*.c
 
-compiler: 
+compiler:
+		bison -d parser.y
 		flex scanner.l
-		gcc lex.yy.c -lfl
+		gcc parser.tab.c lex.yy.c -lfl
 
 test: compiler
 		./runme step1/inputs/fibonacci.micro fibonacci.out
@@ -35,4 +36,5 @@ clean:
 		/bin/rm -f *.o
 		/bin/rm -f *.out
 		/bin/rm -f lex.yy.c
+		/bin/rm -f parser.tab.h parser.tab.c
 

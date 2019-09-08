@@ -2,46 +2,47 @@ D	[0-9]
 L	[A-Za-z]
 
 %{
-#include <stdio.h>
-int count = 0; 
-void WriteOutput(char * tokentype); 
+#include <stdio.h> 
+#include "parser.tab.h" 
 %} 
 
 %% 
 
-prog|func|read|write		WriteOutput("KEYWORD"); 
+prog|func|read|write		return KEYWORD;
 
-begin|if|else|while			WriteOutput("KEYWORD"); 
+begin|if|else|while			return KEYWORD; 
 
-end|endif|endwhile			WriteOutput("KEYWORD"); 
+end|endif|endwhile			return KEYWORD; 
 
-int|void|str|float			WriteOutput("KEYWORD"); 
+int|void|str|float			return KEYWORD; 
 
-return						WriteOutput("KEYWORD");
+return						return KEYWORD;
 
-true|false					WriteOutput("KEYWORD");
+true|false					return BOOLEAN;
 
-==|!=|<|>|<=|>=				WriteOutput("OPERATOR");
+==|!=|<|>|<=|>=				return OPERATOR;
 
-=							WriteOutput("OPERATOR"); 
+=							return OPERATOR; 
 
-[\+\-\*\/]					WriteOutput("OPERATOR");
+[\+\-\*\/]					return OPERATOR;
 
-\(							WriteOutput("OPERATOR"); 
+\(							return OPERATOR; 
 
-\)							WriteOutput("OPERATOR"); 
+\)							return OPERATOR; 
 
-;							WriteOutput("OPERATOR"); 
+;							return OPERATOR; 
 
-,							WriteOutput("OPERATOR"); 
+,							return OPERATOR; 
 
-{L}({L}|{D})*				WriteOutput("IDENTIFIER"); 
+{L}({L}|{D})*				return IDENTIFIER; 
 
-{D}*\.{D}+					WriteOutput("FLOATLITERAL");
+{D}*\.{D}+					{	//yylval.fval = atof(yytext);
+								return FLOATLITERAL;	}
 
-{D}+						WriteOutput("INTLITERAL");
+{D}+						{	//yylval.fval = atoi(yytext);
+								return INTLITERAL;	}
 
-\"[^"]+\"					WriteOutput("STRINGLITERAL");
+\"[^"]+\"					return STRINGLITERAL;
 
 [ \t\n\r]+ 
 
@@ -49,24 +50,3 @@ true|false					WriteOutput("KEYWORD");
 
 %% 
 
-void WriteOutput (char * tokentype){
-	fprintf(yyout, "Token Type: %s\n", tokentype); 
-	fprintf(yyout, "Value: %s\n", yytext); 
-	return; 
-}
-
-int main(int argc, char** argv){
-
-	// argv[1]: input file name
-	// argv[2]: output file name
-
-	yyin = fopen(argv[1], "r"); 
-	yyout = fopen(argv[2], "w"); 
-
-	yylex(); 
-	
-	fclose(yyin); 
-	fclose(yyout); 
-
-	return 0; 
-}
