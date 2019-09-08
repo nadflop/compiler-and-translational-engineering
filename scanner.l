@@ -2,71 +2,58 @@ D	[0-9]
 L	[A-Za-z]
 
 %{
-#include <stdio.h>
-int count = 0; 
-void WriteOutput(char * tokentype); 
-%} 
+#include <stdio.h> 
+#include "parser.tab.h" 
+%}
+
+%option yylineno
 
 %% 
 
-prog|func|read|write		WriteOutput("KEYWORD"); 
+prog	return _PROG;
+func	return _FUNC;
+read	return _READ;
+write	return _WRITE;
 
-begin|if|else|while			WriteOutput("KEYWORD"); 
+begin	return _BEGIN;
+if		return _IF;
+else	return _ELSE;
+while	return _WHILE;
 
-end|endif|endwhile			WriteOutput("KEYWORD"); 
+end			return _END;
+endif		return _ENDIF;
+endwhile	return _ENDWHILE;
 
-int|void|str|float			WriteOutput("KEYWORD"); 
+int		return _INT;
+void	return _VOID;
+str		return _STR;
+float	return _FLOAT;
 
-return						WriteOutput("KEYWORD");
+return	return _RETURN;
 
-true|false					WriteOutput("KEYWORD");
+true	return _TRUE;
+false	return _FALSE;
 
-==|!=|<|>|<=|>=				WriteOutput("OPERATOR");
+==|!=|<|>|<=|>=		return COMPARATOR;
+=					return ASSIGNMENT; 
 
-=							WriteOutput("OPERATOR"); 
+[\+\-]		return ADDOP;
+[\*\/]		return MULOP;
 
-[\+\-\*\/]					WriteOutput("OPERATOR");
+\(				return OPENPARENT; 
+\)				return CLOSEPARENT; 
+;				return TERMINATOR; 
+,				return COMMA; 
 
-\(							WriteOutput("OPERATOR"); 
-
-\)							WriteOutput("OPERATOR"); 
-
-;							WriteOutput("OPERATOR"); 
-
-,							WriteOutput("OPERATOR"); 
-
-{L}({L}|{D})*				WriteOutput("IDENTIFIER"); 
-
-{D}*\.{D}+					WriteOutput("FLOATLITERAL");
-
-{D}+						WriteOutput("INTLITERAL");
-
-\"[^"]+\"					WriteOutput("STRINGLITERAL");
+{L}({L}|{D})*	return IDENTIFIER; 
+{D}*\.{D}+		return FLOATLITERAL;
+{D}+			return INTLITERAL;	
+\"[^"]+\"		return STRINGLITERAL;
 
 [ \t\n\r]+ 
 
-#.*			
+#.*
+
 
 %% 
 
-void WriteOutput (char * tokentype){
-	fprintf(yyout, "Token Type: %s\n", tokentype); 
-	fprintf(yyout, "Value: %s\n", yytext); 
-	return; 
-}
-
-int main(int argc, char** argv){
-
-	// argv[1]: input file name
-	// argv[2]: output file name
-
-	yyin = fopen(argv[1], "r"); 
-	yyout = fopen(argv[2], "w"); 
-
-	yylex(); 
-	
-	fclose(yyin); 
-	fclose(yyout); 
-
-	return 0; 
-}
