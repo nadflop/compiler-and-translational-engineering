@@ -22,14 +22,8 @@ compiler:
 		gcc parser.tab.c lex.yy.c -lfl
 
 test: compiler
-		./runme step1/inputs/fibonacci.micro fibonacci.out
-		diff -b fibonacci.out step1/outputs/fibonacci.out
-		./runme step1/inputs/loop.micro loop.out
-		diff -b loop.out step1/outputs/loop.out
-		./runme step1/inputs/nested.micro nested.out
-		diff -b nested.out step1/outputs/nested.out
-		./runme step1/inputs/sqrt.micro sqrt.out
-		diff -b sqrt.out step1/outputs/sqrt.out
+		./runme step2/input/*.micro *.out
+		diff -b *.out step2/output/*.out
 
 clean: 
 		/bin/rm -f *.gcda *.gcno gmon.out *gcov
