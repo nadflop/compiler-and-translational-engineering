@@ -17,7 +17,7 @@ team:
 		$(GCC) -c $*.c
 
 compiler: 
-		flex scanner.l
+		flex scanner1.l
 		gcc lex.yy.c -lfl
 
 test: compiler
