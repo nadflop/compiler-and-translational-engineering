@@ -1,0 +1,54 @@
+Commit ID tagged for submission: 820af5ceee0b8e518862f9050b7ae398fb0f70b0
+Submission graded at: 2019-09-11 17:21:59
+
+/bin/rm -f *.gcda *.gcno gmon.out *gcov
+/bin/rm -f *.o
+/bin/rm -f *.out
+/bin/rm -f lex.yy.c
+/bin/rm -f parser.tab.h parser.tab.c
+bison -d parser.y
+flex scanner.l
+gcc parser.tab.c lex.yy.c -lfl
+/home/hkj/grader/ece468-grader/repositories/468-fa2019-cendol/grader_step2.sh: line 12: @rm: command not found
+Testing.....test10.micro
+Test Passed
+Testing.....test11.micro
+Test Passed
+Testing.....test12.micro
+Test Passed
+Testing.....test13.micro
+Test Passed
+Testing.....test14.micro
+Test Passed
+Testing.....test15.micro
+Test Passed
+Testing.....test16.micro
+Test Passed
+Testing.....test17.micro
+Test Passed
+Testing.....test18.micro
+Test Passed
+Testing.....test19.micro
+Test Passed
+Testing.....test1.micro
+Test Passed
+Testing.....test20.micro
+Test Passed
+Testing.....test21.micro
+Test Passed
+Testing.....test2.micro
+Test Passed
+Testing.....test3.micro
+Test Passed
+Testing.....test4.micro
+Test Passed
+Testing.....test5.micro
+Test Passed
+Testing.....test6.micro
+Test Passed
+Testing.....test7.micro
+Test Passed
+Testing.....test8.micro
+Test Passed
+Testing.....test9.micro
+Test Passed
