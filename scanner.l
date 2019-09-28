@@ -10,49 +10,62 @@ L	[A-Za-z]
 
 %% 
 
-prog	return _PROG;
-func	return _FUNC;
-read	return _READ;
-write	return _WRITE;
+prog	{return _PROG;}
+func	{return _FUNC;}
+read	{return _READ;}
+write	{return _WRITE;}
 
-begin	return _BEGIN;
-if		return _IF;
-else	return _ELSE;
-while	return _WHILE;
+begin	{return _BEGIN;}
+if		{return _IF;}
+else	{return _ELSE;}
+while	{return _WHILE;}
 
-end			return _END;
-endif		return _ENDIF;
-endwhile	return _ENDWHILE;
+end			{return _END;}
+endif		{return _ENDIF;}
+endwhile	{return _ENDWHILE;}
 
-int		return _INT;
-void	return _VOID;
-str		return _STR;
-float	return _FLOAT;
+int		{return _INT;}
+void	{return _VOID;}
+str		{return _STRING;}
+float	{return _FLOAT;}
 
-return	return _RETURN;
+return	{return _RETURN;}
 
-true	return _TRUE;
-false	return _FALSE;
+true	{return _TRUE;}
+false	{return _FALSE;}
 
-==|!=|<|>|<=|>=		return COMPARATOR;
-=					return ASSIGNMENT; 
+==|!=|<|>|<=|>=		{return COMPARATOR;}
+=					{return ASSIGNMENT;} 
 
-[\+\-]		return ADDOP;
-[\*\/]		return MULOP;
+[\+\-]		{return ADDOP;}
+[\*\/]		{return MULOP;}
 
-\(				return OPENPARENT; 
-\)				return CLOSEPARENT; 
-;				return TERMINATOR; 
-,				return COMMA; 
+\(				{return OPENPARENT;}
+\)				{return CLOSEPARENT;} 
+;				{return TERMINATOR;} 
+,				{return COMMA;} 
 
-{L}({L}|{D})*	return IDENTIFIER; 
-{D}*\.{D}+		return FLOATLITERAL;
-{D}+			return INTLITERAL;	
-\"[^"]+\"		return STRINGLITERAL;
+{L}({L}|{D})*	{   // insert identifier into symbol table
+				  	
+					return IDENTIFIER;
+				} 
+{D}*\.{D}+		{
+					yylval.val.fval = atof(yytext)
+					return FLOATLITERAL;
+				}
+{D}+			{
+					yylval.val.ival = atoi(yytext);
+					return INTLITERAL;
+				}
+\"[^"]+\"		{
+					yylval.val.sval = malloc(yyleng * sizeof(char));
+					strcpy(yylval.val.sval, yytext);
+					return STRING;
+				}
 
 [ \t\n\r]+ 
 
-#.*
+#.*			
 
 
 %% 

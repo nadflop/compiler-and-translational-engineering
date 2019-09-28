@@ -2,6 +2,7 @@
 // C Definitions
 #include <stdio.h>
 #include <stdlib.h>
+#define YYSTYPE double
 
 extern int yylex(); 
 extern int yyparse();
@@ -17,16 +18,33 @@ void yyerror(const char *s);
 %define parse.error verbose
 %locations
 
+//Symbol semantic values
+
+//yystype union
+//union declare the collection of data types that semantic val may have
+%union {
+	int int_val;
+	float float_val;
+	char * string_val;
+}
+
+//token declare a terminal symbol with no precedence or associativity sepcified
 %token _PROG _FUNC _READ _WRITE
 %token _BEGIN _IF _ELSE _WHILE
 %token _END _ENDIF _ENDWHILE
-%token _INT _VOID _STR _FLOAT
+%token _INT _VOID _STRING _FLOAT
 %token _RETURN
 %token _TRUE _FALSE
 %token COMPARATOR ASSIGNMENT
 %token ADDOP MULOP
 %token TERMINATOR OPENPARENT CLOSEPARENT COMMA
-%token IDENTIFIER INTLITERAL FLOATLITERAL STRINGLITERAL
+%token IDENTIFIER 
+%token INTLITERAL FLOATLITERAL STRINGLITERAL
+
+//type declare the type of semantic values for a nonterminal symbol
+%type <string_val> id string_decl var_type STRINGLITERAL
+%type <int_val> INTLITERAL
+%type <float_val> FLOATLITERAL
 
 %%
 // Grammar Rules
