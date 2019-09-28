@@ -25,6 +25,8 @@ void yyerror(const char *s);
 %union {
 	int int_val;
 	float float_val;
+	StrEntry * s_entry;
+	string * s;
 	char * string_val;
 }
 
@@ -41,8 +43,10 @@ void yyerror(const char *s);
 %token IDENTIFIER 
 %token INTLITERAL FLOATLITERAL STRINGLITERAL
 
-//type declare the type of semantic values for a nonterminal symbol
-%type <string_val> id string_decl var_type STRINGLITERAL
+//type declare the type of semantic values for a non-terminal symbol
+%type <string_val> var_type
+%type <s_entry> string_decl
+%type <s> id STRINGLITERAL
 %type <int_val> INTLITERAL
 %type <float_val> FLOATLITERAL
 
@@ -51,7 +55,7 @@ void yyerror(const char *s);
 // Program
 program: 	_PROG id _BEGIN pgm_body _END
 ;
-id:	IDENTIFIER
+id:	IDENTIFIER { $$ = $1}
 ; 
 pgm_body: 	decl func_declarations
 ;
@@ -61,7 +65,8 @@ decl: 	string_decl decl
 ; 
 
 // Global String Declaration
-string_decl: 	_STR id ASSIGNMENT str_literal TERMINATOR
+string_decl: 	_STR id ASSIGNMENT str_literal TERMINATOR { 
+														  }
 ;
 str_literal: 	STRINGLITERAL
 ; 
@@ -177,8 +182,8 @@ control_stmt: 	return_stmt
 loop_stmt: 		while_stmt
 ;
 
-
 %%
+//Data structure for our symbol table
 // Additional C Code
 int main(int argc, char **argv){
 	yyin = fopen(argv[1], "r"); 
@@ -195,5 +200,7 @@ int main(int argc, char **argv){
 
 void yyerror(const char *s){
 	//printf("%s at Line %d\n%s\n", s, yylineno, yytext); 
-	fprintf(yyout, "Not Accepted"); 
+	//fprintf(yyout, "Not Accepted"); 
+	//print the var_name
+	fprintf(yyout, "DECLARATION ERROR %s", yytext);
 }

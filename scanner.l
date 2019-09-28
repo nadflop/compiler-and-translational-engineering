@@ -50,7 +50,7 @@ false	{return _FALSE;}
 					return IDENTIFIER;
 				} 
 {D}*\.{D}+		{
-					yylval.val.fval = atof(yytext)
+					yylval.val.fval = atof(yytext);
 					return FLOATLITERAL;
 				}
 {D}+			{
