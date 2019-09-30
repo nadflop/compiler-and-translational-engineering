@@ -1,0 +1,39 @@
+Commit ID tagged for submission: a120b6ea6ef4e0d29aa7b20f61869d4f56316ddc
+Submission graded at: 2019-09-29 21:20:54
+
+/bin/rm -f *.gcda *.gcno gmon.out *gcov
+/bin/rm -f *.o
+/bin/rm -f *.out
+/bin/rm -f lex.yy.c
+/bin/rm -f parser.tab.h parser.tab.c
+bison -d parser.y
+flex scanner.l
+gcc parser.tab.c lex.yy.c -lfl
+Testing.....test11.micro
+Test Passed
+Testing.....test13.micro
+Test Passed
+Testing.....test14.micro
+Test Passed
+Testing.....test16.micro
+Test Passed
+Testing.....test18.micro
+Test Passed
+Testing.....test19.micro
+Test Passed
+Testing.....test1.micro
+Test Passed
+Testing.....test20.micro
+Test Passed
+Testing.....test21.micro
+Test Passed
+Testing.....test22.micro
+Test Passed
+Testing.....test5.micro
+Test Passed
+Testing.....test6.micro
+Test Passed
+Testing.....test7.micro
+Test Passed
+Testing.....test8.micro
+Test Passed
