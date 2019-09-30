@@ -2,7 +2,8 @@ D	[0-9]
 L	[A-Za-z]
 
 %{
-#include <stdio.h> 
+#include <stdio.h>
+#include <string.h>
 #include "parser.tab.h" 
 %}
 
@@ -46,21 +47,23 @@ false	{return _FALSE;}
 ,				{return COMMA;} 
 
 {L}({L}|{D})*	{   // insert identifier into symbol table
-				  	
+					yylval.strval = strdup(yytext); 
 					return IDENTIFIER;
 				} 
+
 {D}*\.{D}+		{
-					yylval.val.fval = atof(yytext);
+					yylval.floatval = atof(yytext);
 					return FLOATLITERAL;
 				}
+
 {D}+			{
-					yylval.val.ival = atoi(yytext);
+					//yylval.val.ival = atoi(yytext);
 					return INTLITERAL;
 				}
+
 \"[^"]+\"		{
-					yylval.val.sval = malloc(yyleng * sizeof(char));
-					strcpy(yylval.val.sval, yytext);
-					return STRING;
+					yylval.strval = strdup(yytext); 
+					return STRINGLITERAL;
 				}
 
 [ \t\n\r]+ 
