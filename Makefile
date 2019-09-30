@@ -21,7 +21,11 @@ compiler:
 		flex scanner.l
 		gcc parser.tab.c lex.yy.c -lfl
 
-test: compiler
+test1: clean compiler
+		./runme step3/input/test6.micro test6.out
+		diff -b test6.out step3/output/test6.out
+
+test: clean compiler
 		./runme step3/input/test1.micro test1.out
 		diff -b test1.out step3/output/test1.out
 		./runme step3/input/test5.micro test5.out
