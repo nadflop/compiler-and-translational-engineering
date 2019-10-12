@@ -13,6 +13,7 @@ ht_item * ht_new_item(const char * k, const char * n, const char * type, const c
 	i->next = NULL;
 	return i;
 }
+
 /*function to initialize a hash table*/
 ht_hash_table * ht_new() {
 	ht_hash_table * ht = malloc(sizeof(ht_hash_table));
@@ -59,6 +60,7 @@ void ht_del_hash_table(ht_hash_table * ht) {
 	free(ht->items);
 	free(ht);
 }
+
 /*function to calculate the hash value based on the string*/
 unsigned int ht_hash(const char * key, const int size) {
 	unsigned int hash;
@@ -73,6 +75,7 @@ unsigned int ht_hash(const char * key, const int size) {
 	}
 	return hash;
 }
+
 /*insert a new value into the hash table*/
 void ht_insert(ht_hash_table * ht, const char * key, const char* name, const char* type, const char * strval) {
 	ht_item * item = ht_new_item(key, name, type, strval);
@@ -103,7 +106,9 @@ void ht_insert(ht_hash_table * ht, const char * key, const char* name, const cha
 		ht->items[index] = item;
 	}
 }
+
 /*find the contents of a hash table?*/
+// check if key exists?
 char * ht_search(ht_hash_table * ht, const char * key){
 	int index= ht_hash(key, ht->size);
 	ht_item * item = ht->items[index];
@@ -120,11 +125,36 @@ char * ht_search(ht_hash_table * ht, const char * key){
 	}
 	return item->name;
 }
+
+
+// get an entry (pointer form) from the hash table
+ht_item * ht_get_item(ht_hash_table * ht, const char * key){
+	int index = ht_hash(key, ht->size); 
+	ht_item * item = ht->items[index]; 
+
+	while (item != NULL){
+		if (strcmp(item->key, key) == 0){
+			// KEY FOUND
+			break; 
+		}
+		item = item->next; 
+	}
+	
+	return item; 
+}
  
 int main() {
+	// To test hash table separately from compiler
 	ht_hash_table * ht = ht_new();
 	ht_insert(ht, "Main", "Team Cendol", "INT", "NULL");
-	printf("%s\n", ht_search(ht, "Main"));
+	ht_insert(ht, "F1", "Hello", "VOID", "NULL");
+	ht_insert(ht, "F2", "~~~", "FLOAT", "NULL"); 
+
+	printf("%s\n", ht_search(ht, "F1")); 
+	ht_item * item = ht_get_item(ht, "F1");
+	printf("%s, %s, %s, %s\n", item->key, item->name, item->type, item->strval); 
+	
 	ht_del_hash_table(ht);
+
 	return 0;
 }

@@ -2,7 +2,7 @@ GCC = gcc $(CFLAGS) $(COVFLAGS) $(PROFFLAGS)
 CFLAGS = -std=c99 -g - Wshadow -Wall --pedantic -Wvla -Werror
 COVFLAGS = -fprofile-arcs -ftest-coverage
 PROFFLAG = -pg
-VALGRIND = valgrind --tool=memcheck --leak-check=full --verbose --log-file=
+VALGRIND = valgrind --tool=memcheck --leak-check=full --verbose
 
 team: 
 	@echo Team: cendol
@@ -20,6 +20,13 @@ compiler:
 		bison -d parser.y
 		flex scanner.l
 		gcc parser.tab.c lex.yy.c -lfl
+
+hashtest: clean 
+		gcc hash_table.c
+		./a.out
+
+hashcheck: hashtest
+		$(VALGRIND) ./a.out
 
 test1: clean compiler
 		./runme step3/input/test6.micro test6.out
