@@ -29,8 +29,10 @@ hashcheck: hashtest
 		$(VALGRIND) ./a.out
 
 test1: clean compiler
-		./runme step3/input/test6.micro test6.out
-		diff -b test6.out step3/output/test6.out
+		./runme step3/input/test22.micro test22.out
+
+test1check: 
+		$(VALGRIND) ./runme step3/input/test22.micro test22.out
 
 test: clean compiler
 		./runme step3/input/test1.micro test1.out

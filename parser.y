@@ -3,11 +3,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "hash_table.c"
+
 #define YYSTYPE double
 #define MAX 100
 //#include "symtab.c"
 //#include "symtab.h"
 
+struct Node {
+	ht_item * scope; 
+	struct Node * next; 
+};
 
 extern int yylex(); 
 extern int yyparse();
@@ -15,33 +22,41 @@ extern int yylineno;
 extern char * yytext;
 extern int yyleng; 
 extern FILE *yyin;
-extern FILE *yyout; 
-extern YYSTYPE yylval; 
+extern FILE *yyout;  
 
 char * inputfile; 
 char * outputfile; 
 
 int scope = 0; 
 int blocknum = 0;   
-int datatype = 0; // 1 int, 2 float, 3 void, 4 str
+//int datatype = 0; // 1 int, 2 float, 3 void, 4 str
 
 int var_exists = 0;
 int declare = 0; 
-int maxind = -1; 
 char var[20][10];
 
 void yyerror(const char *s);
 void scope_incr(int i); 
 void scope_decr(int i);
 void block_incr(void); 
-void printVarDecl(void); 
 
-void varCheck(void); 
+// Integrating Symbol Table
+ht_hash_table * ht; // hashtable pointer
+struct Node * head; 
+struct Node * tail; 
 
-void detDataType(void); 
-void printName(void); 
-void printDataType(void);
-void printValue(void); 
+ht_item * symtab[100];
+int maxind = -1; 
+void updateArray(const char * key); 
+void printArray(void); 
+char * scopename; 
+char * name;
+char * datatype; 
+char buf[20]; 
+
+void createLL(const char * key);
+void printLL(void);
+void freeLLnode(struct Node *); 
 
 %}
 // Bison Definitions
@@ -57,8 +72,9 @@ void printValue(void);
 	int intval; 
 	float floatval; 
 	char * strval;
-	char * operator; 
+	char operator; 
 	char * keyword;
+	char * datatype;
 	char * bool_val; 
 }
 
@@ -78,44 +94,61 @@ void printValue(void);
 %token <intval> INTLITERAL 
 %token <floatval> FLOATLITERAL
 
-
 //type declare the type of semantic values for a non-terminal symbol
-%type <strval> id any_type var_type str_literal
-
+%type <strval> id str_literal string_decl
+%type <strval> var_type any_type
 
 %%
 // Grammar Rules
 // Program
 // GLOBAL
-program: _PROG id _BEGIN { fprintf(yyout, "Symbol table GLOBAL\n"); } pgm_body _END 
+program: 	_PROG id _BEGIN 
+			{ 	ht = ht_new(); 
+				scopename = "GLOBAL"; 
+				ht_insert(ht, scopename, NULL, NULL, NULL); 
+				updateArray(scopename); } 
+			pgm_body 
+			_END 
+			{ 	printArray(); 
+				ht_del_hash_table(ht); }
 ;
-id: IDENTIFIER 
+id: IDENTIFIER
 ; 
-pgm_body: 	decl { datatype = 0; }func_declarations
+pgm_body: 	decl { datatype = 0; } func_declarations
 ;
-decl: 	string_decl decl 
+decl: 	string_decl decl
 		| var_decl decl 
 		| 
 ; 
 
 // String Declaration
-string_decl: _STRING { declare = 1; detDataType(); } id { varCheck(); printName(); printDataType(); } ASSIGNMENT str_literal { printValue(); var_exists = 0; declare = 0; } TERMINATOR
+string_decl: _STRING { declare = 1; datatype = "STRING"; } id { name = strdup(yytext); } ASSIGNMENT str_literal { ht_insert(ht, symtab[maxind]->key, name, datatype, yytext); declare = 0; } TERMINATOR
 ;
-str_literal: 	STRINGLITERAL
+str_literal: STRINGLITERAL
 ; 
 
 // Variable Declaration
-var_decl: { declare = 1; } var_type { detDataType(); } id_list { declare = 0; }TERMINATOR
+var_decl:  var_type id_list TERMINATOR
 ; 
-var_type: 	_FLOAT
-			| _INT
+var_type: 	_FLOAT 	{ declare = 1; datatype = "FLOAT"; }
+			| _INT	{ declare = 1; datatype = "INT"; }
 ; 
 any_type: 	var_type
-			| _VOID
+			| _VOID	{ declare = 1; datatype = "VOID"; }
 ; 
-id_list: 	id { varCheck(); printName(); printDataType(); var_exists = 0; } id_tail
+id_list: 	id 
+			{ 	if (declare == 1) {
+					name = strdup(yytext); 
+					ht_insert(ht, symtab[maxind]->key, name, datatype, NULL);
+				} 
+			} id_tail
 ; 
-id_tail:	COMMA id { varCheck(); printName(); printDataType(); var_exists = 0; } id_tail
+id_tail:	COMMA id 
+			{ 	if (declare == 1) {
+					name = strdup(yytext); 
+					ht_insert(ht, symtab[maxind]->key, name, datatype, NULL);
+				}
+			} id_tail
 			|
 ;
 
@@ -123,7 +156,7 @@ id_tail:	COMMA id { varCheck(); printName(); printDataType(); var_exists = 0; } 
 param_decl_list:  	param_decl param_decl_tail
 					|
 ;
-param_decl: 	{ declare = 1; } var_type { detDataType(); } id { printName(); printDataType(); var_exists = 0; declare = 0; }
+param_decl:	 var_type id { name = strdup(yytext); ht_insert(ht, symtab[maxind]->key, name, datatype, NULL); } 
 ;
 param_decl_tail:	COMMA param_decl param_decl_tail
 					|
@@ -133,7 +166,7 @@ param_decl_tail:	COMMA param_decl param_decl_tail
 func_declarations: 	func_decl func_declarations
 					|
 ; 
-func_decl: _FUNC any_type id { fprintf(yyout, "\nSymbol table %s\n", yytext);} OPENPARENT param_decl_list CLOSEPARENT _BEGIN func_body _END
+func_decl: _FUNC any_type id { scopename = strdup(yytext); ht_insert(ht, scopename, NULL, NULL, NULL); updateArray(scopename); } OPENPARENT param_decl_list CLOSEPARENT _BEGIN func_body _END
 ; 
 func_body: decl stmt_list
 ; 
@@ -157,9 +190,9 @@ assign_stmt: 	assign_expr TERMINATOR
 ; 
 assign_expr:	id ASSIGNMENT expr
 ; 
-read_stmt: 		_READ OPENPARENT id_list CLOSEPARENT TERMINATOR
+read_stmt: 		_READ OPENPARENT { declare = 0; } id_list CLOSEPARENT TERMINATOR
 ; 
-write_stmt: 	_WRITE OPENPARENT id_list CLOSEPARENT TERMINATOR
+write_stmt: 	_WRITE OPENPARENT { declare = 0; } id_list CLOSEPARENT TERMINATOR
 ; 
 return_stmt: 	_RETURN expr TERMINATOR
 ; 
@@ -197,9 +230,15 @@ mulop: 			MULOP
 ; 
 
 // Complex Statements and Condition
-if_stmt: 	_IF OPENPARENT cond CLOSEPARENT { block_incr(); } decl stmt_list else_part _ENDIF
+if_stmt: 	_IF OPENPARENT cond CLOSEPARENT 
+			{ 	blocknum++; 
+				snprintf(buf, 20, "BLOCK %d", blocknum); 
+				scopename = buf; 
+				ht_insert(ht, scopename, NULL, NULL, NULL); 
+				updateArray(buf); } 
+			decl stmt_list else_part _ENDIF
 ; 
-else_part: 	_ELSE {	block_incr(); } decl stmt_list
+else_part: 	_ELSE {	blocknum++; snprintf(buf, 20, "BLOCK %d", blocknum); scopename = buf; ht_insert(ht, scopename, NULL, NULL, NULL); updateArray(buf);  } decl stmt_list
 			|
 ; 
 cond: 		expr compop expr
@@ -208,7 +247,7 @@ cond: 		expr compop expr
 ; 
 compop: 	COMPARATOR
 ; 
-while_stmt: _WHILE OPENPARENT cond CLOSEPARENT decl { block_incr(); }stmt_list _ENDWHILE
+while_stmt: _WHILE OPENPARENT cond CLOSEPARENT decl { blocknum++; snprintf(buf, 20, "BLOCK %d", blocknum); scopename = buf; ht_insert(ht, scopename, NULL, NULL, NULL); updateArray(buf); }stmt_list _ENDWHILE
 ; 
 control_stmt: 	return_stmt
 ; 
@@ -231,23 +270,66 @@ int main(int argc, char **argv){
 	return 0; 	
 }
 
-/*
-void printVarDecl(void){ // pass in data type
-	if (type == "STRING"){
-		printf("name %s type %s value %s\n");
-	}
-	else{
-		if (value == NULL){
-			printf("name %s type %s\n"); 
-		}
-		else {
-			printf("name %s type %s value %s\n"); 
-		}
-	}
-	value = NULL;
-	return;
+void updateArray(const char * key){
+	printf("updating symtab array\n");
+	maxind++;
+	int i = ht_hash(key, ht->size);  
+	symtab[maxind] = ht->items[i];
+	printf("symtab[maxind]: %s\n", symtab[maxind]->key); 
+
+	return; 
 }
-*/
+
+void printArray(){ 
+	int i;
+	ht_item * eptr;
+	for(i = 0; i <= maxind; i++){
+		printf("\nScope: %s === ", symtab[i]->key);
+		eptr = symtab[i]; 
+		while(eptr != NULL){
+			printf("%s ", eptr->name); 
+			eptr = eptr->next; 
+		}
+	}
+}
+
+/*
+void createLL(const char * key){
+	printf("LL created\n"); 
+	head = (struct Node *) malloc(sizeof(struct Node)); 
+	tail = (struct Node *) malloc(sizeof(struct Node)); 
+	int index = ht_hash(key, ht->size); 
+	printf("index = %d\n", index); 
+	printf("current item: %s\n", ht->items[index]->key); 
+	
+	head->scope = ht->items[index]; 
+	head->next = NULL; 
+	tail->scope = ht->items[index]; 
+	tail->next = NULL;
+
+	return; 
+}
+
+void printLL(){
+	printf("Printing LL\n"); 
+	while(head->next != NULL){
+		printf("Node: %s\n", head->scope->key); 
+		head = head->next;
+	}
+	// head == tail 
+	printf("Last Node: %s\n", head->scope->key);   
+
+	return; 
+}
+
+void freeLLnode(struct Node * node){
+	printf("Freeing Node"); 
+	free(node->scope); 
+	free(node->next);
+	free(node);
+
+	return; 
+}
 
 void varCheck(){
 	if (maxind == -1){
@@ -338,6 +420,8 @@ void detDataType(void){
 		datatype = 0; 
 	}
 }
+
+*/
 
 void block_incr(void){
 	blocknum++;

@@ -11,23 +11,23 @@ L	[A-Za-z]
 
 %% 
 
-prog	{return _PROG;}
-func	{return _FUNC;}
+prog	{	yylval.keyword = (char *) strdup(yytext); return _PROG;}
+func	{	yylval.keyword = (char *) strdup(yytext); return _FUNC;}
 read	{return _READ;}
 write	{return _WRITE;}
 
-begin	{return _BEGIN;}
+begin	{	yylval.keyword = (char *) strdup(yytext); return _BEGIN;}
 if		{return _IF;}
 else	{return _ELSE;}
 while	{return _WHILE;}
 
-end			{return _END;}
+end			{	yylval.keyword = (char *) strdup(yytext); return _END;}
 endif		{return _ENDIF;}
 endwhile	{return _ENDWHILE;}
 
 int		{return _INT;}
 void	{return _VOID;}
-str		{return _STRING;}
+str		{	yylval.datatype = (char *) strdup("STRING"); return _STRING;}
 float	{return _FLOAT;}
 
 return	{return _RETURN;}

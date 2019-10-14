@@ -7,9 +7,26 @@
 ht_item * ht_new_item(const char * k, const char * n, const char * type, const char * strval){
 	ht_item * i = malloc(sizeof(ht_item));
 	i->key = strdup(k);
-	i->name = strdup(n);
-	i->type = strdup(type);
-	i->strval = strdup(strval);
+	if (n == NULL) {
+		i->name = NULL; 
+	}
+	else {
+		i->name = strdup(n);
+	}
+
+	if (type == NULL) {
+		i->type = NULL; 
+	}
+	else {
+		i->type = strdup(type);
+	}
+
+	if (strval == NULL){
+		i->strval = NULL;  
+	}
+	else {
+		i->strval = strdup(strval); 
+	}
 	i->next = NULL;
 	return i;
 }
@@ -20,7 +37,7 @@ ht_hash_table * ht_new() {
 	if (ht == NULL) {
 		return NULL;
 	}
-	ht->size = 53;
+	ht->size = 100;
 	/*calloc fills allocated memory with NULL bytes*/
 	ht->items = calloc((size_t)ht->size, sizeof(ht_item*));
 	if (ht->items == NULL) {
@@ -48,7 +65,7 @@ void ht_del_hash_table(ht_hash_table * ht) {
 				ht_del_item(item);
 				item = temp;*/
 				free(ht->items[i]->key);
-				free(ht->items[i]->name);
+				free(ht->items[i]->name); 
 				free(ht->items[i]->type);
 				free(ht->items[i]->strval);
 				free(ht->items[i]);
@@ -59,6 +76,8 @@ void ht_del_hash_table(ht_hash_table * ht) {
 	}
 	free(ht->items);
 	free(ht);
+
+	printf("\n\nHash Table Freed.\n"); 
 }
 
 /*function to calculate the hash value based on the string*/
@@ -77,63 +96,126 @@ unsigned int ht_hash(const char * key, const int size) {
 }
 
 /*insert a new value into the hash table*/
+/*
 void ht_insert(ht_hash_table * ht, const char * key, const char* name, const char* type, const char * strval) {
 	ht_item * item = ht_new_item(key, name, type, strval);
 	int index = ht_hash(item->key, ht->size);
 	ht_item * cur_item = ht->items[index];
 
-	/*check if there is already a hash table with the hash index*/
+	//check if there is already a hash table with the hash index
 	if (ht->items[index] != NULL) {
 		cur_item = ht->items[index];
-		/*if the item is not empty*/
+		//if the item is not empty
 		while (cur_item != NULL) {
 			if (strcmp(cur_item->name, item->name) == 0) {
-				/*there's already a declaration of the item in the hash table*/
+				//there's already a declaration of the item in the hash table
 				printf("Error");
 				break;
 			}
 			cur_item = cur_item->next;
 		}
-		/*cur_item must now points at the end of the list*/
+		//cur_item must now points at the end of the list
 		if (cur_item == NULL) {
 			item->next = ht->items[index];
 			ht->items[index] = item;
 		}
 	}
-	/*just add the item into the hash_table*/
+	//just add the item into the hash_table
 	else {
 		item->next = NULL;
 		ht->items[index] = item;
 	}
 }
+*/
+
+void ht_insert(ht_hash_table * ht, const char * key, const char* name, const char* type, const char * strval) {	
+	ht_item * item = ht_new_item(key, name, type, strval); 
+	int index = ht_hash(item->key, ht->size);
+	ht_item * cur_item = ht->items[index]; 
+
+	//printf("Function Enter: %s, %s, %s, %s\n", key, name, type, strval); 
+
+	if (ht->items[index] != NULL) {
+		//printf("Key Found\n");  
+		if (cur_item->name == NULL) {
+			// Key exists, but no entry; 
+			cur_item->name = item->name; 
+			cur_item->type = item->type; 
+			cur_item->strval = item->strval; 
+			cur_item->next = NULL; 
+		}
+		else if (strcmp(cur_item->name, name) == 0){
+			printf("DECLARATION ERROR %s\n", item->name); 
+			free(item->key);
+			free(item->name);
+			free(item->type);
+			free(item->strval);
+			free(item->next); 
+			free(item);
+			ht_del_hash_table(ht); 
+			exit(0); 
+		}
+		else {
+			while(cur_item->next != NULL){ 
+				if (strcmp(cur_item->next->name, item->name) == 0){
+					printf("DECLARATION ERROR %s\n", item->name);
+					free(item->key);
+					free(item->name);
+					free(item->type);
+					free(item->strval);
+					free(item->next); 
+					free(item);
+					ht_del_hash_table(ht); 
+					exit(0);  
+				}
+				//printf("Now at: %s\n", cur_item->name); 
+				cur_item = cur_item->next; 
+			}
+			cur_item->next = item;
+		}
+	}
+	else {
+		ht->items[index] = item; 
+	}
+
+	//printf("Adding new item\n"); 
+
+	return; 
+
+}
+
 
 /*find the contents of a hash table?*/
 // check if key exists?
-char * ht_search(ht_hash_table * ht, const char * key){
-	int index= ht_hash(key, ht->size);
-	ht_item * item = ht->items[index];
+int ht_search(ht_hash_table * ht, const char * key, const char * name){
+	int index = ht_hash(key, ht->size);
+	ht_item * iptr = ht->items[index];
 	
-	while (item != NULL) {
-		if (strcmp(item->key, key) == 0) {
-			/*found the key!*/
-			break;
+	if (iptr == NULL) {
+		printf("key doesn't exist!\n");
+		return -1; 
+	}
+	while (iptr != NULL) { 
+		if (strcmp(iptr->name, name) == 0) {
+			printf("entry already exists!"); 
+			return 1; 
 		}
-		item = item->next;
+		iptr = iptr->next;
 	}
-	if (item == NULL) {
-		return NULL;
-	}
-	return item->name;
+	// iptr has traversed all the way to the end of entry list, now pointing to NULL.
+	printf("Key Exists, entry has not been declared\n");
+	return 0; 
 }
 
 
 // get an entry (pointer form) from the hash table
-ht_item * ht_get_item(ht_hash_table * ht, const char * key){
+ht_item * ht_get_item(ht_hash_table * ht, const char * key, const char * name){
 	int index = ht_hash(key, ht->size); 
 	ht_item * item = ht->items[index]; 
 
 	while (item != NULL){
-		if (strcmp(item->key, key) == 0){
+		printf("%s\n", item->name); 
+		if (strcmp(item->name, name) == 0){
 			// KEY FOUND
 			break; 
 		}
@@ -142,19 +224,30 @@ ht_item * ht_get_item(ht_hash_table * ht, const char * key){
 	
 	return item; 
 }
- 
+
+/*
 int main() {
 	// To test hash table separately from compiler
 	ht_hash_table * ht = ht_new();
-	ht_insert(ht, "Main", "Team Cendol", "INT", "NULL");
-	ht_insert(ht, "F1", "Hello", "VOID", "NULL");
-	ht_insert(ht, "F2", "~~~", "FLOAT", "NULL"); 
+	ht_insert(ht, "Main", "Cendol", "INT", "NULL");
+	ht_insert(ht, "Main", "Hello", "VOID", "NULL");
+	ht_insert(ht, "Main", "~~~", "FLOAT", "NULL");
+	ht_insert(ht, "Main", "Haha", "STRING", "NULL");
 
-	printf("%s\n", ht_search(ht, "F1")); 
-	ht_item * item = ht_get_item(ht, "F1");
-	printf("%s, %s, %s, %s\n", item->key, item->name, item->type, item->strval); 
-	
+	ht_insert(ht, "F1", NULL, "INT", "NULL"); 
+	printf("Here\n"); 
+ 
+	ht_item * item = ht_get_item(ht, "Main", "Haha");
+	if (item == NULL){
+		printf("Item does not exist!\n"); 
+	}
+	else {
+		printf("%s, %s, %s, %s\n", item->key, item->name, item->type, item->strval); 
+	}
+
 	ht_del_hash_table(ht);
 
 	return 0;
 }
+*/
+
