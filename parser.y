@@ -18,11 +18,10 @@ char * inputfile;
 char * outputfile; 
 
 int blocknum = 0;   
-
-int var_exists = 0;
 int declare = 0; 
 
 void yyerror(const char *s);
+
 
 // Integrating Symbol Table
 ht_hash_table * ht; // hashtable pointer
@@ -37,6 +36,7 @@ char * scopename;
 char * name;
 char * datatype; 
 char buf[20];
+
 
 // AST struct
 struct ASTNode{
@@ -229,7 +229,7 @@ primary: 		OPENPARENT expr CLOSEPARENT
 				| INTLITERAL
 				| FLOATLITERAL
 ; 
-addop: 			ADDOP { $<a>$ = genAddExpr($1, NULL, NULL); }
+addop: 			ADDOP
 ; 
 mulop: 			MULOP
 ; 
@@ -281,38 +281,6 @@ int main(int argc, char **argv){
 	fclose(yyin); 
 	fclose(yyout);
 	return 0; 	
-}
-
-struct ASTNode * genAddExpr(char * op, struct ASTNode * left, struct ASTNode * right){
-	struct ASTNode * AddExpr = newast(op, NULL, NULL); 
-
-	return AddExpr; 
-}
-
-struct ASTNode * newast(char * nodetype, struct ASTNode * left, struct ASTNode * right){
-	struct ASTNode * a = malloc(sizeof(struct ASTNode)); 
-
-	if (!a) {
-		yyerror("no space\n"); 
-		exit(0); 
-	}
-	a->nodetype = nodetype; 
-	a->left = left; 
-	a->right = right; 
-
-	return a; 
-}
-
-struct ASTNode * newnum(double d){
-	struct numval * a = malloc(sizeof(struct numval)); 
-	if (!a) {
-		yyerror("no space\n"); 
-		exit(0); 
-	}
-	a->nodetype = 'K'; 
-	a->number = d; 
-
-	return (struct ASTNode *) a; 
 }
 
 void updateArray(const char * key){
