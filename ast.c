@@ -83,11 +83,13 @@ void ast_traversal(Tree * root) {
 }
 
 void deleteTree (Tree * node) {
-	if (node == NULL) return;
-
-	deleteTree(node->left);
-	deleteTree(node->right);
-
+	if (node == NULL) {
+		return;
+	}
+	if (node->node_type != VAR_REF && node->node_type != LIT_VAL) {
+		deleteTree(node->left);
+		deleteTree(node->right);
+	}
 	free(node);
 }
 
