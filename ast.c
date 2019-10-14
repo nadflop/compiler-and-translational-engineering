@@ -56,7 +56,7 @@ void ast_print_node(Tree * node) {
 		printf("Write node of %s\n", temp->left->name);
 	}
 	else if (node->node_type == VAR_REF) {
-		printf("Variable reference of %s\n with type %s\n", temp->name, temp->type);
+		printf("Variable reference of %s with type %s\n", temp->name, temp->type);
 	}
 	else if (node->node_type == LIT_VAL) {
 		printf("Literal value %s\n", temp->literal);
@@ -91,8 +91,9 @@ void deleteTree (Tree * node) {
 	free(node);
 }
 
+
 int main () {
-	/*for noe, ht item is NULL because we only want to check the functionality*/
+	// for now, ht item is NULL because we only want to check the functionality
 	Tree * const_val1 = new_varleaf("a", "INT", NULL);
 	Tree * const_val2 = new_varleaf("b", "INT", NULL);
 	Tree * const_val3 = new_varleaf("c", "INT", NULL);
@@ -100,5 +101,7 @@ int main () {
 	Tree * addop = new_opnode(ARITHM_NODE, ADD, const_val1, mulop);
 	ast_traversal(addop);
 	deleteTree(addop);
+
 	return 0;
 }
+
