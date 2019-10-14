@@ -32,7 +32,7 @@ test1: clean compiler
 		./runme step4/input/test_combination.micro test_combination.out
 
 test1check: 
-		$(VALGRIND) ./runme step3/input/test22.micro test22.out
+		$(VALGRIND) ./runme step4/input/test_combination.micro test_combination.out
 
 test: clean compiler
 		./runme step3/input/test1.micro test1.out
