@@ -38,8 +38,8 @@ false	{return _FALSE;}
 ==|!=|<|>|<=|>=		{return COMPARATOR;}
 =					{return ASSIGNMENT;} 
 
-[\+\-]		{return ADDOP;}
-[\*\/]		{return MULOP;}
+[\+\-]		{	yylval.op = (char *) strdup(yytext); return ADDOP;}
+[\*\/]		{	yylval.op = (char *) strdup(yytext); return MULOP;}
 
 \(				{return OPENPARENT;}
 \)				{return CLOSEPARENT;} 
