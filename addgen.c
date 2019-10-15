@@ -24,19 +24,19 @@ data_object * new_obj() {
 	i->op = op;
 	i->src1 = src1;
 	i->src2 = src2;*/
+	
 	return i;
 }
 
 CodeObject * new_data() {
-	CodeObject * t = malloc(sizeof(CodeObject));
+	CodeObject *t = malloc(sizeof(CodeObject));
+	/*data_object * i = malloc(sizeof(data_object));*/
 	if (t == NULL) {
 		return NULL;	
 	}
-
+	
 	t->data = new_obj();
-	if(t->data == NULL) {
-		return NULL;
-	}
+	
 	return t;
 }
 
@@ -138,7 +138,8 @@ void generate_self(Tree * node) {
 			}	
 		}
 	}
-		
+	/*free(num);*/
+	return;
 }
 
 void generate_code(Tree * root) {
@@ -148,17 +149,20 @@ void generate_code(Tree * root) {
 		generate_code(root->right);
 	}
 	generate_self(root);
+	return;
 }
 
 void deleteCode(CodeObject * cur_item) {
 	if (cur_item == NULL)
 		return;
-	/*if(cur_item->temp != NULL)
-		free(cur_item->temp);*/
-	if(cur_item->data != NULL)
+	if(cur_item->data != NULL ) {
 		free(cur_item->data);
-	if (cur_item != NULL)
+		
+	}
+	
+	if (cur_item != NULL) {
 		free(cur_item);
+	}
 }
 
 int main() {

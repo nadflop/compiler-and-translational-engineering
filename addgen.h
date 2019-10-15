@@ -23,7 +23,7 @@ typedef struct CodeObject {
 /*char * newTemp();*/
 data_object *  new_obj();
 CodeObject * new_data();
-void generate_self(Tree * node);
-void generate_code(Tree * node);
-void deleteCode(CodeObject * cur_item);
+void generate_self (Tree * node);
+void generate_code (Tree * node);
+void deleteCode (CodeObject * cur_item);
 #endif
