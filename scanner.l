@@ -47,17 +47,17 @@ false	{return _FALSE;}
 ,				{return COMMA;} 
 
 {L}({L}|{D})*	{   // insert identifier into symbol table
-					yylval.strval = strdup(yytext); 
+					yylval.strval = (char *) strdup(yytext); 
 					return IDENTIFIER;
 				} 
 
 {D}*\.{D}+		{
-					yylval.floatval = atof(yytext);
+					yylval.strval = (char *) strdup(yytext);
 					return FLOATLITERAL;
 				}
 
-{D}+			{
-					//yylval.val.ival = atoi(yytext);
+{D}+			{ 
+					yylval.strval = (char *) strdup(yytext);
 					return INTLITERAL;
 				}
 

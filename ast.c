@@ -23,14 +23,18 @@ Tree * new_opnode(NodeType node_type, enum Operator op, Tree * left, Tree * righ
 }
 
 /*var reference leaf*/
-Tree * new_varleaf(char * name, char * type, ht_item ** items) {
+Tree * new_varleaf(ht_hash_table * ht, char * key, char * name) {
+	ht_item * entry = ht_get_item(ht, key, name); 
+	
 	Tree * t = malloc(sizeof(Tree));	
 	t->node_type = VAR_REF;
 	t->name = name;
-	t->type = type;
-	t->items = items;
+	t->entry = entry;
+	t->type = entry->type; 
+	
 	return t;
 }
+
 
 /*keeping track of the literal value for assignments*/
 Tree * new_litleaf(char * literal) {
@@ -72,7 +76,7 @@ void ast_traversal(Tree * root) {
 		return;
 	}
 
-	if(root->node_type == BASIC_NODE || root->node_type == ASSIGN_NODE || root->node_type == ARITHM_NODE || root->node_type == WRITE_NODE) {
+	if(root->node_type == BASIC_NODE || root->node_type == ASSIGN_NODE || root->node_type == ARITHM_NODE || root->node_type == WRITE_NODE || root->node_type == FUNC_NODE) {
 		ast_traversal(root->left);
 		ast_traversal(root->right);
 		ast_print_node(root);
@@ -91,9 +95,11 @@ void deleteTree (Tree * node) {
 		deleteTree(node->right);
 	}
 	free(node);
+
+	return; 
 }
 
-
+/*
 int main () {
 	// for now, ht item is NULL because we only want to check the functionality
 	Tree * const_val1 = new_varleaf("a", "INT", NULL);
@@ -106,4 +112,4 @@ int main () {
 
 	return 0;
 }
-
+*/

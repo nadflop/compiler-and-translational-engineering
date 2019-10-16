@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "hash_table.c"
+#include "ast.c"
 
 extern int yylex(); 
 extern int yyparse();
@@ -58,6 +59,18 @@ double eval(struct ASTNode * node);
 
 void freetree(struct ASTNode * node); 
 
+// IR Rep
+int tempnum = -1; 
+void StoreOp(ht_item * entryptr, const char * val, const char * place);
+Tree * lhs; 
+Tree * rhs;
+Tree * op_ptr; 
+Tree * expr_ptr;
+Tree * prim_ptr; 
+int prim_done = 0;
+
+void printExprTree(Tree * root); 
+
 %}
 // Bison Definitions
 %define parse.error verbose
@@ -96,8 +109,8 @@ void freetree(struct ASTNode * node);
 %token <operator> TERMINATOR OPENPARENT CLOSEPARENT COMMA
 %token <strval> IDENTIFIER 
 %token <strval> STRINGLITERAL
-%token <intval> INTLITERAL 
-%token <floatval> FLOATLITERAL
+%token <strval> INTLITERAL 
+%token <strval> FLOATLITERAL
 %token <a> add_op mul_op
 
 //type declare the type of semantic values for a non-terminal symbol
@@ -191,9 +204,9 @@ base_stmt:		assign_stmt
 ;
 
 // Basic Statements
-assign_stmt: 	assign_expr TERMINATOR
+assign_stmt: 	assign_expr TERMINATOR { lhs = NULL; rhs = NULL; op_ptr = NULL; expr_ptr = NULL; }
 ; 
-assign_expr:	id ASSIGNMENT expr
+assign_expr:	id ASSIGNMENT expr { if (expr_ptr != NULL) { expr_ptr->right = lhs; printExprTree(expr_ptr); } }
 ; 
 read_stmt: 		_READ OPENPARENT { declare = 0; } id_list CLOSEPARENT TERMINATOR
 ; 
@@ -203,9 +216,9 @@ return_stmt: 	_RETURN expr TERMINATOR
 ; 
 
 // Expressions
-expr: 			expr_prefix factor
+expr: 			expr_prefix factor 
 ; 
-expr_prefix: 	expr_prefix factor addop 
+expr_prefix: 	expr_prefix factor addop
 				|
 ;
 factor: 		factor_prefix postfix_expr
@@ -216,7 +229,7 @@ factor_prefix: 	factor_prefix postfix_expr mulop
 postfix_expr: 	primary
 				| call_expr
 ; 
-call_expr: 		id OPENPARENT expr_list CLOSEPARENT
+call_expr: 		id OPENPARENT expr_list CLOSEPARENT 
 ; 
 expr_list: 		expr expr_list_tail 
 				|
@@ -224,20 +237,59 @@ expr_list: 		expr expr_list_tail
 expr_list_tail: COMMA expr expr_list_tail
 				|
 ; 
-primary: 		OPENPARENT expr CLOSEPARENT
-				| id  
-				| INTLITERAL
-				| FLOATLITERAL
+primary: 		OPENPARENT expr CLOSEPARENT 
+				| id 					{ 	lhs = new_varleaf(ht, "GLOBAL", $1);  
+											if (op_ptr != NULL) {
+												if (op_ptr->op == MUL || op_ptr->op == DIV){  
+													op_ptr->right = lhs; 	
+													lhs = op_ptr; 
+													expr_ptr->right = op_ptr;
+													lhs = expr_ptr; 
+												}
+											}
+										}	
+				| INTLITERAL 			{ 	lhs = new_litleaf($1);
+											if (op_ptr != NULL && (op_ptr->op == MUL || op_ptr->op == DIV)){  
+												op_ptr->right = lhs; 	
+												lhs = op_ptr; 
+												expr_ptr->right = op_ptr;
+												lhs = expr_ptr; 
+
+											} 
+										}	
+				| FLOATLITERAL			{	lhs = new_litleaf($1); 
+											if (op_ptr != NULL && (op_ptr->op == MUL || op_ptr->op == DIV)){  
+												op_ptr->right = lhs; 	
+												lhs = op_ptr; 
+												expr_ptr->right = op_ptr;
+												lhs = expr_ptr;
+											} 
+										}
 ; 
-addop: 			ADDOP
+addop: 			ADDOP 	{ 	printf("Plus\n");
+							//if (op_ptr != NULL) { lhs = op_ptr; }
+							rhs = new_opnode(ARITHM_NODE, ((strcmp("+", $1) == 0) ? ADD : SUB), lhs, NULL); 
+							//printExprTree(expr_ptr);  
+							op_ptr = rhs; 
+							expr_ptr = rhs; 
+						}
 ; 
-mulop: 			MULOP
+mulop: 			MULOP 	{ 	printf("Multiply\n");
+							rhs = new_opnode(ARITHM_NODE, ((strcmp("*", $1) == 0) ? MUL : DIV), lhs, NULL); 
+							//printf("NNNNN----%s\n", rhs->left->name); 
+							op_ptr = rhs;
+							//printf("DDDD  %d\n", expr_ptr->op);
+							//printExprTree(expr_ptr);
+							if (expr_ptr == NULL){
+								expr_ptr = rhs;  
+							}
+						}
 ; 
 
 // Complex Statements and Condition
 if_stmt: 	_IF OPENPARENT cond CLOSEPARENT 
 			{ 	blocknum++; 
-				snprintf(buf, 20, "BLOCK %d", blocknum);  
+				snprintf(buf, 20, "BLOCK %d", blocknum); 
 				ht_insert(ht, buf, NULL, NULL, NULL); 
 				updateArray(buf); 
 			} decl stmt_list else_part _ENDIF
@@ -282,6 +334,23 @@ int main(int argc, char **argv){
 	fclose(yyout);
 	return 0; 	
 }
+
+void printExprTree(Tree * root){
+	printf("HEEEERE\n"); 
+	ast_traversal(expr_ptr);
+
+	/*if(root->left == NULL){
+		printf("At leaf node: "); 
+		ast_print_node(root);
+		return; 
+	}
+	printExprTree(expr_ptr); 
+	ast_print_node(root); 
+	ast_print_node(root->right); 
+	*/
+
+	return; 
+}	
 
 void updateArray(const char * key){
 	//printf("updating symtab array\n");
