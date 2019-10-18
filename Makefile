@@ -21,18 +21,15 @@ compiler:
 		flex scanner.l
 		gcc parser.tab.c lex.yy.c -lfl
 
-hashtest: clean 
-		gcc hash_table.c
+ast: clean 
+		gcc ast.c
 		./a.out
-
-hashcheck: hashtest
-		$(VALGRIND) ./a.out
 
 test1: clean compiler
 		./runme step4/input/test_combination.micro test_combination.out
 
 test1check: 
-		$(VALGRIND) ./runme step4/input/test_combination.micro test_combination.out
+		$(VALGRIND) test1
 
 test: clean compiler
 		./runme step3/input/test1.micro test1.out

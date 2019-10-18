@@ -238,52 +238,13 @@ expr_list_tail: COMMA expr expr_list_tail
 				|
 ; 
 primary: 		OPENPARENT expr CLOSEPARENT 
-				| id 					{ 	lhs = new_varleaf(ht, "GLOBAL", $1);  
-											if (op_ptr != NULL) {
-												if (op_ptr->op == MUL || op_ptr->op == DIV){  
-													op_ptr->right = lhs; 	
-													lhs = op_ptr; 
-													expr_ptr->right = op_ptr;
-													lhs = expr_ptr; 
-												}
-											}
-										}	
-				| INTLITERAL 			{ 	lhs = new_litleaf($1);
-											if (op_ptr != NULL && (op_ptr->op == MUL || op_ptr->op == DIV)){  
-												op_ptr->right = lhs; 	
-												lhs = op_ptr; 
-												expr_ptr->right = op_ptr;
-												lhs = expr_ptr; 
-
-											} 
-										}	
-				| FLOATLITERAL			{	lhs = new_litleaf($1); 
-											if (op_ptr != NULL && (op_ptr->op == MUL || op_ptr->op == DIV)){  
-												op_ptr->right = lhs; 	
-												lhs = op_ptr; 
-												expr_ptr->right = op_ptr;
-												lhs = expr_ptr;
-											} 
-										}
+				| id 					
+				| INTLITERAL 			
+				| FLOATLITERAL			
 ; 
-addop: 			ADDOP 	{ 	printf("Plus\n");
-							//if (op_ptr != NULL) { lhs = op_ptr; }
-							rhs = new_opnode(ARITHM_NODE, ((strcmp("+", $1) == 0) ? ADD : SUB), lhs, NULL); 
-							//printExprTree(expr_ptr);  
-							op_ptr = rhs; 
-							expr_ptr = rhs; 
-						}
+addop: 			ADDOP 	
 ; 
-mulop: 			MULOP 	{ 	printf("Multiply\n");
-							rhs = new_opnode(ARITHM_NODE, ((strcmp("*", $1) == 0) ? MUL : DIV), lhs, NULL); 
-							//printf("NNNNN----%s\n", rhs->left->name); 
-							op_ptr = rhs;
-							//printf("DDDD  %d\n", expr_ptr->op);
-							//printExprTree(expr_ptr);
-							if (expr_ptr == NULL){
-								expr_ptr = rhs;  
-							}
-						}
+mulop: 			MULOP
 ; 
 
 // Complex Statements and Condition
