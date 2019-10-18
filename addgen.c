@@ -6,14 +6,12 @@
 #include "ast.c"
 
 int tempnum = 0;
-
+char s[5];
 /*func to generate new temp var name*/
-char * newTemp() {
-	char * t = malloc(sizeof(char*));
-	if (t == NULL) printf("FAIL\n");
+void newTemp(char * s) {
 	tempnum++;
-	snprintf(t, 10, "!T%d", tempnum);
-	return t;
+	sprintf(s,"!T%d", tempnum);
+	return;
 }
 
 data_object * new_obj() {
@@ -30,28 +28,30 @@ data_object * new_obj() {
 
 CodeObject * new_data() {
 	CodeObject *t = malloc(sizeof(CodeObject));
-	/*data_object * i = malloc(sizeof(data_object));*/
+	data_object *i = malloc(sizeof(data_object));
 	if (t == NULL) {
 		return NULL;	
 	}
 	
-	t->data = new_obj();
-	
+	t->data = i;//new_obj();
+	i = NULL;		
 	return t;
 }
 
 void generate_self(Tree * node) {
-	CodeObject * t = new_data();
-	char * num;	
+	CodeObject* t = new_data();
+		
 	if (node->node_type == VAR_REF) {
 		t->temp = node->name;
 		t->result_type = node->type;
+		//t->data = NULL;
+		free(t->data);
 		t->data = NULL;
 		node->tac = t;
 	}
 	else if (node->node_type == LIT_VAL){
-		num = newTemp();
-		t->temp = num;
+		newTemp(s);
+		t->temp = strdup(s);
 		t->result_type = (strcmp(node->type, "INT") == 0) ? ("INT") : ("FLOAT");
 		/*fill in the code part*/
 		t->data->op = (strcmp(t->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
@@ -75,8 +75,8 @@ void generate_self(Tree * node) {
 					break;
 
 				case ARITHM_NODE:
-					num = newTemp();
-					t->temp = num;
+					newTemp(s);
+					t->temp = strdup(s);
 					t->data->src1 = node->left->tac->temp;
 					t->data->src2 = node->right->tac->temp;					
 					/*determine result type*/
@@ -126,8 +126,8 @@ void generate_self(Tree * node) {
 						t->data->op = "READF";
 					t->data->src1 = NULL;
 					t->data->src2 = NULL;
-					num = newTemp();
-					t->temp = num;
+					newTemp(s);
+					t->temp = strdup(s);
 					t->result_type = node->left->tac->result_type;
 					node->tac = t;
 					printf(";%s %s\n", t->data->op, t->temp);
@@ -138,12 +138,13 @@ void generate_self(Tree * node) {
 			}	
 		}
 	}
-	/*free(num);*/
+	
 	return;
 }
 
 void generate_code(Tree * root) {
-	if(root == NULL) return;
+	if(root == NULL) 
+		return;
 	if(root->node_type == ASSIGN_NODE || root->node_type == ARITHM_NODE || root->node_type == WRITE_NODE || root->node_type == READ_NODE) {
 		generate_code(root->left);
 		generate_code(root->right);
@@ -152,18 +153,21 @@ void generate_code(Tree * root) {
 	return;
 }
 
-void deleteCode(CodeObject * cur_item) {
+void deleteCode(CodeObject * cur_item, NodeType n_type) {
 	if (cur_item == NULL)
 		return;
 	if(cur_item->data != NULL ) {
 		free(cur_item->data);
+		if (cur_item->temp != NULL) {
+			if(n_type != ASSIGN_NODE)
+				free(cur_item->temp);
+		}
+	}
 		
-	}
+	free(cur_item);
 	
-	if (cur_item != NULL) {
-		free(cur_item);
-	}
 }
+
 
 int main() {
 	/*Tree, pass it to generate code*/
@@ -194,7 +198,8 @@ int main() {
 /*	deleteTree(a);
 	deleteTree(b);
 	deleteTree(c);*/
-	deleteTree(assgn);/*
+	deleteTree(assgn);
+	/*
 	deleteTree(addop1);	
 	deleteTree(mulop2);	
 	deleteTree(mulop1);	
@@ -203,6 +208,6 @@ int main() {
 	deleteTree(const_val3);	
 	deleteTree(const_val2);	
 	deleteTree(const_val1);*/
-	return 0;
+	return 0;	
 }
 
