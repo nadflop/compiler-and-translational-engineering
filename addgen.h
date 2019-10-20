@@ -20,10 +20,10 @@ typedef struct CodeObject {
 	struct data_object * data;
 }CodeObject;
 
-/*char * newTemp();*/
+void newTemp(char * s);
 data_object *  new_obj();
 CodeObject * new_data();
 void generate_self (Tree * node);
 void generate_code (Tree * node);
-void deleteCode (CodeObject * cur_item);
+void deleteCode (CodeObject * cur_item, NodeType n_type);
 #endif
