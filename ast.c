@@ -10,6 +10,7 @@ Tree * new_node(NodeType node_type, Tree * left, Tree * right) {
 	t->node_type = node_type;
 	t->left = left;
 	t->right = right;
+	t->next = NULL; 
 	return t;
 }
 /*ast node for arithmetic operations*/
@@ -31,8 +32,81 @@ Tree * new_varleaf(ht_hash_table * ht, char * key, char * name) {
 	t->name = name;
 	t->entry = entry;
 	t->type = entry->type; 
-	
+	t->next = NULL; 
+
 	return t;
+}
+
+Tree * new_list(NodeType node_type){
+	Tree * node = malloc(sizeof(Tree)); 
+	node->node_type = node_type; // for now can be either STMT_LIST, WRITE_LIST or READ_LIST
+	node->left = NULL;
+	node->right = NULL;
+	node->next = NULL;
+
+	return node; 
+}
+
+void ast_add_node_to_list(Tree * list, Tree * node){
+	// check if list is empty
+	if (list->left == NULL) {
+		list->left = node; 
+		list->right = node; 
+		list->head = node; 
+		list->tail = node;
+
+		return; 
+	}
+
+	// at this point, list is not empty
+	list->right->next = node; 
+	list->right = list->right->next; 
+
+	return;
+}
+
+void ast_print_list(Tree * list){
+	Tree * curr = list->left; 
+	Tree * rw; 
+
+	// check if list is empty --> notify and return if yes
+	if (curr == NULL){
+		printf("List is empty\n"); 
+
+		return; 
+	}
+
+	// at this point list has node(s) in it
+	// check list type (for now either STMT_LIST or WRITE_LIST
+	if (list->node_type == STMT_LIST){
+		while (curr != NULL){
+			if(curr->node_type == ASSIGN_NODE){
+				printf("\nASSIGN_NODE with LHS: %s", curr->left->name); 
+			}
+			else if(curr->node_type == WRITE_LIST){
+				rw = curr->left; // points to the first variable
+				printf("\nWRITE_LIST: ");
+				while(rw != NULL){
+					printf("%s ", rw->name); 
+					rw = rw->next; 
+				}
+				
+			}
+			else if (curr->node_type == READ_LIST){
+				rw = curr->left; 
+				printf("\nREAD_LIST: "); 
+				while(rw != NULL){
+					printf("%s ", rw->name); 
+					rw = rw->next; 
+				}
+			}
+			curr = curr->next; 
+		}
+	}
+
+
+	return; 
+
 }
 
 
@@ -98,6 +172,50 @@ void deleteTree (Tree * node) {
 
 	return; 
 }
+
+/*
+ListNode * new_listnode(){
+	ListNode * node = (ListNode *) malloc(sizeof(ListNode)); 
+	node->length = 0; 
+	node->capacity = 16; 
+	node->list = (Tree **) malloc(16*sizeof(Tree *)); 
+
+	return node; 
+}
+
+void delete_listnode(ListNode * node){
+	int i; 
+	for(i = 0; i < node->length; i++){
+		free(node->list[i]); 
+	}
+	free(node->list); 
+	free(node); 
+
+	return; 
+}
+
+void add_node_to_list(ListNode * list, Tree * node){
+	if (list->length == list->capacity) {
+		 
+	}
+	list->list[list->length] = node; 
+	list->length++; 
+
+	return; 
+}
+
+
+void print_listnode(ListNode * node){
+	int i = 0; 
+	printf("ListNode with %d elements\n", node->length); 
+	for(i = 0; i < node->length; i++){
+		printf("%s\n", node->list[i]->node_type); 
+	}
+}
+*/
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
 int main () {
