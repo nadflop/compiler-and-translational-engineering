@@ -15,15 +15,18 @@ typedef struct data_object {
 }data_object;
 
 typedef struct CodeObject {
+	int temp_num;
 	char * temp; /*temporary variable used to store the result*/
 	char * result_type; /*type of the result (INT or FLOAT)*/
 	struct data_object * data;
 }CodeObject;
 
 void newTemp(char * s);
-data_object *  new_obj();
 CodeObject * new_data();
 void generate_self (Tree * node);
+void generate_list (Tree * list);
 void generate_code (Tree * node);
 void deleteCode (CodeObject * cur_item, NodeType n_type);
+void generateTiny(Tree * node);
+void walkAST(Tree * node);
 #endif
