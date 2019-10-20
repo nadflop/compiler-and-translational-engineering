@@ -93,10 +93,10 @@ void generate_self(Tree * node) {
 							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("SUBI") : ("SUBF");
 							break;
 						case MUL:
-							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("MULI") : ("MULF");								
+							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("MULI") : ("MULF");							
 							break;
 						case DIV:
-							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("DIVI") : ("DIVF");								
+							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("DIVI") : ("DIVF");							
 							break;
 					}
 					node->tac = t;
@@ -138,7 +138,7 @@ void generate_self(Tree * node) {
 			}	
 		}
 	}
-	/*free(num);*/
+	free(num);
 	return;
 }
 
@@ -165,36 +165,37 @@ void deleteCode(CodeObject * cur_item) {
 	}
 }
 
+/*
 int main() {
-	/*Tree, pass it to generate code*/
+	// Tree, pass it to generate code
 	Tree * const_val1 = new_varleaf("a", "INT");
 	Tree * const_val2 = new_varleaf("b", "INT");
 	Tree * const_val3 = new_varleaf("c", "INT");
 	Tree * const_val4 = new_varleaf("d", "INT");
-	Tree * const_val5 = new_varleaf("e", "INT");/*
+	Tree * const_val5 = new_varleaf("e", "INT");
 	Tree * lit1 = new_litleaf("20", "INT");
 	Tree * lit2 = new_litleaf("30", "INT");
 	Tree * lit3 = new_litleaf("40", "INT");
 	Tree * a = new_node(ASSIGN_NODE, const_val1, lit1);
 	Tree * b = new_node(ASSIGN_NODE, const_val2, lit2);
-	Tree * c = new_node(ASSIGN_NODE, const_val3, lit3); */
+	Tree * c = new_node(ASSIGN_NODE, const_val3, lit3); 
 	Tree * mulop1 = new_opnode(ARITHM_NODE, MUL, const_val1, const_val4);
 	Tree * mulop2 = new_opnode(ARITHM_NODE, MUL, const_val2, const_val3);
 	Tree * addop1 = new_opnode(ARITHM_NODE, ADD, mulop2, mulop1);
 	Tree * assgn = new_node(ASSIGN_NODE, const_val5, addop1);
-	/*ast_traversal(assgn);*/
+	ast_traversal(assgn);
 	printf(";IR code\n");
 	printf(";LABEL FUNC_main\n");
 	printf(";LINK\n");
-	/*generate_code(a);
+	generate_code(a);
 	generate_code(b);
-	generate_code(c);*/
+	generate_code(c);
 	generate_code(assgn);
 	printf(";RET");
-/*	deleteTree(a);
+	deleteTree(a);
 	deleteTree(b);
-	deleteTree(c);*/
-	deleteTree(assgn);/*
+	deleteTree(c);
+	deleteTree(assgn);
 	deleteTree(addop1);	
 	deleteTree(mulop2);	
 	deleteTree(mulop1);	
@@ -202,7 +203,8 @@ int main() {
 	deleteTree(lit1);	
 	deleteTree(const_val3);	
 	deleteTree(const_val2);	
-	deleteTree(const_val1);*/
+	deleteTree(const_val1);
 	return 0;
 }
+*/
 
