@@ -4,7 +4,6 @@
 
 #include "ast.h"
 #include "hash_table.h"
-#include "hash_table.c"
 
 /*basic ast node that can be either assign, write*/
 Tree * new_node(NodeType node_type, Tree * left, Tree * right) {
