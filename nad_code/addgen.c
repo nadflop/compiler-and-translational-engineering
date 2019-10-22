@@ -4,7 +4,6 @@
 #include "addgen.h"
 #include "ast.h"
 #include "ast.c"
-#include "hash_table.h"
 
 int tempnum = 0;
 char s[5];
@@ -15,6 +14,18 @@ void newTemp(char * s) {
 	return;
 }
 
+data_object * new_obj() {
+	data_object * i = malloc(sizeof(data_object));
+	if(i == NULL)
+		return NULL;
+	/*
+	i->op = op;
+	i->src1 = src1;
+	i->src2 = src2;*/
+	
+	return i;
+}
+
 CodeObject * new_data() {
 	CodeObject *t = malloc(sizeof(CodeObject));
 	data_object *i = malloc(sizeof(data_object));
@@ -22,7 +33,7 @@ CodeObject * new_data() {
 		return NULL;	
 	}
 	
-	t->data = i;
+	t->data = i;//new_obj();
 	i = NULL;		
 	return t;
 }
@@ -33,6 +44,7 @@ void generate_self(Tree * node) {
 	if (node->node_type == VAR_REF) {
 		t->temp = node->name;
 		t->result_type = node->type;
+		//t->data = NULL;
 		free(t->data);
 		t->data = NULL;
 		node->tac = t;
@@ -113,45 +125,13 @@ void generate_self(Tree * node) {
 						t->data->op = "READF";
 					t->data->src1 = NULL;
 					t->data->src2 = NULL;
-					t->temp = node->left->name;
+					newTemp(s);
+					t->temp = strdup(s);
 					t->result_type = node->left->tac->result_type;
 					node->tac = t;
 					printf(";%s %s\n", t->data->op, t->temp);
 					break;
-				case WRITE_LIST:
-					if(strcmp(node->left->tac->result_type,"INT") == 0) 
-						t->data->op = "WRITEI";
-					else if (strcmp(node->left->tac->result_type,"FLOAT") == 0)
-						t->data->op = "WRITEF";
-					else
-						t->data->op = "WRITES";
-					t->result_type = node->left->tac->result_type;
-					node->tac = t;
-					printf(";%s ", t->data->op);
-					Tree * curr = node->left;
-					while (curr != NULL) {
-						printf("%s ", curr->tac->temp);
-						curr = curr->next;
-					}
-					printf("\n");
-					break;
-				case READ_LIST:
-					if(strcmp(node->left->tac->result_type,"INT") == 0) 
-						t->data->op = "READI";
-					else if (strcmp(node->left->tac->result_type,"FLOAT") == 0)
-						t->data->op = "READF";
-					t->data->src1 = NULL;
-					t->data->src2 = NULL;
-					t->temp = node->left->name;
-					t->result_type = node->left->tac->result_type;
-					node->tac = t;
-					printf(";%s %s\n", t->data->op, t->temp);
-					Tree * curr1 = node->left;
-					while (curr1 != NULL) {
-						printf(";%s %s\n", t->data->op, curr1->name);
-						curr1 = curr1->next;
-					}
-					break;
+
 				default:
 					break;
 			}	
@@ -161,36 +141,12 @@ void generate_self(Tree * node) {
 	return;
 }
 
-void generate_list(Tree * list) {
-	Tree * curr = list->left;
-
-	if(curr == NULL)
-		return;
-	if(list->node_type == WRITE_LIST || list->node_type == READ_LIST) {
-		while(curr != NULL) {
-			generate_code(curr);
-			curr = curr->next;
-		}
-	}
-	else {
-		while(curr != NULL) {
-			generate_code(curr);
-			curr = curr->next;
-		}
-	}
-}
-
 void generate_code(Tree * root) {
 	if(root == NULL) 
 		return;
-
 	if(root->node_type == ASSIGN_NODE || root->node_type == ARITHM_NODE || root->node_type == WRITE_NODE || root->node_type == READ_NODE) {
 		generate_code(root->left);
 		generate_code(root->right);
-	}
-	else if (root->node_type == STMT_LIST || root->node_type == WRITE_LIST || root->node_type == READ_LIST) {
-		//since we know they only have a left child
-		generate_list(root);		
 	}
 	generate_self(root);
 	return;
@@ -209,6 +165,16 @@ void deleteCode(CodeObject * cur_item, NodeType n_type) {
 		
 	free(cur_item);
 	
+}
+
+char * strlwr(char * str) {
+	unsigned char * p = (unsigned char *) str;
+
+	while (*p) {
+		*p = tolower((unsigned char)*p);
+		p++;
+	}
+	return str;
 }
 
 void generateTiny(Tree * node) {
@@ -232,7 +198,7 @@ void generateTiny(Tree * node) {
 			printf("sys writes %s\n", node->tac->data->src1);
 		if (strcmp(opcode, "READI") == 0)
 			printf("sys readi %s\n", node->tac->temp);	
-		if (strcmp(opcode, "READF") == 0)
+		if (strcmp(opcode, "READFF") == 0)
 			printf("sys readf %s\n", node->tac->temp);	
 		if (strcmp(opcode, "ADDI") == 0) {
 			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
@@ -271,21 +237,7 @@ void generateTiny(Tree * node) {
 void walkAST(Tree * node) {
 	if (node == NULL)
 		return;
-	if(node->node_type == STMT_LIST){
-		Tree * curr = node;
-		while(curr != NULL) {
-			walkAST(curr->left);
-			curr = curr->next;
-		}
-	}
-	else if(node->node_type == WRITE_LIST || node->node_type == READ_LIST) {
-		Tree * curr = node;
-		while(curr != NULL) {
-			generateTiny(curr);
-			curr = curr->next;
-		}
-	}
-	else if(node->node_type != VAR_REF && node->node_type != LIT_VAL) {
+	if(node->node_type != VAR_REF && node->node_type != LIT_VAL) {
 		walkAST(node->left);
 		walkAST(node->right);
 	}
@@ -295,13 +247,11 @@ void walkAST(Tree * node) {
 
 int main() {
 	/*Tree, pass it to generate code*/
-	/*
 	Tree * const_val1 = new_varleaf("a", "INT");
 	Tree * const_val2 = new_varleaf("b", "INT");
 	Tree * const_val3 = new_varleaf("c", "INT");
 	Tree * const_val4 = new_varleaf("d", "INT");
 	Tree * const_val5 = new_varleaf("e", "INT");
-	*/
 	//Tree * const_val6 = new_varleaf("s", "STRING");
 	/*
 	Tree * lit1 = new_litleaf("20", "INT");
@@ -310,11 +260,11 @@ int main() {
 	Tree * a = new_node(ASSIGN_NODE, const_val1, lit1);
 	Tree * b = new_node(ASSIGN_NODE, const_val2, lit2);
 	Tree * c = new_node(ASSIGN_NODE, const_val3, lit3); */
-	/*Tree * mulop1 = new_opnode(ARITHM_NODE, MUL, const_val1, const_val4);
+	Tree * mulop1 = new_opnode(ARITHM_NODE, MUL, const_val1, const_val4);
 	Tree * mulop2 = new_opnode(ARITHM_NODE, MUL, const_val2, const_val3);
 	Tree * addop1 = new_opnode(ARITHM_NODE, ADD, mulop2, mulop1);
 	Tree * assgn = new_node(ASSIGN_NODE, const_val5, addop1);
-	*///Tree * writep = new_node(WRITE_NODE, const_val6, NULL);
+	//Tree * writep = new_node(WRITE_NODE, const_val6, NULL);
 	/*ast_traversal(assgn);*/
 	printf(";IR code\n");
 	printf(";LABEL FUNC_main\n");
@@ -322,16 +272,16 @@ int main() {
 	/*generate_code(a);
 	generate_code(b);
 	generate_code(c);*/
-	//generate_code(assgn);
+	generate_code(assgn);
 	//generate_code(writep);
 	printf(";RET\n");
 /*	deleteTree(a);
 	deleteTree(b);
 	deleteTree(c);*/
-	//walkAST(assgn);
+	walkAST(assgn);
 	printf("sys halt");
 	//walkAST(writep);
-	//deleteTree(assgn);
+	deleteTree(assgn);
 	//char s[6] = "opcode";
 	//printf("%s", s);
 	/*

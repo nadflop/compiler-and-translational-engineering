@@ -22,11 +22,12 @@ typedef struct CodeObject {
 }CodeObject;
 
 void newTemp(char * s);
+data_object *  new_obj();
 CodeObject * new_data();
 void generate_self (Tree * node);
-void generate_list (Tree * list);
 void generate_code (Tree * node);
 void deleteCode (CodeObject * cur_item, NodeType n_type);
+char * strlwr (char * str);
 void generateTiny(Tree * node);
 void walkAST(Tree * node);
 #endif
