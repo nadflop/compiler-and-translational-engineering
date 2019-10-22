@@ -3,7 +3,6 @@
 
 #include "addgen.h"
 #include "ast.h"
-#include "ast.c"
 #include "hash_table.h"
 
 int tempnum = 0;
@@ -293,48 +292,45 @@ void walkAST(Tree * node) {
 	generateTiny(node);
 }
 
+/*
 int main() {
-	/*Tree, pass it to generate code*/
-	/*
+	// Tree, pass it to generate code
 	Tree * const_val1 = new_varleaf("a", "INT");
 	Tree * const_val2 = new_varleaf("b", "INT");
 	Tree * const_val3 = new_varleaf("c", "INT");
 	Tree * const_val4 = new_varleaf("d", "INT");
 	Tree * const_val5 = new_varleaf("e", "INT");
-	*/
 	//Tree * const_val6 = new_varleaf("s", "STRING");
-	/*
 	Tree * lit1 = new_litleaf("20", "INT");
 	Tree * lit2 = new_litleaf("30", "INT");
 	Tree * lit3 = new_litleaf("40", "INT");
 	Tree * a = new_node(ASSIGN_NODE, const_val1, lit1);
 	Tree * b = new_node(ASSIGN_NODE, const_val2, lit2);
-	Tree * c = new_node(ASSIGN_NODE, const_val3, lit3); */
-	/*Tree * mulop1 = new_opnode(ARITHM_NODE, MUL, const_val1, const_val4);
+	Tree * c = new_node(ASSIGN_NODE, const_val3, lit3); 
+	Tree * mulop1 = new_opnode(ARITHM_NODE, MUL, const_val1, const_val4);
 	Tree * mulop2 = new_opnode(ARITHM_NODE, MUL, const_val2, const_val3);
 	Tree * addop1 = new_opnode(ARITHM_NODE, ADD, mulop2, mulop1);
 	Tree * assgn = new_node(ASSIGN_NODE, const_val5, addop1);
-	*///Tree * writep = new_node(WRITE_NODE, const_val6, NULL);
-	/*ast_traversal(assgn);*/
+	//Tree * writep = new_node(WRITE_NODE, const_val6, NULL);
+	ast_traversal(assgn);
 	printf(";IR code\n");
 	printf(";LABEL FUNC_main\n");
 	printf(";LINK\n");
-	/*generate_code(a);
+	generate_code(a);
 	generate_code(b);
-	generate_code(c);*/
+	generate_code(c);
 	//generate_code(assgn);
 	//generate_code(writep);
 	printf(";RET\n");
-/*	deleteTree(a);
+	deleteTree(a);
 	deleteTree(b);
-	deleteTree(c);*/
+	deleteTree(c);
 	//walkAST(assgn);
 	printf("sys halt");
 	//walkAST(writep);
 	//deleteTree(assgn);
 	//char s[6] = "opcode";
 	//printf("%s", s);
-	/*
 	deleteTree(addop1);	
 	deleteTree(mulop2);	
 	deleteTree(mulop1);	
@@ -342,7 +338,9 @@ int main() {
 	deleteTree(lit1);	
 	deleteTree(const_val3);	
 	deleteTree(const_val2);	
-	deleteTree(const_val1);*/
+	deleteTree(const_val1);
 	return 0;	
 }
+
+*/
 
