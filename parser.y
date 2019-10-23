@@ -253,14 +253,20 @@ assign_expr:	id ASSIGNMENT {	inf_head = NULL; op_head = NULL; inf_tail = NULL; o
 					}
 					
 					if (inf_head != inf_tail) {			// if the 'expr' is a mathematical expression 
-						infix_build_expr_tree(); 
+						infix_build_expr_tree();
+						printExprTree(inf_head);
+						//generate_code(inf_head);
 					}
+
+					//generate_code(inf_head); 
 
 					lhs = new_varleaf(ht, "GLOBAL", $1); 
 					rhs = inf_head; 
 					root_expr = new_node(ASSIGN_NODE, lhs, rhs); 
 				
-					printExprTree(root_expr); 
+					generate_code(root_expr); 
+
+					printExprTree(root_expr);
 
 					ast_add_node_to_list(stmt_list, root_expr); 
 				}
@@ -303,14 +309,14 @@ primary: 		OPENPARENT { oplist_add_op(new_node(OPEN_PARENT, NULL, NULL)); } expr
 
 				| INTLITERAL
 				{
-					term = new_litleaf($1); 
+					term = new_litleaf($1, "INT"); 
 					infix_add_node(term);
 					//infix_print();
 				}
 
 				| FLOATLITERAL	
 				{
-					term = new_litleaf($1); 
+					term = new_litleaf($1, "FLOAT"); 
 					infix_add_node(term); 
 				}
 ; 
@@ -600,7 +606,7 @@ void oplist_extract(NodeType type){
 
 
 void printExprTree(Tree * root){
-	printf("Printing Expression Tree\n\n"); 
+	printf("\nPrinting Expression Tree ---------------------------------\n"); 
 	ast_traversal(root);
 
 	return; 

@@ -8,9 +8,11 @@
 int tempnum = 0;
 char s[5];
 /*func to generate new temp var name*/
+
 void newTemp(char * s) {
 	tempnum++;
 	sprintf(s,"r%d", tempnum);
+	//printf("newTemp Created: %s\n", s); 
 	return;
 }
 
@@ -27,6 +29,8 @@ CodeObject * new_data() {
 }
 
 void generate_self(Tree * node) {
+
+	//printf("GEN_SELF\n"); 
 	CodeObject* t = new_data();
 			
 	if (node->node_type == VAR_REF) {
@@ -37,13 +41,15 @@ void generate_self(Tree * node) {
 		node->tac = t;
 	}
 	else if (node->node_type == LIT_VAL){
+		//printf("LIT_VAL found\n"); 
 		newTemp(s);
-		t->temp = strdup(s);
-		t->result_type = (strcmp(node->type, "INT") == 0) ? ("INT") : ("FLOAT");
+		t->temp = strdup(s);  
+		//printf("---- %s\n", node->type); 
+		t->result_type = (strcmp(node->type, "INT") == 0) ? ("INT") : ("FLOAT"); 
 		/*fill in the code part*/
 		t->data->op = (strcmp(t->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
-		t->data->src1 = node->literal;
-		t->data->src2 = NULL;
+		t->data->src1 = node->literal; 
+		t->data->src2 = NULL; 
 		printf(";%s %s %s\n", t->data->op, t->data->src1, t->temp);
 		node->tac = t;
 	}
@@ -117,6 +123,7 @@ void generate_self(Tree * node) {
 					node->tac = t;
 					printf(";%s %s\n", t->data->op, t->temp);
 					break;
+				
 				case WRITE_LIST:
 					if(strcmp(node->left->tac->result_type,"INT") == 0) 
 						t->data->op = "WRITEI";
@@ -134,6 +141,7 @@ void generate_self(Tree * node) {
 					}
 					printf("\n");
 					break;
+				
 				case READ_LIST:
 					if(strcmp(node->left->tac->result_type,"INT") == 0) 
 						t->data->op = "READI";
@@ -151,6 +159,7 @@ void generate_self(Tree * node) {
 						curr1 = curr1->next;
 					}
 					break;
+				
 				default:
 					break;
 			}	
@@ -180,6 +189,8 @@ void generate_list(Tree * list) {
 }
 
 void generate_code(Tree * root) {
+	
+	//printf("Generating Code..\n");
 	if(root == NULL) 
 		return;
 

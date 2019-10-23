@@ -15,6 +15,8 @@ typedef enum NodeType {
 	READ_NODE, 
 	FUNC_NODE, 
 	VAR_REF,
+	OPEN_PARENT, 
+	CLOSE_PARENT,
 	LIT_VAL
 
 }NodeType;
@@ -53,25 +55,10 @@ typedef struct Tree {
 }Tree;
 
 
-/*
-typedef struct ListNode{
-	Tree ** list; 
-	unsigned int length; 
-	unsigned int capacity; 
-
-}ListNode; 
-
-ListNode * new_listnode(); 
-void delete_listnode(ListNode * node); 
-void print_listnode(ListNode * node); 
-void add_node_to_list(ListNode * list, Tree * node); 
-*/
-
-
 Tree * new_node(NodeType node_type, Tree * left, Tree * right);
 Tree * new_opnode(NodeType node_type, enum Operator op, Tree * left, Tree * right);
 Tree * new_varleaf(ht_hash_table * ht, char * key, char * name);
-Tree * new_litleaf(char * literal);
+Tree * new_litleaf(char * literal, char * type);
 void ast_add_node_to_list(Tree * list, Tree * node); 
 void ast_print_node(Tree * node);
 void ast_traversal(Tree * root);

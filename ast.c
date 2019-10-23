@@ -113,9 +113,10 @@ void ast_print_list(Tree * list){
 
 
 /*keeping track of the literal value for assignments*/
-Tree * new_litleaf(char * literal) {
+Tree * new_litleaf(char * literal, char * type) {
 	Tree * t = calloc(sizeof(Tree),1);
 	t->node_type = LIT_VAL;
+	t->type = type; 
 	t->literal = literal;
 	return t;
 }
