@@ -224,8 +224,16 @@ func_decl: _FUNC any_type id { ht_insert(ht, $3, NULL, NULL, NULL); updateArray(
 ; 
 func_body: 	decl {	stmt_list = new_list(STMT_LIST); } stmt_list 
 			{	
-				printf("\n============================================================\n\nStatements found: "); 
-				ast_print_list(stmt_list); 
+				//printf("\n============================================================\n\nStatements found: "); 
+				//ast_print_list(stmt_list);
+				fprintf(yyout, ";IR code\n"); 
+				fprintf(yyout, ";LABEL FUNC_main\n"); 
+				fprintf(yyout, ";LINK\n");
+				generate_code(stmt_list); 
+				fprintf(yyout, ";RET\n");
+				printArray();
+				walkAST(stmt_list);
+				fprintf(yyout, "sys halt\n"); 
 			}
 ; 
 
@@ -254,20 +262,11 @@ assign_expr:	id ASSIGNMENT {	inf_head = NULL; op_head = NULL; inf_tail = NULL; o
 					
 					if (inf_head != inf_tail) {			// if the 'expr' is a mathematical expression 
 						infix_build_expr_tree();
-						printExprTree(inf_head);
-						//generate_code(inf_head);
-					}
-
-					//generate_code(inf_head); 
+					} 
 
 					lhs = new_varleaf(ht, "GLOBAL", $1); 
 					rhs = inf_head; 
 					root_expr = new_node(ASSIGN_NODE, lhs, rhs); 
-				
-					generate_code(root_expr); 
-
-					printExprTree(root_expr);
-
 					ast_add_node_to_list(stmt_list, root_expr); 
 				}
 ; 
@@ -311,7 +310,6 @@ primary: 		OPENPARENT { oplist_add_op(new_node(OPEN_PARENT, NULL, NULL)); } expr
 				{
 					term = new_litleaf($1, "INT"); 
 					infix_add_node(term);
-					//infix_print();
 				}
 
 				| FLOATLITERAL	
@@ -324,14 +322,12 @@ addop: 			ADDOP
 				{	
 					opnode = new_opnode(ARITHM_NODE, ((strcmp("+", $1) == 0) ? ADD : SUB), term, NULL); 
 					oplist_add_op(opnode);
-					//oplist_print();
 				}
 ; 
 mulop: 			MULOP
 				{	
 					opnode = new_opnode(ARITHM_NODE, ((strcmp("*", $1) == 0) ? MUL : DIV), term, NULL);
 					oplist_add_op(opnode); 
-					//oplist_print(); 
 				}
 ; 
 
@@ -378,12 +374,13 @@ int main(int argc, char **argv){
 	yyin = fopen(argv[1], "r"); 
 	yyout = fopen(argv[2], "w");
 	
-	printf("\n"); 
+	//printf("\n"); 
 	yyparse();
 
-	printArray();
+	//printArray();
+	//deleteTree(stmt_list); 
 	ht_del_hash_table(ht);
-	printf("\n_________________________________________________________________________________\n");
+	//printf("\n_________________________________________________________________________________\n");
 
 	fclose(yyin); 
 	fclose(yyout);
@@ -429,7 +426,7 @@ void infix_build_expr_tree(){
 	//printf("Building Expression Tree..\n"); 
 	
 	Tree * temp; 
-	infix_print();  
+	//infix_print();  
 	stack_head = NULL; 
 	stack_tail = NULL; 
 
@@ -526,19 +523,10 @@ void oplist_add_op(Tree * opnode){
 		op_head = opnode; 
 	}
 	else if(op_head->op == SUB && (opnode->node_type != OPEN_PARENT && opnode->op != MUL && opnode->op != DIV)){
-		oplist_print();
 		oplist_extract(ARITHM_NODE); 
 		opnode->next = op_head; 
 		op_head = opnode; 
 	}
-	/*
-	else if(op_head->op == opnode->op){
-		printf("YEES\n");
-		oplist_extract(ARITHM_NODE); 
-		opnode->next = op_head; 
-		op_head = opnode; 
-	}
-	*/
 	else{
 		// do normal op addition 
 		opnode->next = op_head; 
@@ -606,7 +594,7 @@ void oplist_extract(NodeType type){
 
 
 void printExprTree(Tree * root){
-	printf("\nPrinting Expression Tree ---------------------------------\n"); 
+	//printf("\nPrinting Expression Tree ---------------------------------\n"); 
 	ast_traversal(root);
 
 	return; 
@@ -625,6 +613,7 @@ void updateArray(const char * key){
 void printArray(){ 
 	int i;
 	ht_item * eptr;
+	/*
 	for(i = 0; i <= maxind; i++){
 		printf("\nScope: %s === ", symtab[i]->key);
 		eptr = symtab[i]; 
@@ -633,6 +622,24 @@ void printArray(){
 			eptr = eptr->next; 
 		}
 	}
+	*/
+
+	for(i = 0; i <= maxind; i++){
+		eptr = symtab[i]; 
+		while(eptr != NULL){
+			if(eptr->type == NULL){
+				break; 
+			}
+			if(strcmp(eptr->type, "STRING") == 0){
+				fprintf(yyout, "str %s %s\n", eptr->name, eptr->strval);
+			}
+			else{
+				fprintf(yyout, "var %s\n", eptr->name); 
+			}
+			eptr = eptr->next; 
+		}
+	}
+
 }
 
 void yyerror(const char *s){

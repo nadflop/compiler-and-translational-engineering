@@ -4,6 +4,7 @@
 
 #include "ast.h"
 #include "hash_table.h"
+#include "addgen.h"
 
 /*basic ast node that can be either assign, write*/
 Tree * new_node(NodeType node_type, Tree * left, Tree * right) {
@@ -82,7 +83,7 @@ void ast_print_list(Tree * list){
 	if (list->node_type == STMT_LIST){
 		while (curr != NULL){
 			if(curr->node_type == ASSIGN_NODE){
-				printf("\nASSIGN_NODE with LHS: %s", curr->left->name); 
+				printf("\nASSIGN_NODE with LHS: %s", curr->left->name);
 			}
 			else if(curr->node_type == WRITE_LIST){
 				rw = curr->left; // points to the first variable
@@ -91,7 +92,6 @@ void ast_print_list(Tree * list){
 					printf("%s ", rw->name); 
 					rw = rw->next; 
 				}
-				
 			}
 			else if (curr->node_type == READ_LIST){
 				rw = curr->left; 
@@ -101,6 +101,8 @@ void ast_print_list(Tree * list){
 					rw = rw->next; 
 				}
 			}
+			printf("\n"); 
+			generate_code(curr); 			
 			curr = curr->next; 
 		}
 	}

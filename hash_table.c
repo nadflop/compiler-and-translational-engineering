@@ -77,7 +77,7 @@ void ht_del_hash_table(ht_hash_table * ht) {
 	free(ht->items);
 	free(ht);
 
-	printf("\n\nHash Table Freed.\n"); 
+	//printf("\n\nHash Table Freed.\n"); 
 }
 
 /*function to calculate the hash value based on the string*/
@@ -213,8 +213,7 @@ ht_item * ht_get_item(ht_hash_table * ht, const char * key, const char * name){
 	int index = ht_hash(key, ht->size); 
 	ht_item * item = ht->items[index]; 
 
-	while (item != NULL){
-		printf("%s\n", item->name); 
+	while (item != NULL){ 
 		if (strcmp(item->name, name) == 0){
 			// KEY FOUND
 			break; 

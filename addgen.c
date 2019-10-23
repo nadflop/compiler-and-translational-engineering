@@ -5,7 +5,9 @@
 #include "ast.h"
 #include "hash_table.h"
 
-int tempnum = 0;
+extern FILE * yyout;
+
+int tempnum = -1;
 char s[5];
 /*func to generate new temp var name*/
 
@@ -36,8 +38,8 @@ void generate_self(Tree * node) {
 	if (node->node_type == VAR_REF) {
 		t->temp = node->name;
 		t->result_type = node->type;
-		free(t->data);
-		t->data = NULL;
+		//free(t->data);
+		//t->data = NULL;
 		node->tac = t;
 	}
 	else if (node->node_type == LIT_VAL){
@@ -50,8 +52,11 @@ void generate_self(Tree * node) {
 		t->data->op = (strcmp(t->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
 		t->data->src1 = node->literal; 
 		t->data->src2 = NULL; 
-		printf(";%s %s %s\n", t->data->op, t->data->src1, t->temp);
+		fprintf(yyout, ";%s %s %s\n", t->data->op, t->data->src1, t->temp);
 		node->tac = t;
+	}
+	else if (node->node_type == STMT_LIST){
+		return;  
 	}
 	else {
 		/*check if we have enough info to generate 3ac*/
@@ -64,7 +69,7 @@ void generate_self(Tree * node) {
 					t->temp = node->left->tac->temp;
 					t->result_type = node->left->type;
 					node->tac = t;
-					printf(";%s %s %s\n", t->data->op, t->data->src1, t->temp);
+					fprintf(yyout, ";%s %s %s\n", t->data->op, t->data->src1, t->temp);
 					break;
 
 				case ARITHM_NODE:
@@ -93,7 +98,7 @@ void generate_self(Tree * node) {
 							break;
 					}
 					node->tac = t;
-					printf(";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, t->temp);
+					fprintf(yyout, ";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, t->temp);
 					break;
 
 				case WRITE_NODE:
@@ -108,7 +113,7 @@ void generate_self(Tree * node) {
 					t->temp = NULL;
 					t->result_type = node->left->type;
 					node->tac = t;
-					printf(";%s %s\n", t->data->op, t->data->src1);
+					fprintf(yyout, ";%s %s\n", t->data->op, t->data->src1);
 					break;
 
 				case READ_NODE:
@@ -121,41 +126,39 @@ void generate_self(Tree * node) {
 					t->temp = node->left->name;
 					t->result_type = node->left->tac->result_type;
 					node->tac = t;
-					printf(";%s %s\n", t->data->op, t->temp);
+					fprintf(yyout, ";%s %s\n", t->data->op, t->temp);
 					break;
 				
 				case WRITE_LIST:
-					if(strcmp(node->left->tac->result_type,"INT") == 0) 
-						t->data->op = "WRITEI";
-					else if (strcmp(node->left->tac->result_type,"FLOAT") == 0)
-						t->data->op = "WRITEF";
-					else
-						t->data->op = "WRITES";
-					t->result_type = node->left->tac->result_type;
-					node->tac = t;
-					printf(";%s ", t->data->op);
+					free(t->data); 
+					free(t); 
 					Tree * curr = node->left;
 					while (curr != NULL) {
-						printf("%s ", curr->tac->temp);
+						if(strcmp(curr->tac->result_type,"INT") == 0) 
+							curr->tac->data->op = "WRITEI";
+						else if (strcmp(curr->tac->result_type,"FLOAT") == 0)
+							curr->tac->data->op = "WRITEF";
+						else
+							curr->tac->data->op = "WRITES";
+						fprintf(yyout, ";%s %s\n", curr->tac->data->op, curr->tac->temp); 
+						//printf("%s ", curr->tac->temp);
 						curr = curr->next;
 					}
-					printf("\n");
 					break;
 				
 				case READ_LIST:
-					if(strcmp(node->left->tac->result_type,"INT") == 0) 
-						t->data->op = "READI";
-					else if (strcmp(node->left->tac->result_type,"FLOAT") == 0)
-						t->data->op = "READF";
-					t->data->src1 = NULL;
-					t->data->src2 = NULL;
-					t->temp = node->left->name;
-					t->result_type = node->left->tac->result_type;
-					node->tac = t;
-					printf(";%s %s\n", t->data->op, t->temp);
+					free(t->data); 
+					free(t); 
+					//t->result_type = node->left->tac->result_type;
+					//node->tac = t;
+					//printf(";%s %s\n", t->data->op, t->temp);
 					Tree * curr1 = node->left;
 					while (curr1 != NULL) {
-						printf(";%s %s\n", t->data->op, curr1->name);
+						if(strcmp(curr1->tac->result_type,"INT") == 0) 
+							curr1->tac->data->op = "READI";
+						else if (strcmp(curr1->tac->result_type,"FLOAT") == 0)
+							curr1->tac->data->op = "READF";
+						fprintf(yyout, ";%s %s\n", curr1->tac->data->op, curr1->name);
 						curr1 = curr1->next;
 					}
 					break;
@@ -223,58 +226,60 @@ void deleteCode(CodeObject * cur_item, NodeType n_type) {
 
 void generateTiny(Tree * node) {
 
-	if (node->node_type == VAR_REF) 
+	if (node->node_type == VAR_REF) //&& node->tac->data == NULL) 
 		return;
-	else if(node->node_type == LIT_VAL)
+	else if(node->node_type == WRITE_LIST || node->node_type == READ_LIST || node->node_type == STMT_LIST){
 		return;
+	}
 	else {
-		
 		char * opcode = node->tac->data->op;
-		if (strcmp(opcode, "STOREF") == 0)
-			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
-		if (strcmp(opcode, "STOREI") == 0)
-			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
+		if (strcmp(opcode, "STOREF") == 0){
+			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
+		}
+		if (strcmp(opcode, "STOREI") == 0){
+			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
+		}
 		if (strcmp(opcode, "WRITEI") == 0)
-			printf("sys writei  %s\n", node->tac->data->src1);
+			fprintf(yyout, "sys writei %s\n", node->tac->temp);
 		if (strcmp(opcode, "WRITEF") == 0)
-			printf("sys writef %s\n", node->tac->data->src1);
+			fprintf(yyout, "sys writer %s\n", node->tac->temp);
 		if (strcmp(opcode, "WRITES") == 0)
-			printf("sys writes %s\n", node->tac->data->src1);
+			fprintf(yyout, "sys writes %s\n", node->tac->temp);
 		if (strcmp(opcode, "READI") == 0)
-			printf("sys readi %s\n", node->tac->temp);	
+			fprintf(yyout, "sys readi %s\n", node->tac->temp);	
 		if (strcmp(opcode, "READF") == 0)
-			printf("sys readf %s\n", node->tac->temp);	
+			fprintf(yyout, "sys readr %s\n", node->tac->temp);	
 		if (strcmp(opcode, "ADDI") == 0) {
-			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
-			printf("addi %s %s\n", node->tac->data->src2, node->tac->temp);
+			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
+			fprintf(yyout, "addi %s %s\n", node->tac->data->src2, node->tac->temp);
 		}
 		if (strcmp(opcode, "ADDF") == 0) {
-			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
-			printf("addf %s %s\n", node->tac->data->src2, node->tac->temp);
+			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
+			fprintf(yyout, "addr %s %s\n", node->tac->data->src2, node->tac->temp);
 		}
 		if (strcmp(opcode, "SUBI") == 0) {
-			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
-			printf("subi %s %s\n", node->tac->data->src2, node->tac->temp);
+			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
+			fprintf(yyout, "subi %s %s\n", node->tac->data->src2, node->tac->temp);
 		}
 		if (strcmp(opcode, "SUBF") == 0) {
-			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
-			printf("subf %s %s\n", node->tac->data->src2, node->tac->temp);
+			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
+			fprintf(yyout, "subr %s %s\n", node->tac->data->src2, node->tac->temp);
 		}
 		if (strcmp(opcode, "MULI") == 0) {
-			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
-			printf("muli %s %s\n", node->tac->data->src2, node->tac->temp);
+			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
+			fprintf(yyout, "muli %s %s\n", node->tac->data->src2, node->tac->temp);
 		}
 		if (strcmp(opcode, "MULF") == 0) {
-			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
-			printf("mulf %s %s\n", node->tac->data->src2, node->tac->temp);
+			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
+			fprintf(yyout, "mulr %s %s\n", node->tac->data->src2, node->tac->temp);
 		}
 		if (strcmp(opcode, "DIVI") == 0) {
-			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
-			printf("divi %s %s\n", node->tac->data->src2, node->tac->temp);
+			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
+			fprintf(yyout, "divi %s %s\n", node->tac->data->src2, node->tac->temp);
 		}
 		if (strcmp(opcode, "DIVF") == 0) {
-			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
-			printf("divf %s %s\n", node->tac->data->src2, node->tac->temp);
+			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
+			fprintf(yyout, "divr %s %s\n", node->tac->data->src2, node->tac->temp);
 		}
 	}
 }
@@ -283,16 +288,32 @@ void walkAST(Tree * node) {
 		return;
 	if(node->node_type == STMT_LIST){
 		Tree * curr = node;
-		while(curr != NULL) {
-			walkAST(curr->left);
-			curr = curr->next;
+		walkAST(curr->left);
+		curr = curr->left->next; 
+		while(curr != NULL) { 
+			//printf("in while loop\n"); 
+			walkAST(curr); 
+			curr = curr->next; 
 		}
+		//printf("end of stmtlist while loop\n");
 	}
 	else if(node->node_type == WRITE_LIST || node->node_type == READ_LIST) {
-		Tree * curr = node;
-		while(curr != NULL) {
-			generateTiny(curr);
-			curr = curr->next;
+		Tree * curr1 = node->left;
+		while(curr1 != NULL) {
+
+			char * opcode = curr1->tac->data->op;
+			if (strcmp(opcode, "WRITEI") == 0)
+				fprintf(yyout, "sys writei %s\n", curr1->tac->temp);
+			if (strcmp(opcode, "WRITEF") == 0)
+				fprintf(yyout, "sys writer %s\n", curr1->tac->temp);
+			if (strcmp(opcode, "WRITES") == 0)
+				fprintf(yyout, "sys writes %s\n", curr1->tac->temp);
+			if (strcmp(opcode, "READI") == 0)
+				fprintf(yyout, "sys readi %s\n", curr1->tac->temp);	
+			if (strcmp(opcode, "READF") == 0)
+				fprintf(yyout, "sys readr %s\n", curr1->tac->temp);	
+
+			curr1 = curr1->next;
 		}
 	}
 	else if(node->node_type != VAR_REF && node->node_type != LIT_VAL) {

@@ -2,7 +2,7 @@ GCC = gcc $(CFLAGS) $(COVFLAGS) $(PROFFLAGS)
 CFLAGS = -std=c99 -g - Wshadow -Wall --pedantic -Wvla -Werror
 COVFLAGS = -fprofile-arcs -ftest-coverage
 PROFFLAG = -pg
-VALGRIND = valgrind --tool=memcheck --leak-check=yes --leak-check=full --verbose 
+VALGRIND = valgrind --tool=memcheck --leak-check=full --verbose 
 
 team: 
 	@echo Team: cendol
@@ -26,16 +26,24 @@ ast: clean
 		./a.out
 
 test1: clean compiler
-		./runme step4/input/test_combination.micro test_combination.out
+		./runme test1.c test_combination.out
+
 
 testall: clean compiler
 		./runme step4/input/test_combination.micro test_combination.out
-		./runme step4/input/test_complex.micro test_combination.out
-		./runme step4/input/test_expr.micro test_combination.out
-		./runme step4/input/test_mult.micro test_combination.out
+		./runme step4/input/test_complex.micro test_complex.out
+		./runme step4/input/test_expr.micro test_expr.out
+		./runme step4/input/test_mult.micro test_mult.out
+
+testallcheck: clean compiler
+		$(VALGRIND) ./runme step4/input/test_combination.micro test_combination.out
+		$(VALGRIND) ./runme step4/input/test_complex.micro test_combination.out
+		$(VALGRIND) ./runme step4/input/test_expr.micro test_combination.out
+		$(VALGRIND) ./runme step4/input/test_mult.micro test_combination.out
+
 
 test1check: 
-		$(VALGRIND) ./runme step4/input/test_combination.micro test_combination.out
+		$(VALGRIND) ./runme test1.c test_combination.out
 
 testgdb: clean compiler 
 		gdb ./runme step4/input/test_combination.micro test_combination.out
