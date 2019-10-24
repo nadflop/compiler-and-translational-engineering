@@ -32,23 +32,17 @@ CodeObject * new_data() {
 
 void generate_self(Tree * node) {
 
-	//printf("GEN_SELF\n"); 
 	CodeObject* t = new_data();
 			
 	if (node->node_type == VAR_REF) {
 		t->temp = node->name;
 		t->result_type = node->type;
-		//free(t->data);
-		//t->data = NULL;
 		node->tac = t;
 	}
-	else if (node->node_type == LIT_VAL){
-		//printf("LIT_VAL found\n"); 
+	else if (node->node_type == LIT_VAL){ 
 		newTemp(s);
-		t->temp = strdup(s);  
-		//printf("---- %s\n", node->type); 
+		t->temp = strdup(s);   
 		t->result_type = (strcmp(node->type, "INT") == 0) ? ("INT") : ("FLOAT"); 
-		/*fill in the code part*/
 		t->data->op = (strcmp(t->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
 		t->data->src1 = node->literal; 
 		t->data->src2 = NULL; 
@@ -131,6 +125,7 @@ void generate_self(Tree * node) {
 							break;
 					}
 					node->tac = t;
+					//TODO: COMP SRC1 SRC2 LABEL, THINK OF HOW TO GENERATE LABEL
 					fprintf(yyout, ";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, t->temp);
 					break;
 				case WRITE_LIST:
@@ -153,9 +148,6 @@ void generate_self(Tree * node) {
 				case READ_LIST:
 					free(t->data); 
 					free(t); 
-					//t->result_type = node->left->tac->result_type;
-					//node->tac = t;
-					//printf(";%s %s\n", t->data->op, t->temp);
 					Tree * curr1 = node->left;
 					while (curr1 != NULL) {
 						if(strcmp(curr1->tac->result_type,"INT") == 0) 
@@ -166,12 +158,21 @@ void generate_self(Tree * node) {
 						curr1 = curr1->next;
 					}
 					break;
+				//TODO: Think of what to do for if-else, while
+				//Should we generate labels here?
 				case IF_LIST:
+					//TODO: assign the label name to their children especially the comparator node
+					//PRINT JUMP END_IF_ELSE{#} {#} REPRESENTS NO
+					//if see node_type else_list, should probably print out the 
 					break;
 				case ELSE_LIST:
+					//TODO: 
+					//LABEL ELSE_{#} {#} REPRESENTS NO
+					//ALL THE STATEMENTS
+					//Should probably just print the labels? because else list is the same as statement list?
 					break;
 				case WHILE_LIST:
-					break;
+					break; 
 				default:
 					break;
 			}	
@@ -180,29 +181,22 @@ void generate_self(Tree * node) {
 	
 	return;
 }
-//TODO: Think how to generate 3ac for if-else statement and while loops
+
 void generate_list(Tree * list) {
 	Tree * curr = list->left;
 
 	if(curr == NULL)
 		return;
-	if(list->node_type == WRITE_LIST || list->node_type == READ_LIST) {
-		while(curr != NULL) {
-			generate_code(curr);
-			curr = curr->next;
-		}
+	
+	while(curr != NULL) {
+		generate_code(curr);
+		curr = curr->next;
 	}
-	else {
-		while(curr != NULL) {
-			generate_code(curr);
-			curr = curr->next;
-		}
-	}
+	
 }
 
 void generate_code(Tree * root) {
 	
-	//printf("Generating Code..\n");
 	if(root == NULL) 
 		return;
 
@@ -233,6 +227,7 @@ void deleteCode(CodeObject * cur_item, NodeType n_type) {
 	
 }
 
+//TODO: FILL IN THE CASES FOR IF-ELSE AND WHILE LOOPS
 void generateTiny(Tree * node) {
 
 	if (node->node_type == VAR_REF) //&& node->tac->data == NULL) 
@@ -295,7 +290,7 @@ void generateTiny(Tree * node) {
 void walkAST(Tree * node) {
 	if (node == NULL)
 		return;
-	if(node->node_type == STMT_LIST){
+	if(node->node_type == STMT_LIST || node->node_type == ELSE_LIST){
 		Tree * curr = node;
 		walkAST(curr->left);
 		curr = curr->left->next; 
@@ -324,6 +319,9 @@ void walkAST(Tree * node) {
 
 			curr1 = curr1->next;
 		}
+	}
+	else if(node->node_type == IF_LIST || node->node_type == WHILE_LIST) {
+		//TODO: Fill me in!!!
 	}
 	else if(node->node_type != VAR_REF && node->node_type != LIT_VAL) {
 		walkAST(node->left);

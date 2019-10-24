@@ -53,6 +53,9 @@ typedef struct Tree {
 
 	/*only for arithmetic nodes*/
 	enum Operator op;
+
+	//only for comparator node
+	enum Comparator comp;
 	
 	/*if it's a leaf, it needs a name, type and reference to symbtab entry*/
 	char * name;
