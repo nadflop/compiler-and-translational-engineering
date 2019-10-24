@@ -8,17 +8,18 @@ typedef enum NodeType {
 	BASIC_NODE, 
 	ASSIGN_NODE, 
 	STMT_LIST, 
-	ARITHM_NODE,
-	WRITE_NODE, 
+	ARITHM_NODE, 
 	WRITE_LIST,
 	READ_LIST,
-	READ_NODE, 
 	FUNC_NODE, 
 	VAR_REF,
 	OPEN_PARENT, 
 	CLOSE_PARENT,
-	LIT_VAL
-
+	LIT_VAL,
+	IF_LIST, //when we first see an 'if' statement
+	COMP_NODE,//the comparation happening inside the if stmt
+	ELSE_LIST, //similar to stmt list but this is local to the else body
+	WHILE_LIST
 }NodeType;
 
 typedef enum Operator{
@@ -28,6 +29,15 @@ typedef enum Operator{
 	DIV		/* / operator */
 
 }Operator;
+
+typedef enum Comparator{
+	GT, // >
+	GE, // >=
+	LT, // <
+	LE, // <=
+	NE, // !=
+	EQ  // ==
+}Comparator;
 
 /*structure of the tree*/
 typedef struct Tree {
@@ -54,12 +64,14 @@ typedef struct Tree {
 
 }Tree;
 
-
 Tree * new_node(NodeType node_type, Tree * left, Tree * right);
 Tree * new_opnode(NodeType node_type, enum Operator op, Tree * left, Tree * right);
+Tree * new_compnode(NodeType node_type, enum Comparator comp, Tree * left, Tree * right);
 Tree * new_varleaf(ht_hash_table * ht, char * key, char * name);
 Tree * new_litleaf(char * literal, char * type);
+Tree * new_list(NodeType node_type);
 void ast_add_node_to_list(Tree * list, Tree * node); 
+void ast_print_list(Tree * list);
 void ast_print_node(Tree * node);
 void ast_traversal(Tree * root);
 void deleteTree (Tree * node);

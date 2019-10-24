@@ -24,6 +24,15 @@ Tree * new_opnode(NodeType node_type, enum Operator op, Tree * left, Tree * righ
 	t->right = right;
 	return t;
 }
+//ast node for comparator operations (like boolean, relational or equivalent//
+Tree * new_compnode(NodeType node_type, enum Comparator comp, Tree * left, Tree * right) {
+	Tree * t = malloc(sizeof(Tree));
+	t->node_type = node_type;
+	t->comp = comp;
+	t->left = left;
+	t->right = right;
+	return t;
+}
 
 /*var reference leaf*/
 Tree * new_varleaf(ht_hash_table * ht, char * key, char * name) {
@@ -38,10 +47,10 @@ Tree * new_varleaf(ht_hash_table * ht, char * key, char * name) {
 
 	return t;
 }
-
+//only for STMT_LIST, WRITE_LIST, READ_LIST, IF_LIST, ELSE_LIST, WHILE_LIST
 Tree * new_list(NodeType node_type){
 	Tree * node = malloc(sizeof(Tree)); 
-	node->node_type = node_type; // for now can be either STMT_LIST, WRITE_LIST or READ_LIST
+	node->node_type = node_type;
 	node->left = NULL;
 	node->right = NULL;
 	node->next = NULL;
@@ -110,9 +119,7 @@ void ast_print_list(Tree * list){
 	printf("\n"); 
 
 	return; 
-
 }
-
 
 /*keeping track of the literal value for assignments*/
 Tree * new_litleaf(char * literal, char * type) {
@@ -135,9 +142,6 @@ void ast_print_node(Tree * node) {
 	else if (node->node_type == ARITHM_NODE) {
 		printf("Arithmetic node of operator %d\n", temp->op);
 	}
-	else if (node->node_type == WRITE_NODE) {
-		printf("Write node of %s\n", temp->left->name);
-	}
 	else if (node->node_type == VAR_REF) {
 		printf("Variable reference of %s with type %s\n", temp->name, temp->type);
 	}
@@ -155,7 +159,7 @@ void ast_traversal(Tree * root) {
 		return;
 	}
 
-	if(root->node_type == BASIC_NODE || root->node_type == ASSIGN_NODE || root->node_type == ARITHM_NODE || root->node_type == WRITE_NODE || root->node_type == FUNC_NODE) {
+	if(root->node_type == BASIC_NODE || root->node_type == ASSIGN_NODE || root->node_type == ARITHM_NODE || root->node_type == COMP_NODE || root->node_type == FUNC_NODE) {
 		ast_traversal(root->left);
 		ast_traversal(root->right);
 		ast_print_node(root);

@@ -71,7 +71,6 @@ void generate_self(Tree * node) {
 					node->tac = t;
 					fprintf(yyout, ";%s %s %s\n", t->data->op, t->data->src1, t->temp);
 					break;
-
 				case ARITHM_NODE:
 					newTemp(s);
 					t->temp = strdup(s);
@@ -99,36 +98,41 @@ void generate_self(Tree * node) {
 					}
 					node->tac = t;
 					fprintf(yyout, ";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, t->temp);
-					break;
-
-				case WRITE_NODE:
-					if(strcmp(node->left->tac->result_type,"INT") == 0) 
-						t->data->op = "WRITEI";
-					else if (strcmp(node->left->tac->result_type,"FLOAT") == 0)
-						t->data->op = "WRITEF";
+					break;				
+				case COMP_NODE:
+					newTemp(s);
+					t->temp = strdup(s);
+					t->data->src1 = node->left->tac->temp;
+					t->data->src2 = node->right->tac->temp;					
+					/*determine result type*/
+					if(strcmp(node->left->tac->result_type,"INT") == 0)
+						t->result_type = "INT";
 					else
-						t->data->op = "WRITES";
-					t->data->src1 = node->left->name;
-					t->data->src2 = NULL;
-					t->temp = NULL;
-					t->result_type = node->left->type;
+						t->result_type = "FLOAT";
+					/*determine operand*/
+					switch(node->comp) {
+						case GT:
+							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("GTI") : ("GTF");
+							break;
+						case GE:
+							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("GEI") : ("GEF");
+							break;
+						case LT:
+							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("LTI") : ("LTF");								
+							break;
+						case LE:
+							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("LEI") : ("LEF");								
+							break;
+						case NE:
+							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("NEI") : ("NEF");								
+							break;
+						case EQ:
+							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("EQI") : ("EQF");								
+							break;
+					}
 					node->tac = t;
-					fprintf(yyout, ";%s %s\n", t->data->op, t->data->src1);
+					fprintf(yyout, ";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, t->temp);
 					break;
-
-				case READ_NODE:
-					if(strcmp(node->left->tac->result_type,"INT") == 0) 
-						t->data->op = "READII";
-					else 
-						t->data->op = "READF";
-					t->data->src1 = NULL;
-					t->data->src2 = NULL;
-					t->temp = node->left->name;
-					t->result_type = node->left->tac->result_type;
-					node->tac = t;
-					fprintf(yyout, ";%s %s\n", t->data->op, t->temp);
-					break;
-				
 				case WRITE_LIST:
 					free(t->data); 
 					free(t); 
@@ -162,7 +166,12 @@ void generate_self(Tree * node) {
 						curr1 = curr1->next;
 					}
 					break;
-				
+				case IF_LIST:
+					break;
+				case ELSE_LIST:
+					break;
+				case WHILE_LIST:
+					break;
 				default:
 					break;
 			}	
@@ -171,7 +180,7 @@ void generate_self(Tree * node) {
 	
 	return;
 }
-
+//TODO: Think how to generate 3ac for if-else statement and while loops
 void generate_list(Tree * list) {
 	Tree * curr = list->left;
 
@@ -197,11 +206,11 @@ void generate_code(Tree * root) {
 	if(root == NULL) 
 		return;
 
-	if(root->node_type == ASSIGN_NODE || root->node_type == ARITHM_NODE || root->node_type == WRITE_NODE || root->node_type == READ_NODE) {
+	if(root->node_type == ASSIGN_NODE || root->node_type == ARITHM_NODE || root->node_type == COMP_NODE) {
 		generate_code(root->left);
 		generate_code(root->right);
 	}
-	else if (root->node_type == STMT_LIST || root->node_type == WRITE_LIST || root->node_type == READ_LIST) {
+	else if (root->node_type == STMT_LIST || root->node_type == WRITE_LIST || root->node_type == READ_LIST || root->node_type == IF_LIST || root->node_type == ELSE_LIST || root->node_type == WHILE_LIST) {
 		//since we know they only have a left child
 		generate_list(root);		
 	}
@@ -228,7 +237,7 @@ void generateTiny(Tree * node) {
 
 	if (node->node_type == VAR_REF) //&& node->tac->data == NULL) 
 		return;
-	else if(node->node_type == WRITE_LIST || node->node_type == READ_LIST || node->node_type == STMT_LIST){
+	else if(node->node_type == WRITE_LIST || node->node_type == READ_LIST || node->node_type == STMT_LIST || node->node_type == IF_LIST || node->node_type == ELSE_LIST || node->node_type == WHILE_LIST){
 		return;
 	}
 	else {
