@@ -16,7 +16,8 @@ typedef struct data_object {
 
 typedef struct CodeObject {
 	int temp_num;
-	char * label;//only for if-else, while
+	char * startlabel;//only for if-else, while
+	char * endlabel;
 	char * temp; /*temporary variable used to store the result*/
 	char * result_type; /*type of the result (INT or FLOAT)*/
 	struct data_object * data;

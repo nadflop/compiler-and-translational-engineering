@@ -65,11 +65,15 @@ Tree * rhs;
 Tree * parent; 
 Tree * opnode;
 Tree * term;
-Tree * root_expr; 
+Tree * root_expr;
 
+Tree * func_node;
 Tree * stmt_list; 
 Tree * write_list; 
 Tree * read_list; 
+Tree * if_list; 
+Tree * else_list; 
+Tree * while_list; 
 Tree * stmt;
 
 Tree * inf_head; 
@@ -78,6 +82,8 @@ Tree * op_head;
 Tree * op_tail;
 Tree * stack_head; 
 Tree * stack_tail; 
+
+int labelnum = 0;
 
 void infix_add_node(Tree * node); 
 void oplist_add_op(Tree * node); 
@@ -107,8 +113,7 @@ void printIR(void);
 	char * datatype;
 	char * bool_val; 
 	int integerExp; 
-	float floatExp; 
-
+	float floatExp;  
 }
 
 //token declare terminal symbols with no precedence or associativity specified
@@ -222,13 +227,17 @@ param_decl_tail:	COMMA param_decl param_decl_tail
 func_declarations: 	func_decl func_declarations
 					|
 ; 
-func_decl: _FUNC any_type id { ht_insert(ht, $3, NULL, NULL, NULL); updateArray($3); } OPENPARENT param_decl_list CLOSEPARENT _BEGIN func_body _END
-; 
-func_body: 	decl {	stmt_list = new_list(STMT_LIST); } stmt_list 
+func_decl: _FUNC any_type id 
 			{	
-				//printf("\n============================================================\n\nStatements found: "); 
-				//ast_print_list(stmt_list);
-				printIR();	
+				ht_insert(ht, $3, NULL, NULL, NULL); updateArray($3); 
+			}
+			OPENPARENT param_decl_list CLOSEPARENT _BEGIN func_body _END
+; 
+func_body: 	decl {	stmt_list = new_list(STMT_LIST, NULL, NULL); } stmt_list 
+			{	
+				func_node = new_node(FUNC_NODE, stmt_list, NULL); 
+				ast_print(func_node);
+				printIR();
 			}
 ; 
 
@@ -247,7 +256,7 @@ base_stmt:		assign_stmt
 ;
 
 // Basic Statements
-assign_stmt: 	assign_expr TERMINATOR	 
+assign_stmt: 	assign_expr TERMINATOR
 ; 
 assign_expr:	id ASSIGNMENT {	inf_head = NULL; op_head = NULL; inf_tail = NULL; op_tail = NULL; } expr 
 				{	
@@ -265,9 +274,9 @@ assign_expr:	id ASSIGNMENT {	inf_head = NULL; op_head = NULL; inf_tail = NULL; o
 					ast_add_node_to_list(stmt_list, root_expr); 
 				}
 ; 
-read_stmt: 		_READ { read_list = new_list(READ_LIST); ast_add_node_to_list(stmt_list, read_list); read = 1; } OPENPARENT { declare = 0; } id_list CLOSEPARENT TERMINATOR { read = 0; }
+read_stmt: 		_READ { read_list = new_list(READ_LIST, NULL, NULL); ast_add_node_to_list(stmt_list, read_list); read = 1; } OPENPARENT { declare = 0; } id_list CLOSEPARENT TERMINATOR { read = 0; }
 ; 
-write_stmt: 	_WRITE { write_list = new_list(WRITE_LIST); ast_add_node_to_list(stmt_list, write_list); write = 1; } OPENPARENT { declare = 0; } id_list CLOSEPARENT TERMINATOR { write = 0; }
+write_stmt: 	_WRITE { write_list = new_list(WRITE_LIST, NULL, NULL); ast_add_node_to_list(stmt_list, write_list); write = 1; } OPENPARENT { declare = 0; } id_list CLOSEPARENT TERMINATOR { write = 0; }
 ; 
 return_stmt: 	_RETURN expr TERMINATOR
 ; 

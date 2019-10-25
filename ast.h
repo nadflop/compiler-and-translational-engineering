@@ -64,6 +64,8 @@ typedef struct Tree {
 	ht_item * entry; /*pointer to symbtab entry that has the var*/
 
 	struct CodeObject * tac; 
+	char * startlabel;
+	char * endlabel;
 
 }Tree;
 
@@ -72,9 +74,9 @@ Tree * new_opnode(NodeType node_type, enum Operator op, Tree * left, Tree * righ
 Tree * new_compnode(NodeType node_type, char * comp, Tree * left, Tree * right);
 Tree * new_varleaf(ht_hash_table * ht, char * key, char * name);
 Tree * new_litleaf(char * literal, char * type);
-Tree * new_list(NodeType node_type);
+Tree * new_list(NodeType node_type, char * startlabel, char * endlabel);
 void ast_add_node_to_list(Tree * list, Tree * node); 
-void ast_print_list(Tree * list);
+void ast_print(Tree * node);
 void ast_print_node(Tree * node);
 void ast_traversal(Tree * root);
 void deleteTree (Tree * node);

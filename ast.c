@@ -61,7 +61,7 @@ Tree * new_varleaf(ht_hash_table * ht, char * key, char * name) {
 }
 
 //only for STMT_LIST, WRITE_LIST, READ_LIST, IF_LIST, ELSE_LIST, WHILE_LIST
-Tree * new_list(NodeType node_type){
+Tree * new_list(NodeType node_type, char * startlabel, char * endlabel){
 	Tree * node = malloc(sizeof(Tree)); 
 	node->node_type = node_type;
 	node->left = NULL;
@@ -89,21 +89,65 @@ void ast_add_node_to_list(Tree * list, Tree * node){
 	return;
 }
 
-void ast_print_list(Tree * list){
-	Tree * curr = list->left; 
+void ast_print(Tree * node){
+	Tree * curr = node->left; 
 	Tree * rw; 
 
-	// check if list is empty --> notify and return if yes
-	if (curr == NULL){
+	if(curr == NULL){
 		printf("List is empty\n"); 
+	}
 
+	else if(node->node_type == FUNC_NODE){
+		ast_print(curr);
+	}
+
+	else if(node->node_type == STMT_LIST){
+		while(curr != NULL){
+			ast_print(curr); 
+			curr = curr->next; 
+		}
+	}
+
+	else if(node->node_type == IF_LIST){
+		// curr points to bool_expr (compnode)
+		printf("IF_LIST (%s %d %d)\n", curr->left, curr->comp, curr->right->node_type);
+		ast_print(curr->next); // if's stmt_list
+		ast_print(curr->next->next); // else_list
+	}
+
+	else if(node->node_type == ELSE_LIST){
+		printf("ELSE_LIST ----\n");
+		ast_print(curr); // else's stmt_list
+	}
+
+	else if(node->node_type == WHILE_LIST){
+		// curr points to bool_expr (compnode)
+		printf("WHILE_LIST (%s %d %d)\n", curr->left, curr->comp, curr->right->node_type);
+		ast_print(curr->next); // while's stmt_list
+	}
+
+	else if(node->node_type == ASSIGN_NODE){
+		printf("ASSIGN NODE for: %s\n", node->left->name); // print lhs of assignment expression for reference
 		return; 
 	}
 
-	if (list->node_type == FUNC_NODE){
-		ast_print_list(curr);
+	else if(node->node_type == WRITE_LIST){
+		printf("WRITE_LIST: ");
+		while(curr != NULL){
+			printf("%s ", curr->name);
+			curr = curr->next; 
+		}
 	}
 
+	else if(node->node_type == READ_LIST){
+		printf("READ_LIST: "); 
+		while(curr != NULL){
+			printf("%s ", curr->name); 
+			curr = curr->next;
+		}
+	}
+
+	/*
 	// at this point list has node(s) in it
 	// check list type (for now either STMT_LIST or WRITE_LIST
 	if (list->node_type == STMT_LIST){
@@ -132,6 +176,8 @@ void ast_print_list(Tree * list){
 			curr = curr->next; 
 		}
 	}
+
+	*/
 
 	printf("\n"); 
 
