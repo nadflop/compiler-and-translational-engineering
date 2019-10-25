@@ -323,43 +323,43 @@ void generateTiny(Tree * node) {
 		}
 		if (strcmp(opcode, "LEI") == 0) {
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			printf("jle %s\n", node->tac->label);
+			//printf("jle %s\n", node->tac->label);
 		}
 		if (strcmp(opcode, "LEF") == 0) {
 			printf("cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			printf("jle %s\n", node->tac->label);
+			//printf("jle %s\n", node->tac->label);
 		}
 		if (strcmp(opcode, "LTI") == 0) {
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			printf("jlt %s\n", node->tac->label);
+			//printf("jlt %s\n", node->tac->label);
 		}
 		if (strcmp(opcode, "LTF") == 0) {
 			printf("cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			printf("jlt %s\n", node->tac->label);
+			//printf("jlt %s\n", node->tac->label);
 		}
 		if (strcmp(opcode, "GEI") == 0) {
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			printf("jge %s\n", node->tac->label);	
+			//printf("jge %s\n", node->tac->label);	
 		}
 		if (strcmp(opcode, "GEF") == 0) {
 			printf("cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			printf("jge %s\n", node->tac->label);		
+			//printf("jge %s\n", node->tac->label);		
 		}
 		if (strcmp(opcode, "GTI") == 0) {
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			printf("jgt %s\n", node->tac->label);		
+			//printf("jgt %s\n", node->tac->label);		
 		}
 		if (strcmp(opcode, "GTF") == 0) {
 			printf("cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			printf("jgt %s\n", node->tac->label);			
+			//printf("jgt %s\n", node->tac->label);			
 		}
 		if (strcmp(opcode, "EQI") == 0) {
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			printf("jeq %s\n", node->tac->label);				
+			//printf("jeq %s\n", node->tac->label);				
 		}
 		if (strcmp(opcode, "EQF") == 0) {
 			printf("cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			printf("jeq %s\n", node->tac->label);		
+			//printf("jeq %s\n", node->tac->label);		
 		}
 	}
 }
