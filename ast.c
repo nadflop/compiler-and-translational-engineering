@@ -25,12 +25,24 @@ Tree * new_opnode(NodeType node_type, enum Operator op, Tree * left, Tree * righ
 	return t;
 }
 //ast node for comparator operations (like boolean, relational or equivalent//
-Tree * new_compnode(NodeType node_type, enum Comparator comp, Tree * left, Tree * right) {
+Tree * new_compnode(NodeType node_type, char *  comp, Tree * left, Tree * right) {
 	Tree * t = malloc(sizeof(Tree));
 	t->node_type = node_type;
-	t->comp = comp;
 	t->left = left;
 	t->right = right;
+	//case for comp
+	if (strcmp(">", comp) == 0)
+		t->comp = GT;
+	else if (strcmp(">=", comp) == 0)
+		t->comp = GE;
+	else if (strcmp("<", comp) == 0)
+		t->comp = LT;
+	else if (strcmp("<=", comp) == 0)
+		t->comp = LE;
+	else if (strcmp("!=", comp) == 0)
+		t->comp = NE;
+	else if (strcmp("==", comp) == 0)
+		t->comp = EQ;
 	return t;
 }
 
@@ -188,10 +200,8 @@ ListNode * new_listnode(){
 	node->length = 0; 
 	node->capacity = 16; 
 	node->list = (Tree **) malloc(16*sizeof(Tree *)); 
-
 	return node; 
 }
-
 void delete_listnode(ListNode * node){
 	int i; 
 	for(i = 0; i < node->length; i++){
@@ -199,21 +209,16 @@ void delete_listnode(ListNode * node){
 	}
 	free(node->list); 
 	free(node); 
-
 	return; 
 }
-
 void add_node_to_list(ListNode * list, Tree * node){
 	if (list->length == list->capacity) {
 		 
 	}
 	list->list[list->length] = node; 
 	list->length++; 
-
 	return; 
 }
-
-
 void print_listnode(ListNode * node){
 	int i = 0; 
 	printf("ListNode with %d elements\n", node->length); 
@@ -236,7 +241,6 @@ int main () {
 	Tree * addop = new_opnode(ARITHM_NODE, ADD, const_val1, mulop);
 	ast_traversal(addop);
 	deleteTree(addop);
-
 	return 0;
 }
 */
