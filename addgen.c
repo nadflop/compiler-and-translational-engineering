@@ -109,25 +109,25 @@ void generate_self(Tree * node) {
 						t->result_type = "INT";
 					else
 						t->result_type = "FLOAT";
-					/*determine operand*/
+					/*determine opposite comparator*/
 					switch(node->comp) {
 						case GT:
-							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("GTI") : ("GTF");
+							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("LEI") : ("LEF");
 							break;
 						case GE:
-							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("GEI") : ("GEF");
+							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("LTI") : ("LTF");
 							break;
 						case LT:
-							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("LTI") : ("LTF");								
+							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("GEI") : ("GEF");								
 							break;
 						case LE:
-							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("LEI") : ("LEF");								
+							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("GTI") : ("GTF");								
 							break;
 						case NE:
-							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("NEI") : ("NEF");								
+							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("EQI") : ("EQF");								
 							break;
 						case EQ:
-							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("EQI") : ("EQF");								
+							t->data->op = (strcmp(t->result_type, "INT") == 0) ? ("NEI") : ("NEF");								
 							break;
 					}
 					node->tac = t;
@@ -320,6 +320,46 @@ void generateTiny(Tree * node) {
 			fprintf(yyout, "divr %s %s\n", node->tac->data->src2, node->tac->temp);
 			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
 			printf("divr %s %s\n", node->tac->data->src2, node->tac->temp);
+		}
+		if (strcmp(opcode, "LEI") == 0) {
+			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("jle %s\n", node->tac->label);
+		}
+		if (strcmp(opcode, "LEF") == 0) {
+			printf("cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("jle %s\n", node->tac->label);
+		}
+		if (strcmp(opcode, "LTI") == 0) {
+			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("jlt %s\n", node->tac->label);
+		}
+		if (strcmp(opcode, "LTF") == 0) {
+			printf("cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("jlt %s\n", node->tac->label);
+		}
+		if (strcmp(opcode, "GEI") == 0) {
+			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("jge %s\n", node->tac->label);	
+		}
+		if (strcmp(opcode, "GEF") == 0) {
+			printf("cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("jge %s\n", node->tac->label);		
+		}
+		if (strcmp(opcode, "GTI") == 0) {
+			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("jgt %s\n", node->tac->label);		
+		}
+		if (strcmp(opcode, "GTF") == 0) {
+			printf("cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("jgt %s\n", node->tac->label);			
+		}
+		if (strcmp(opcode, "EQI") == 0) {
+			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("jeq %s\n", node->tac->label);				
+		}
+		if (strcmp(opcode, "EQF") == 0) {
+			printf("cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("jeq %s\n", node->tac->label);		
 		}
 	}
 }
