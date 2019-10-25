@@ -25,12 +25,24 @@ Tree * new_opnode(NodeType node_type, enum Operator op, Tree * left, Tree * righ
 	return t;
 }
 //ast node for comparator operations (like boolean, relational or equivalent//
-Tree * new_compnode(NodeType node_type, enum Comparator comp, Tree * left, Tree * right) {
+Tree * new_compnode(NodeType node_type, char *  comp, Tree * left, Tree * right) {
 	Tree * t = malloc(sizeof(Tree));
 	t->node_type = node_type;
-	t->comp = comp;
 	t->left = left;
 	t->right = right;
+	//case for comp
+	if (strcmp(">", comp) == 0)
+		t->comp = GT;
+	else if (strcmp(">=", comp) == 0)
+		t->comp = GE;
+	else if (strcmp("<", comp) == 0)
+		t->comp = LT;
+	else if (strcmp("<=", comp) == 0)
+		t->comp = LE;
+	else if (strcmp("!=", comp) == 0)
+		t->comp = NE;
+	else if (strcmp("==", comp) == 0)
+		t->comp = EQ;
 	return t;
 }
 
