@@ -84,7 +84,9 @@ void oplist_add_op(Tree * node);
 void oplist_extract(NodeType type); 
 void infix_print(void); 
 void oplist_print(void); 
-void infix_build_expr_tree(void); 
+void infix_build_expr_tree(void);
+
+void printIR(void);
 
 %}
 // Bison Definitions
@@ -226,14 +228,7 @@ func_body: 	decl {	stmt_list = new_list(STMT_LIST); } stmt_list
 			{	
 				//printf("\n============================================================\n\nStatements found: "); 
 				//ast_print_list(stmt_list);
-				fprintf(yyout, ";IR code\n"); 
-				fprintf(yyout, ";LABEL FUNC_main\n"); 
-				fprintf(yyout, ";LINK\n");
-				generate_code(stmt_list); 
-				fprintf(yyout, ";RET\n");
-				printArray();
-				walkAST(stmt_list);
-				fprintf(yyout, "sys halt\n"); 
+				printIR();	
 			}
 ; 
 
@@ -385,6 +380,33 @@ int main(int argc, char **argv){
 	fclose(yyin); 
 	fclose(yyout);
 	return 0; 	
+}
+
+void printIR(){
+	
+	fprintf(yyout, ";IR code\n");
+	printf(";IR code\n"); 
+
+	fprintf(yyout, ";LABEL FUNC_main\n"); 
+	printf(";LABEL FUNC_main\n"); 
+
+	fprintf(yyout, ";LINK\n");
+	printf(";LINK\n");
+
+	generate_code(stmt_list); 
+
+	fprintf(yyout, ";RET\n");
+	printf(";RET\n"); 
+
+	printArray();
+
+	walkAST(stmt_list);
+	
+	fprintf(yyout, "sys halt\n");
+	printf("sys halt\n");
+
+	return; 
+
 }
 
 // Work in Progress

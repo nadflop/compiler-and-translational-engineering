@@ -26,7 +26,7 @@ ast: clean
 		./a.out
 
 test1: clean compiler
-		./runme test1.c test_combination.out
+		./runme step5/input/step5_test1.micro step5_test.out
 
 
 testall: clean compiler
@@ -40,43 +40,6 @@ testallcheck: clean compiler
 		$(VALGRIND) ./runme step4/input/test_complex.micro test_combination.out
 		$(VALGRIND) ./runme step4/input/test_expr.micro test_combination.out
 		$(VALGRIND) ./runme step4/input/test_mult.micro test_combination.out
-
-
-test1check: 
-		$(VALGRIND) ./runme test1.c test_combination.out
-
-testgdb: clean compiler 
-		gdb ./runme step4/input/test_combination.micro test_combination.out
-
-test: clean compiler
-		./runme step3/input/test1.micro test1.out
-		diff -b test1.out step3/output/test1.out
-		./runme step3/input/test5.micro test5.out
-		diff -b test5.out step3/output/test5.out
-		./runme step3/input/test6.micro test6.out
-		diff -b test6.out step3/output/test6.out
-		./runme step3/input/test7.micro test7.out
-		diff -b test7.out step3/output/test7.out
-		./runme step3/input/test8.micro test8.out
-		diff -b test8.out step3/output/test8.out
-		./runme step3/input/test11.micro test11.out
-		diff -b test11.out step3/output/test11.out
-		./runme step3/input/test13.micro test13.out
-		diff -b test13.out step3/output/test13.out
-		./runme step3/input/test14.micro test14.out
-		diff -b test14.out step3/output/test14.out
-		./runme step3/input/test16.micro test16.out
-		diff -b test16.out step3/output/test16.out
-		./runme step3/input/test18.micro test18.out
-		diff -b test18.out step3/output/test18.out
-		./runme step3/input/test19.micro test19.out
-		diff -b test19.out step3/output/test19.out
-		./runme step3/input/test20.micro test20.out
-		diff -b test20.out step3/output/test20.out
-		./runme step3/input/test21.micro test21.out
-		diff -b test21.out step3/output/test21.out
-		./runme step3/input/test22.micro test22.out
-		diff -b test22.out step3/output/test22.out
 	
 clean: 
 		/bin/rm -f *.gcda *.gcno gmon.out *gcov
