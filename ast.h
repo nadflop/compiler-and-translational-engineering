@@ -69,7 +69,7 @@ typedef struct Tree {
 
 Tree * new_node(NodeType node_type, Tree * left, Tree * right);
 Tree * new_opnode(NodeType node_type, enum Operator op, Tree * left, Tree * right);
-Tree * new_compnode(NodeType node_type, enum Comparator comp, Tree * left, Tree * right);
+Tree * new_compnode(NodeType node_type, char * comp, Tree * left, Tree * right);
 Tree * new_varleaf(ht_hash_table * ht, char * key, char * name);
 Tree * new_litleaf(char * literal, char * type);
 Tree * new_list(NodeType node_type);

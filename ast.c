@@ -25,7 +25,7 @@ Tree * new_opnode(NodeType node_type, enum Operator op, Tree * left, Tree * righ
 	return t;
 }
 //ast node for comparator operations (like boolean, relational or equivalent//
-Tree * new_compnode(NodeType node_type, char *  comp, Tree * left, Tree * right) {
+Tree * new_compnode(NodeType node_type, char * comp, Tree * left, Tree * right) {
 	Tree * t = malloc(sizeof(Tree));
 	t->node_type = node_type;
 	t->left = left;
@@ -59,6 +59,7 @@ Tree * new_varleaf(ht_hash_table * ht, char * key, char * name) {
 
 	return t;
 }
+
 //only for STMT_LIST, WRITE_LIST, READ_LIST, IF_LIST, ELSE_LIST, WHILE_LIST
 Tree * new_list(NodeType node_type){
 	Tree * node = malloc(sizeof(Tree)); 
@@ -97,6 +98,10 @@ void ast_print_list(Tree * list){
 		printf("List is empty\n"); 
 
 		return; 
+	}
+
+	if (list->node_type == FUNC_NODE){
+		ast_print_list(curr);
 	}
 
 	// at this point list has node(s) in it
