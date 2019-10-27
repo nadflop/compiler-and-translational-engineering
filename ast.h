@@ -5,21 +5,24 @@
 
 /*Declare different type of nodes*/
 typedef enum NodeType { 
-	BASIC_NODE, 
-	ASSIGN_NODE, 
-	STMT_LIST, 
-	ARITHM_NODE, 
-	WRITE_LIST,
-	READ_LIST,
-	FUNC_NODE, 
-	VAR_REF,
-	OPEN_PARENT, 
-	CLOSE_PARENT,
-	LIT_VAL,
-	IF_LIST, //when we first see an 'if' statement
-	COMP_NODE,//the comparation happening inside the if stmt
-	ELSE_LIST, //similar to stmt list but this is local to the else body
-	WHILE_LIST
+	BASIC_NODE, //0
+	ASSIGN_NODE, //1
+	STMT_LIST, //2
+	ARITHM_NODE, //3
+	WRITE_LIST,	//4
+	READ_LIST,	//5
+	FUNC_NODE, 	//6
+	VAR_REF,	//7
+	OPEN_PARENT, 	//8
+	CLOSE_PARENT,	//9
+	LIT_VAL,	//10
+	IF_LIST, //11 when we first see an 'if' statement
+	COMP_NODE,//12 the comparation happening inside the if stmt
+	ELSE_LIST, //13 similar to stmt list but this is local to the else body
+	WHILE_LIST, //14
+	IF_STMT_LIST, //15
+	WHILE_STMT_LIST //16
+
 }NodeType;
 
 typedef enum Operator{

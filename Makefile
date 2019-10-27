@@ -25,8 +25,12 @@ ast: clean
 		gcc -g ast.c
 		./a.out
 
-test1: clean compiler
-		./runme step5/input/step5_test1.micro step5_test.out
+test: clean compiler
+		#./runme test1.c test1.out
+		./runme step5/input/step5_test1.micro step5_test1.out
+
+testcheck: clean compiler
+		$(VALGRIND) ./runme step5/input/step5_test2.micro step5_test2.out
 
 
 testall: clean compiler

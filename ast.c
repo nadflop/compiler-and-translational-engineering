@@ -67,6 +67,8 @@ Tree * new_list(NodeType node_type, char * startlabel, char * endlabel){
 	node->left = NULL;
 	node->right = NULL;
 	node->next = NULL;
+	node->startlabel = startlabel;
+	node->endlabel = endlabel;
 
 	return node; 
 }
@@ -85,6 +87,16 @@ void ast_add_node_to_list(Tree * list, Tree * node){
 	// at this point, list is not empty
 	list->right->next = node; 
 	list->right = list->right->next; 
+	list->right->next = NULL;
+
+	/*
+	Tree * curr = list->left;
+	printf("\nin list: %s");
+	while(curr != NULL){
+		printf("<%d> ", curr->node_type);
+		curr = curr->next;
+	}
+	*/
 
 	return;
 }
@@ -97,38 +109,52 @@ void ast_print(Tree * node){
 		printf("List is empty\n"); 
 	}
 
+	else if(node->node_type == COMP_NODE){
+		printf("COMP_NODE\n");	// TODO: labels for JMP
+	}
+
 	else if(node->node_type == FUNC_NODE){
+		printf("%s\n", node->startlabel); // TODO: name label "LABEL FUNC_funcname"
 		ast_print(curr);
 	}
 
-	else if(node->node_type == STMT_LIST){
+	else if(node->node_type == STMT_LIST ||  node->node_type == WHILE_STMT_LIST || node->node_type == IF_STMT_LIST){
 		while(curr != NULL){
 			ast_print(curr); 
 			curr = curr->next; 
-		}
+		}	
 	}
 
 	else if(node->node_type == IF_LIST){
 		// curr points to bool_expr (compnode)
-		printf("IF_LIST (%s %d %d)\n", curr->left, curr->comp, curr->right->node_type);
-		ast_print(curr->next); // if's stmt_list
-		ast_print(curr->next->next); // else_list
+		printf("IF_LIST\n");
+		//printf("IF_LIST (%s %d %d)\n", curr->left, curr->comp, curr->right->node_type);
+		while(curr != NULL){
+			ast_print(curr); 
+			curr = curr->next; 
+		}
+		printf("%s\n", node->startlabel);
 	}
 
 	else if(node->node_type == ELSE_LIST){
-		printf("ELSE_LIST ----\n");
+		printf("ELSE_LIST\n");
+		// curr is stmt_list
 		ast_print(curr); // else's stmt_list
 	}
 
 	else if(node->node_type == WHILE_LIST){
 		// curr points to bool_expr (compnode)
-		printf("WHILE_LIST (%s %d %d)\n", curr->left, curr->comp, curr->right->node_type);
-		ast_print(curr->next); // while's stmt_list
+		printf("%s\n", node->startlabel);  // TODO: start and end labels
+		//printf("WHILE_LIST (%s %d %d)\n", curr->left, curr->comp, curr->right->node_type);
+		while(curr != NULL){
+			ast_print(curr);
+			curr = curr->next;
+		}
+		printf("%s\n", node->endlabel);
 	}
 
 	else if(node->node_type == ASSIGN_NODE){
-		printf("ASSIGN NODE for: %s\n", node->left->name); // print lhs of assignment expression for reference
-		return; 
+		printf("ASSIGN NODE for: %s\n", node->left->name); // print lhs of assignment expression for reference 
 	}
 
 	else if(node->node_type == WRITE_LIST){
@@ -137,6 +163,7 @@ void ast_print(Tree * node){
 			printf("%s ", curr->name);
 			curr = curr->next; 
 		}
+		printf("\n");
 	}
 
 	else if(node->node_type == READ_LIST){
@@ -145,41 +172,8 @@ void ast_print(Tree * node){
 			printf("%s ", curr->name); 
 			curr = curr->next;
 		}
+		printf("\n");
 	}
-
-	/*
-	// at this point list has node(s) in it
-	// check list type (for now either STMT_LIST or WRITE_LIST
-	if (list->node_type == STMT_LIST){
-		while (curr != NULL){
-			if(curr->node_type == ASSIGN_NODE){
-				printf("\nASSIGN_NODE with LHS: %s", curr->left->name);
-			}
-			else if(curr->node_type == WRITE_LIST){
-				rw = curr->left; // points to the first variable
-				printf("\nWRITE_LIST: ");
-				while(rw != NULL){
-					printf("%s ", rw->name); 
-					rw = rw->next; 
-				}
-			}
-			else if (curr->node_type == READ_LIST){
-				rw = curr->left; 
-				printf("\nREAD_LIST: "); 
-				while(rw != NULL){
-					printf("%s ", rw->name); 
-					rw = rw->next; 
-				}
-			}
-			printf("\n"); 
-			generate_code(curr); 			
-			curr = curr->next; 
-		}
-	}
-
-	*/
-
-	printf("\n"); 
 
 	return; 
 }

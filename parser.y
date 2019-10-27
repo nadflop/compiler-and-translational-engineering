@@ -36,8 +36,7 @@ void printArray(void);
 char * scopename; 
 char * name;
 char * datatype; 
-char buf[20];
-
+char buf[100];
 
 // IR Rep
 void printExprTree(Tree * root); 
@@ -67,6 +66,7 @@ Tree * opnode;
 Tree * term;
 Tree * root_expr;
 
+Tree * ast_root;
 Tree * func_node;
 Tree * stmt_list; 
 Tree * write_list; 
@@ -74,7 +74,7 @@ Tree * read_list;
 Tree * if_list; 
 Tree * else_list; 
 Tree * while_list; 
-Tree * stmt;
+Tree * comp_node;
 
 Tree * inf_head; 
 Tree * inf_tail; 
@@ -82,6 +82,8 @@ Tree * op_head;
 Tree * op_tail;
 Tree * stack_head; 
 Tree * stack_tail; 
+Tree * list_head; 
+Tree * list_tail; 
 
 int labelnum = 0;
 
@@ -91,8 +93,18 @@ void oplist_extract(NodeType type);
 void infix_print(void); 
 void oplist_print(void); 
 void infix_build_expr_tree(void);
+void list_push(Tree * node);
+Tree * list_pop(void);
 
 void printIR(void);
+
+char buf_FUNC[20]; 
+char buf_WHILE_START[20]; 
+char buf_WHILE_END[20]; 
+char buf_ELSE[20]; 
+char buf_END_IF_ELSE[20]; 
+
+
 
 %}
 // Bison Definitions
@@ -122,8 +134,8 @@ void printIR(void);
 %token <keyword>_END _ENDIF _ENDWHILE
 %token <strval> _INT _VOID _STRING _FLOAT
 %token <keyword> _RETURN
-%token <keyword> _TRUE _FALSE
-%token <operator> COMPARATOR 
+%token <op> _TRUE _FALSE
+%token <op> COMPARATOR 
 %token <operator> ASSIGNMENT
 %token <op> ADDOP MULOP
 %token <operator> TERMINATOR OPENPARENT CLOSEPARENT COMMA
@@ -143,6 +155,7 @@ void printIR(void);
 //type declare the type of semantic values for a non-terminal symbol
 %type <strval> id str_literal string_decl
 %type <strval> var_type any_type var_decl id_list
+%type <op> compop
 
 
 %%
@@ -229,15 +242,24 @@ func_declarations: 	func_decl func_declarations
 ; 
 func_decl: _FUNC any_type id 
 			{	
-				ht_insert(ht, $3, NULL, NULL, NULL); updateArray($3); 
+				ht_insert(ht, $3, NULL, NULL, NULL); 
+				updateArray($3);
+				snprintf(buf_FUNC, sizeof buf_FUNC, "LABEL FUNC_%s", $3); 
+				func_node = new_list(FUNC_NODE, buf_FUNC, NULL);
 			}
 			OPENPARENT param_decl_list CLOSEPARENT _BEGIN func_body _END
 ; 
-func_body: 	decl {	stmt_list = new_list(STMT_LIST, NULL, NULL); } stmt_list 
+func_body: 	decl 
 			{	
-				func_node = new_node(FUNC_NODE, stmt_list, NULL); 
+				stmt_list = new_list(STMT_LIST, NULL, NULL);
+				ast_add_node_to_list(func_node, stmt_list);
+				list_push(stmt_list); 
+			} 
+			stmt_list 
+			{	
+				stmt_list = list_pop();
 				ast_print(func_node);
-				printIR();
+				//printIR();
 			}
 ; 
 
@@ -271,12 +293,12 @@ assign_expr:	id ASSIGNMENT {	inf_head = NULL; op_head = NULL; inf_tail = NULL; o
 					lhs = new_varleaf(ht, "GLOBAL", $1); 
 					rhs = inf_head; 
 					root_expr = new_node(ASSIGN_NODE, lhs, rhs); 
-					ast_add_node_to_list(stmt_list, root_expr); 
+					ast_add_node_to_list(list_head, root_expr); 
 				}
 ; 
-read_stmt: 		_READ { read_list = new_list(READ_LIST, NULL, NULL); ast_add_node_to_list(stmt_list, read_list); read = 1; } OPENPARENT { declare = 0; } id_list CLOSEPARENT TERMINATOR { read = 0; }
+read_stmt: 		_READ { read_list = new_list(READ_LIST, NULL, NULL); ast_add_node_to_list(list_head, read_list); read = 1; } OPENPARENT { declare = 0; } id_list CLOSEPARENT TERMINATOR { read = 0; }
 ; 
-write_stmt: 	_WRITE { write_list = new_list(WRITE_LIST, NULL, NULL); ast_add_node_to_list(stmt_list, write_list); write = 1; } OPENPARENT { declare = 0; } id_list CLOSEPARENT TERMINATOR { write = 0; }
+write_stmt: 	_WRITE { write_list = new_list(WRITE_LIST, NULL, NULL); ast_add_node_to_list(list_head, write_list); write = 1; } OPENPARENT { declare = 0; } id_list CLOSEPARENT TERMINATOR { write = 0; }
 ; 
 return_stmt: 	_RETURN expr TERMINATOR
 ; 
@@ -336,32 +358,95 @@ mulop: 			MULOP
 ; 
 
 // Complex Statements and Condition
-if_stmt: 	_IF OPENPARENT cond CLOSEPARENT 
+//
+//TODO: edit if_stmt and else_stmt
+if_stmt: 	_IF 
 			{ 	blocknum++; 
-				snprintf(buf, 20, "BLOCK %d", blocknum); 
+				snprintf(buf, 100, "BLOCK %d", blocknum); 
 				ht_insert(ht, buf, NULL, NULL, NULL); 
-				updateArray(buf); 
-			} decl stmt_list else_part _ENDIF
+				updateArray(buf);
+				
+				labelnum++; 
+				snprintf(buf_ELSE, sizeof buf_ELSE, "ELSE_%d", labelnum); 
+				labelnum++;
+				snprintf(buf_END_IF_ELSE, sizeof buf_END_IF_ELSE, "END_IF_ELSE%d", labelnum);
+				
+				stmt_list = new_list(IF_LIST, buf_ELSE, buf_END_IF_ELSE); 	// CREATE IF_LIST
+				ast_add_node_to_list(list_head, stmt_list); // add IF_LIST to current list_head (any stmt_list)
+				list_push(stmt_list);	// make IF_LIST to be the current head
+			} 
+			OPENPARENT cond {
+				ast_add_node_to_list(list_head, comp_node);	// add COMP_NODE to IF_LIST	
+			}
+			CLOSEPARENT decl {
+				stmt_list = new_list(IF_STMT_LIST, NULL, NULL); // create IF_STMT_LIST
+				ast_add_node_to_list(list_head, stmt_list); 	// add IF_STMT_LIST to IF_LIST
+				list_push(stmt_list); 	// make IF_STMT_LIST to be the current head
+			}
+			stmt_list {
+				stmt_list = list_pop(); // pop IF_STMT_LIST
+				stmt_list->right->startlabel = list_head->startlabel;
+				stmt_list = new_list(ELSE_LIST, NULL, NULL); // create ELSE_LIST
+				ast_add_node_to_list(list_head, stmt_list); // add ELSE_LIST to IF_LIST
+				list_push(stmt_list); // make ELSE_LIST to be the current head
+				stmt_list = new_list(STMT_LIST, NULL, NULL); // create STMT_LIST
+				ast_add_node_to_list(list_head, stmt_list); // add STMT_LIST to ELSE_LIST
+				list_push(stmt_list); // make STMT_LIST to be the current head				
+			}
+			else_part {
+				stmt_list = list_pop(); // pop ELSE's STMT_LIST
+				stmt_list = list_pop(); // pop ELSE_LIST
+				stmt_list = list_pop(); // pop IF_LIST
+			}
+			_ENDIF 
 ; 
 else_part: 	_ELSE {	blocknum++; 
-					snprintf(buf, 20, "BLOCK %d", blocknum); 
+					snprintf(buf, 100, "BLOCK %d", blocknum); 
 					ht_insert(ht, buf, NULL, NULL, NULL); 
 					updateArray(buf);  
-			} decl stmt_list
+			}
+			stmt_list
 			|
 ; 
-cond: 		expr compop expr
+cond: 		expr { list_push(inf_head); } compop expr 
+			{ 
+				comp_node = new_compnode(COMP_NODE, $3, list_pop(), inf_head); 
+				comp_node->endlabel = list_head->endlabel;
+			}
 			| _TRUE
 			| _FALSE
 ; 
 compop: 	COMPARATOR
 ; 
-while_stmt: _WHILE OPENPARENT cond CLOSEPARENT decl 
-				{ 	blocknum++; 
-					snprintf(buf, 20, "BLOCK %d", blocknum); 
-					ht_insert(ht, buf, NULL, NULL, NULL); 
-					updateArray(buf); 
-				} stmt_list _ENDWHILE
+while_stmt: _WHILE {
+				blocknum++; 
+				snprintf(buf, 100, "BLOCK %d", blocknum); 
+				ht_insert(ht, buf, NULL, NULL, NULL); 
+				updateArray(buf);
+				
+				labelnum++;
+				snprintf(buf_WHILE_START, sizeof buf_WHILE_START, "LABEL WHILE_START_%d", labelnum);
+				labelnum++;
+				snprintf(buf_WHILE_END, sizeof buf_WHILE_END, "LABEL WHILE_END_%d", labelnum);
+				
+				stmt_list = new_list(WHILE_LIST, buf_WHILE_START, buf_WHILE_END); // CREATE WHILE_LIST
+				ast_add_node_to_list(list_head, stmt_list);		// add WHILE_LIST to current list_head (any stmt_list)
+				list_push(stmt_list);	// make WHILE_LIST to be the current head
+			} 
+			OPENPARENT cond	{
+				ast_add_node_to_list(list_head, comp_node); // add COMP_NODE to WHILE_LIST			
+			}
+			CLOSEPARENT decl {
+				stmt_list = new_list(WHILE_STMT_LIST, NULL, NULL); // create WHILE_STMT_LIST
+				ast_add_node_to_list(list_head, stmt_list); // add WHILE_STMT_LIST to WHILE_LIST
+				list_push(stmt_list); // make WHILE_STMT_LIST to be the current head				
+			} 
+			stmt_list {
+				stmt_list = list_pop(); // pop WHILE_STMT_LIST
+				stmt_list->right->startlabel = list_head->startlabel;
+				stmt_list = list_pop(); // pop WHILE_LIST
+			} 
+			_ENDWHILE	
 ; 
 control_stmt: 	return_stmt
 ; 
@@ -418,7 +503,61 @@ void printIR(){
 
 }
 
-// Work in Progress
+void list_push(Tree * node){
+	//printf("Pushing..\n");
+
+	// if scope stack is empty
+	if(list_head == NULL){
+		list_head = node; 
+		list_tail = NULL;
+		list_head->next = list_tail;
+
+		return;
+	}
+
+	// add node to scope stack
+	node->next = list_head; 
+	list_head = node;
+
+	/*
+	Tree * curr = list_head; 
+	printf("STACK: ");
+	while(curr != NULL){
+		printf("<%d> ", curr->node_type);
+		curr = curr->next; 
+	}
+	printf("\n");
+	*/
+	
+
+	return;
+}
+
+Tree * list_pop(void){
+	//printf("Popping..\n");
+
+	if(list_head == NULL){
+		printf("ERROR: Scope stack is empty!");
+		exit(-1); 
+	}
+
+	Tree * popnode = list_head;  
+	list_head = list_head->next;
+	popnode->next = NULL;
+
+	/*
+	Tree * curr = list_head; 
+	printf("STACK: ");
+	while(curr != NULL){
+		printf("<%d> ", curr->node_type);
+		curr = curr->next; 
+	}
+	printf("\n");
+	*/
+
+	return popnode;
+}
+
 void infix_push(Tree * node){
 	
 	// stack is empty
@@ -438,7 +577,6 @@ void infix_push(Tree * node){
 	return; 
 }
 
-// Work in Progress
 Tree * infix_pop(){
 	
 	// stack should not be empty!
@@ -448,7 +586,7 @@ Tree * infix_pop(){
 	}
 
 	Tree * popnode = stack_head; 
-	stack_head = stack_head->next; 
+	stack_head = stack_head->next; 	
 
 	return popnode; 
 }
