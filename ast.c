@@ -25,17 +25,32 @@ Tree * new_opnode(NodeType node_type, enum Operator op, Tree * left, Tree * righ
 	return t;
 }
 //ast node for comparator operations (like boolean, relational or equivalent//
-Tree * new_compnode(NodeType node_type, char * comp, Tree * left, Tree * right) {
+Tree * new_compnode(NodeType node_type, char * c, Tree * left, Tree * right) {
 	Tree * t = malloc(sizeof(Tree));
 	t->node_type = node_type;
 	t->left = left;
 	t->right = right;
 	//case for comp
-	if (strcmp(">", comp) == 0)
+	char ex1 =  c[0];
+	char ex2 = c[1];
+	if (ex1 == '=' && ex2 == '=')
+		t->comp = EQ;
+	else if (ex1 == '!' && ex2 == '=')
+		t->comp = NE;
+	else if (ex1 == '>' && ex2 == ' ')
+		t->comp = GT;
+	else if (ex1 == '>' && ex2 == '=')
+		t->comp = GE;
+	else if (ex1 == '<' && ex2 == ' ')
+		t->comp = LT;
+	else if (ex1 == '<' && ex2 == '=')
+		t->comp = LE;
+	/*
+	if (strcmp("> ", comp) == 0)
 		t->comp = GT;
 	else if (strcmp(">=", comp) == 0)
 		t->comp = GE;
-	else if (strcmp("<", comp) == 0)
+	else if (strcmp("< ", comp) == 0)
 		t->comp = LT;
 	else if (strcmp("<=", comp) == 0)
 		t->comp = LE;
@@ -43,6 +58,7 @@ Tree * new_compnode(NodeType node_type, char * comp, Tree * left, Tree * right) 
 		t->comp = NE;
 	else if (strcmp("==", comp) == 0)
 		t->comp = EQ;
+	
 	return t;
 }
 
@@ -80,7 +96,8 @@ void ast_add_node_to_list(Tree * list, Tree * node){
 		list->right = node; 
 		list->head = node; 
 		list->tail = node;
-
+		node->startlabel = list->startlabel;
+		node->endlabel = list->endlabel;
 		return; 
 	}
 
@@ -88,7 +105,6 @@ void ast_add_node_to_list(Tree * list, Tree * node){
 	list->right->next = node; 
 	list->right = list->right->next; 
 	list->right->next = NULL;
-
 	/*
 	Tree * curr = list->left;
 	printf("\nin list: %s");

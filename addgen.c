@@ -30,7 +30,7 @@ CodeObject * new_data() {
 }
 
 void generate_self(Tree * node) {
-
+	
 	CodeObject* t = new_data();
 			
 	if (node->node_type == VAR_REF) {
@@ -61,22 +61,12 @@ void generate_self(Tree * node) {
 			fprintf(yyout, ";LABEL %s\n", node->endlabel);
 			return;
 		}
-		else {
-			printf(";LABEL %s\n", node->startlabel);
-			fprintf(yyout, ";LABEL %s\n", node->startlabel);
-			return;
-		}
 	}
 	else if (node->node_type == WHILE_LIST) {
 		//check if we have enough info to generate 3ac
 		if(node->left->tac->temp != NULL && node->right->right->tac->temp != NULL) {
 			printf(";LABEL %s\n", node->endlabel);
 			fprintf(yyout,";LABEL %s\n", node->endlabel);
-			return;
-		}
-		else {
-			printf(";LABEL %s\n", node->startlabel);		
-			fprintf(yyout, ";LABEL %s\n", node->startlabel);
 			return;
 		}
 	}
@@ -210,16 +200,6 @@ void generate_list(Tree * list) {
 	
 	while(curr != NULL) {
 		generate_code(curr);
-		if(curr->next == NULL) {
-			if(list->node_type == IF_STMT_LIST) {
-				printf("JUMP %s\n", curr->endlabel);
-				fprintf(yyout, "JUMP %s\n", curr->endlabel);
-			}
-			else if(list->node_type == WHILE_STMT_LIST) {
-				printf("JUMP %s\n", curr->startlabel);
-				fprintf(yyout, "JUMP %s\n", curr->startlabel); 
-			}
-		}
 		curr = curr->next;
 	}
 	
@@ -233,9 +213,20 @@ void generate_code(Tree * root) {
 		generate_code(root->left);
 		generate_code(root->right);
 	}
-	else if (root->node_type == STMT_LIST || root->node_type == IF_STMT_LIST || root->node_type == WHILE_STMT_LIST || root->node_type == WRITE_LIST || root->node_type == READ_LIST || root->node_type == IF_LIST || root->node_type == ELSE_LIST || root->node_type == WHILE_LIST) {
+	else if (root->node_type == STMT_LIST || root->node_type == IF_STMT_LIST || root->node_type == WHILE_STMT_LIST || root->node_type == WRITE_LIST || root->node_type == READ_LIST || root->node_type == IF_LIST) {
 		//since we know they only have a left child
 		generate_list(root);		
+	}
+	else if (root->node_type == WHILE_LIST) {
+		printf(";LABEL %s\n", root->startlabel);
+		generate_list(root);
+		printf(";JUMP %s\n", root->startlabel);
+	}
+	else if (root->node_type == ELSE_LIST) {
+		printf(";JUMP %s\n", root->endlabel);
+		//fprintf(yyout, ";JUMP %s\n", curr->endlabel);
+		printf(";LABEL %s\n", root->startlabel);
+		generate_list(root);
 	}
 	generate_self(root);
 	return;
