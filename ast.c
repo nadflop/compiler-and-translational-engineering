@@ -58,7 +58,7 @@ Tree * new_compnode(NodeType node_type, char * c, Tree * left, Tree * right) {
 		t->comp = NE;
 	else if (strcmp("==", comp) == 0)
 		t->comp = EQ;
-	
+*/	
 	return t;
 }
 

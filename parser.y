@@ -52,6 +52,9 @@ ht_item * idL[50];
 int ILmaxind = -1; 
 void updateIL(ht_item * id); 
 
+//store comparator operator
+char * cp;
+
 int write = 0; 
 int read = 0; 
 int prim_done = 0;
@@ -259,7 +262,7 @@ func_body: 	decl
 			{	
 				stmt_list = list_pop();
 				ast_print(func_node);
-				//printIR();
+				printIR();
 			}
 ; 
 
@@ -386,10 +389,10 @@ if_stmt: 	_IF
 			stmt_list {
 				stmt_list = list_pop(); // pop IF_STMT_LIST
 				stmt_list->right->startlabel = list_head->startlabel;
-				stmt_list = new_list(ELSE_LIST, NULL, NULL); // create ELSE_LIST
+				stmt_list = new_list(ELSE_LIST, buf_ELSE, buf_END_IF_ELSE); // create ELSE_LIST
 				ast_add_node_to_list(list_head, stmt_list); // add ELSE_LIST to IF_LIST
 				list_push(stmt_list); // make ELSE_LIST to be the current head
-				stmt_list = new_list(STMT_LIST, NULL, NULL); // create STMT_LIST
+				stmt_list = new_list(STMT_LIST, buf_ELSE, buf_END_IF_ELSE); // create STMT_LIST
 				ast_add_node_to_list(list_head, stmt_list); // add STMT_LIST to ELSE_LIST
 				list_push(stmt_list); // make STMT_LIST to be the current head				
 			}
@@ -409,14 +412,16 @@ else_part: 	_ELSE {	blocknum++;
 			|
 ; 
 cond: 		expr { list_push(inf_head); } compop expr 
-			{ 
-				comp_node = new_compnode(COMP_NODE, $3, list_pop(), inf_head); 
+			{
+				//printf("%s\n", comp);
+				//TODO: think of a way to pass the compop to the function
+				comp_node = new_compnode(COMP_NODE, cp, list_pop(), inf_head); 
 				comp_node->endlabel = list_head->endlabel;
 			}
 			| _TRUE
 			| _FALSE
 ; 
-compop: 	COMPARATOR
+compop: 	COMPARATOR {cp = yytext; }
 ; 
 while_stmt: _WHILE {
 				blocknum++; 
@@ -425,9 +430,9 @@ while_stmt: _WHILE {
 				updateArray(buf);
 				
 				labelnum++;
-				snprintf(buf_WHILE_START, sizeof buf_WHILE_START, "LABEL WHILE_START_%d", labelnum);
+				snprintf(buf_WHILE_START, sizeof buf_WHILE_START, "WHILE_START_%d", labelnum);
 				labelnum++;
-				snprintf(buf_WHILE_END, sizeof buf_WHILE_END, "LABEL WHILE_END_%d", labelnum);
+				snprintf(buf_WHILE_END, sizeof buf_WHILE_END, "WHILE_END_%d", labelnum);
 				
 				stmt_list = new_list(WHILE_LIST, buf_WHILE_START, buf_WHILE_END); // CREATE WHILE_LIST
 				ast_add_node_to_list(list_head, stmt_list);		// add WHILE_LIST to current list_head (any stmt_list)
@@ -480,12 +485,24 @@ void printIR(){
 	
 	fprintf(yyout, ";IR code\n");
 	printf(";IR code\n"); 
+	
+	fprintf(yyout, ";PUSH\n");
+	printf(";PUSH\n"); 
+	
+	fprintf(yyout, ";PUSHREGS\n");
+	printf(";PUSHREGS\n"); 
+	
+	fprintf(yyout, ";JSR FUNC_main\n"); 
+	printf(";JSR FUNC_main\n"); 
+	
+	fprintf(yyout, ";HALT\n");
+	printf(";HALT\n");
 
-	fprintf(yyout, ";LABEL FUNC_main\n"); 
-	printf(";LABEL FUNC_main\n"); 
+	fprintf(yyout, ";LABEL FUNC_main\n");
+	printf(";LABEL FUNC_main\n");
 
-	fprintf(yyout, ";LINK\n");
-	printf(";LINK\n");
+	fprintf(yyout, ";LINK 1\n");
+	printf(";LINK 1\n");
 
 	generate_code(stmt_list); 
 
@@ -494,7 +511,7 @@ void printIR(){
 
 	printArray();
 
-	walkAST(stmt_list);
+	//walkAST(stmt_list);
 	
 	fprintf(yyout, "sys halt\n");
 	printf("sys halt\n");
