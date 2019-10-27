@@ -9,12 +9,11 @@ extern FILE * yyout;
 
 int tempnum = -1;
 char s[5];
-/*func to generate new temp var name*/
 
+/*func to generate new temp var name*/
 void newTemp(char * s) {
 	tempnum++;
 	sprintf(s,"r%d", tempnum);
-	//printf("newTemp Created: %s\n", s); 
 	return;
 }
 
@@ -52,8 +51,34 @@ void generate_self(Tree * node) {
 
 		node->tac = t;
 	}
-	else if (node->node_type == STMT_LIST){
+	else if (node->node_type == STMT_LIST || node->node_type == IF_LIST || node->node_type == WHILE_STMT_LIST || node->node_type == IF_STMT_LIST){
 		return;  
+	}
+	else if (node->node_type == ELSE_LIST) {
+		//check if we have enough info to generate 3ac
+		if(node->left->left->tac->temp != NULL && node->left->right->tac->temp != NULL) {
+			printf(";LABEL %s\n", node->endlabel);
+			fprintf(yyout, ";LABEL %s\n", node->endlabel);
+			return;
+		}
+		else {
+			printf(";LABEL %s\n", node->startlabel);
+			fprintf(yyout, ";LABEL %s\n", node->startlabel);
+			return;
+		}
+	}
+	else if (node->node_type == WHILE_LIST) {
+		//check if we have enough info to generate 3ac
+		if(node->left->tac->temp != NULL && node->right->right->tac->temp != NULL) {
+			printf(";LABEL %s\n", node->endlabel);
+			fprintf(yyout,";LABEL %s\n", node->endlabel);
+			return;
+		}
+		else {
+			printf(";LABEL %s\n", node->startlabel);		
+			fprintf(yyout, ";LABEL %s\n", node->startlabel);
+			return;
+		}
 	}
 	else {
 		/*check if we have enough info to generate 3ac*/
@@ -70,6 +95,7 @@ void generate_self(Tree * node) {
 					printf(";%s %s %s\n", t->data->op, t->data->src1, t->temp);
 
 					break;
+
 				case ARITHM_NODE:
 					newTemp(s);
 					t->temp = strdup(s);
@@ -98,12 +124,13 @@ void generate_self(Tree * node) {
 					node->tac = t;
 					fprintf(yyout, ";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, t->temp);
 					printf(";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, t->temp);
-					break;				
+					break;
+
 				case COMP_NODE:
 					newTemp(s);
 					t->temp = strdup(s);
 					t->data->src1 = node->left->tac->temp;
-					t->data->src2 = node->right->tac->temp;					
+					t->data->src2 = node->right->tac->temp;
 					/*determine result type*/
 					if(strcmp(node->left->tac->result_type,"INT") == 0)
 						t->result_type = "INT";
@@ -131,10 +158,10 @@ void generate_self(Tree * node) {
 							break;
 					}
 					node->tac = t;
-					//TODO: COMP SRC1 SRC2 LABEL, THINK OF HOW TO GENERATE LABEL
-					fprintf(yyout, ";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, t->temp);
-					printf(";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, t->temp);
+					fprintf(yyout, ";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, node->endlabel);
+					printf(";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, node->endlabel);
 					break;
+
 				case WRITE_LIST:
 					free(t->data); 
 					free(t); 
@@ -166,28 +193,13 @@ void generate_self(Tree * node) {
 						curr1 = curr1->next;
 					}
 					break;
-				//TODO: Think of what to do for if-else, while
-				//Should we generate labels here?
-				case IF_LIST:
-					//TODO: assign the label name to their children especially the comparator node
-					//PRINT JUMP END_IF_ELSE{#} {#} REPRESENTS NO
-					//if see node_type else_list, should probably print out the 
-					break;
-				case ELSE_LIST:
-					//TODO: 
-					//LABEL ELSE_{#} {#} REPRESENTS NO
-					//ALL THE STATEMENTS
-					//Should probably just print the labels? because else list is the same as statement list?
-					break;
-				case WHILE_LIST:
-					break; 
+
 				default:
 					break;
 			}	
 		}
 	}
-	
-	return;
+
 }
 
 void generate_list(Tree * list) {
@@ -198,13 +210,22 @@ void generate_list(Tree * list) {
 	
 	while(curr != NULL) {
 		generate_code(curr);
+		if(curr->next == NULL) {
+			if(list->node_type == IF_STMT_LIST) {
+				printf("JUMP %s\n", curr->endlabel);
+				fprintf(yyout, "JUMP %s\n", curr->endlabel);
+			}
+			else if(list->node_type == WHILE_STMT_LIST) {
+				printf("JUMP %s\n", curr->startlabel);
+				fprintf(yyout, "JUMP %s\n", curr->startlabel); 
+			}
+		}
 		curr = curr->next;
 	}
 	
 }
 
-void generate_code(Tree * root) {
-	
+void generate_code(Tree * root) {	
 	if(root == NULL) 
 		return;
 
@@ -212,7 +233,7 @@ void generate_code(Tree * root) {
 		generate_code(root->left);
 		generate_code(root->right);
 	}
-	else if (root->node_type == STMT_LIST || root->node_type == WRITE_LIST || root->node_type == READ_LIST || root->node_type == IF_LIST || root->node_type == ELSE_LIST || root->node_type == WHILE_LIST) {
+	else if (root->node_type == STMT_LIST || root->node_type == IF_STMT_LIST || root->node_type == WHILE_STMT_LIST || root->node_type == WRITE_LIST || root->node_type == READ_LIST || root->node_type == IF_LIST || root->node_type == ELSE_LIST || root->node_type == WHILE_LIST) {
 		//since we know they only have a left child
 		generate_list(root);		
 	}
@@ -229,16 +250,13 @@ void deleteCode(CodeObject * cur_item, NodeType n_type) {
 			if(n_type != ASSIGN_NODE)
 				free(cur_item->temp);
 		}
-	}
-		
+	}		
 	free(cur_item);
-	
 }
 
-//TODO: FILL IN THE CASES FOR IF-ELSE AND WHILE LOOPS
 void generateTiny(Tree * node) {
 
-	if (node->node_type == VAR_REF) //&& node->tac->data == NULL) 
+	if (node->node_type == VAR_REF)
 		return;
 	else if(node->node_type == WRITE_LIST || node->node_type == READ_LIST || node->node_type == STMT_LIST || node->node_type == IF_LIST || node->node_type == ELSE_LIST || node->node_type == WHILE_LIST){
 		return;
@@ -323,59 +341,80 @@ void generateTiny(Tree * node) {
 		}
 		if (strcmp(opcode, "LEI") == 0) {
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			//printf("jle %s\n", node->tac->label);
+			printf("jle %s\n", node->endlabel);
+			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			fprintf(yyout, "jle %s\n", node->endlabel);
+
 		}
 		if (strcmp(opcode, "LEF") == 0) {
 			printf("cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			//printf("jle %s\n", node->tac->label);
+			printf("jle %s\n", node->endlabel);
+			fprintf(yyout, "cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			fprintf(yyout, "jle %s\n", node->endlabel);
 		}
 		if (strcmp(opcode, "LTI") == 0) {
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			//printf("jlt %s\n", node->tac->label);
+			printf("jlt %s\n", node->endlabel);
+			fprintf(yyout, "cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			fprintf(yyout, "jlt %s\n", node->endlabel);
+
 		}
 		if (strcmp(opcode, "LTF") == 0) {
 			printf("cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			//printf("jlt %s\n", node->tac->label);
+			printf("jlt %s\n", node->endlabel);
+			fprintf(yyout,"cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			fprintf(yyout, "jlt %s\n", node->endlabel);	
 		}
 		if (strcmp(opcode, "GEI") == 0) {
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			//printf("jge %s\n", node->tac->label);	
+			printf("jge %s\n", node->endlabel);	
+			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			fprintf(yyout,"jge %s\n", node->endlabel);	
 		}
 		if (strcmp(opcode, "GEF") == 0) {
 			printf("cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			//printf("jge %s\n", node->tac->label);		
+			printf("jge %s\n", node->endlabel);		
+			fprintf(yyout,"cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			fprintf(yyout,"jge %s\n", node->endlabel);		
 		}
 		if (strcmp(opcode, "GTI") == 0) {
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			//printf("jgt %s\n", node->tac->label);		
+			printf("jgt %s\n", node->endlabel);		
+			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			fprintf(yyout, "jgt %s\n", node->endlabel);		
 		}
 		if (strcmp(opcode, "GTF") == 0) {
 			printf("cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			//printf("jgt %s\n", node->tac->label);			
+			printf("jgt %s\n", node->endlabel);			
+			fprintf(yyout,"cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			fprintf(yyout,"jgt %s\n", node->endlabel);		
 		}
 		if (strcmp(opcode, "EQI") == 0) {
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			//printf("jeq %s\n", node->tac->label);				
+			printf("jeq %s\n", node->endlabel);				
+			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			fprintf(yyout,"jeq %s\n", node->endlabel);		
 		}
 		if (strcmp(opcode, "EQF") == 0) {
 			printf("cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			//printf("jeq %s\n", node->tac->label);		
+			printf("jeq %s\n", node->endlabel);		
+			fprintf(yyout,"cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			fprintf(yyout,"jeq %s\n", node->endlabel);			
 		}
 	}
 }
+
 void walkAST(Tree * node) {
 	if (node == NULL)
 		return;
-	if(node->node_type == STMT_LIST || node->node_type == ELSE_LIST){
+	if(node->node_type == STMT_LIST || node->node_type == IF_STMT_LIST){
 		Tree * curr = node;
 		walkAST(curr->left);
 		curr = curr->left->next; 
-		while(curr != NULL) { 
-			//printf("in while loop\n"); 
+		while(curr != NULL) {  
 			walkAST(curr); 
 			curr = curr->next; 
 		}
-		//printf("end of stmtlist while loop\n");
 	}
 	else if(node->node_type == WRITE_LIST || node->node_type == READ_LIST) {
 		Tree * curr1 = node->left;
@@ -406,8 +445,57 @@ void walkAST(Tree * node) {
 			curr1 = curr1->next;
 		}
 	}
-	else if(node->node_type == IF_LIST || node->node_type == WHILE_LIST) {
-		//TODO: Fill me in!!!
+	else if(node->node_type == WHILE_LIST) {		
+		Tree * curr = node;
+		printf("label %s\n", node->startlabel);
+		fprintf(yyout, "label %s\n", node->startlabel);
+		walkAST(curr->left);
+		curr = curr->left->next; 
+		while(curr != NULL) { 
+			walkAST(curr); 
+			curr = curr->next; 
+		}
+		printf("label %s\n", node->endlabel);
+		fprintf(yyout, "label %s\n", node->endlabel);
+	}
+	else if(node->node_type == ELSE_LIST) {		
+		Tree * curr = node;
+		printf("label %s\n", node->startlabel);
+		fprintf(yyout, "label %s\n", node->startlabel);
+		walkAST(curr->left);
+		curr = curr->left->next; 
+		while(curr != NULL) {  
+			walkAST(curr); 
+			curr = curr->next; 
+		}
+		printf("label %s\n", node->endlabel);
+		fprintf(yyout, "label %s\n", node->endlabel);
+	}
+	else if(node->node_type == IF_STMT_LIST) {		
+		Tree * curr = node;
+		walkAST(curr->left);
+		curr = curr->left->next; 
+		while(curr != NULL) { 
+			walkAST(curr); 
+			if (curr->next == NULL) {
+				printf("jmp %s\n", curr->endlabel);
+				fprintf(yyout, "jmp %s\n", curr->endlabel);
+			}
+			curr = curr->next; 
+		}
+	}
+	else if(node->node_type == WHILE_STMT_LIST) {		
+		Tree * curr = node;
+		walkAST(curr->left);
+		curr = curr->left->next; 
+		while(curr != NULL) {  
+			walkAST(curr); 
+			if (curr->next == NULL) {
+				printf("jmp %s\n", curr->startlabel);
+				fprintf(yyout, "jmp %s\n", curr->startlabel);
+			}
+			curr = curr->next; 
+		}
 	}
 	else if(node->node_type != VAR_REF && node->node_type != LIT_VAL) {
 		walkAST(node->left);
