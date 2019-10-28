@@ -30,8 +30,30 @@ Tree * new_compnode(NodeType node_type, char * comp, Tree * left, Tree * right) 
 	t->node_type = node_type;
 	t->left = left;
 	t->right = right;
+	
+	/*
 	//case for comp
+<<<<<<< HEAD
 	if (strcmp(">", comp) == 0)
+=======
+	char ex1 =  c[0];
+	char ex2 = c[1];
+	if (ex1 == '=' && ex2 == '=')
+		t->comp = EQ;
+	else if (ex1 == '!' && ex2 == '=')
+		t->comp = NE;
+	else if (ex1 == '>' && ex2 == ' ')
+		t->comp = GT;
+	else if (ex1 == '>' && ex2 == '=')
+		t->comp = GE;
+	else if (ex1 == '<' && ex2 == ' ')
+		t->comp = LT;
+	else if (ex1 == '<' && ex2 == '=')
+		t->comp = LE;
+	*/
+
+	if (strcmp("> ", comp) == 0)
+>>>>>>> 6c7210bc64a6b63c668277291d9ee452acd12f8e
 		t->comp = GT;
 	else if (strcmp(">=", comp) == 0)
 		t->comp = GE;
@@ -43,6 +65,10 @@ Tree * new_compnode(NodeType node_type, char * comp, Tree * left, Tree * right) 
 		t->comp = NE;
 	else if (strcmp("==", comp) == 0)
 		t->comp = EQ;
+<<<<<<< HEAD
+=======
+	
+>>>>>>> 6c7210bc64a6b63c668277291d9ee452acd12f8e
 	return t;
 }
 
