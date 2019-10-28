@@ -448,7 +448,8 @@ cond: 		expr
 				lhs = list_pop();
 				rhs = inf_head; 	
 				comp_node = new_compnode(COMP_NODE, $3, lhs, rhs);
-				//comp_node->endlabel = list_head->endlabel;
+				comp_node->startlabel = list_head->startlabel;
+				comp_node->endlabel = list_head->endlabel;
 				inf_head = NULL;
 			}
 			| _TRUE
