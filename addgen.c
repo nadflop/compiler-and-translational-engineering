@@ -55,12 +55,7 @@ void generate_self(Tree * node) {
 		return;  
 	}
 	else if (node->node_type == ELSE_LIST) {
-		return;
 		//check if we have enough info to generate 3ac
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 		
 		// only for debugging
 		//printf("HERE: %s\n", (node->left->left == NULL) ? "YES" : "NO");
@@ -84,41 +79,11 @@ void generate_self(Tree * node) {
 			return;
 		}
 		else if(node->left->left->tac->temp != NULL && node->left->right->tac->temp != NULL) {
-=======
-		//printf("left of else list: %d\n", node->left->node_type);
-	/*	
-		if (node->left->left == NULL || node->left->right == NULL ) {
->>>>>>> Stashed changes
-=======
-		//printf("left of else list: %d\n", node->left->node_type);
-	/*	
-		if (node->left->left == NULL || node->left->right == NULL ) {
->>>>>>> Stashed changes
-=======
-		//printf("left of else list: %d\n", node->left->node_type);
-	/*	
-		if (node->left->left == NULL || node->left->right == NULL ) {
->>>>>>> Stashed changes
-=======
-		//printf("left of else list: %d\n", node->left->node_type);
-	/*	
-		if (node->left->left == NULL || node->left->right == NULL ) {
->>>>>>> Stashed changes
 			printf(";LABEL %s\n", node->endlabel);
 			fprintf(yyout, ";LABEL %s\n", node->endlabel);
 			return;
 		}
 
-		printf("node label \n");
-		//if (node->left->left->tac == NULL || node->left->right->tac == NULL)
-		//	return;
-		
-		if(node->left->left->tac->temp != NULL && node->left->right->tac->temp != NULL) {
-			printf("here's the problem\n");
-			printf(";LABEL %s\n", node->endlabel);
-			fprintf(yyout, ";LABEL %s\n", node->endlabel);
-			return;
-		}*/
 	}
 	else if (node->node_type == WHILE_LIST) {
 		//check if we have enough info to generate 3ac
@@ -208,14 +173,12 @@ void generate_self(Tree * node) {
 							break;
 					}
 					node->tac = t;
-					char s;// = node->startlabel[0];
+					char s= node->startlabel[0];
 					if (s == 'W') {
-						//printf("did node->tac->data->op caused it? %s\n", node->tac->data->op);
 						fprintf(yyout, ";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, node->endlabel);
 						printf(";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, node->endlabel);
 					}
 					else {
-						//printf("did node->tac->data->op caused it? %s\n", node->tac->data->op);
 						fprintf(yyout, ";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, node->startlabel);
 						printf(";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, node->startlabel);
 
@@ -269,13 +232,10 @@ void generate_list(Tree * list) {
 	Tree * curr = list->left;
 	if(curr == NULL)
 		return;
-	//printf("before the generate code recursion\n");	
 	while(curr != NULL) {
 		generate_code(curr);
-		//printf("inside the generate list loop now\n");
 		curr = curr->next;
 	}
-	//printf("after the generate code recursion\n");
 }
 
 void generate_code(Tree * root) {	
@@ -283,19 +243,12 @@ void generate_code(Tree * root) {
 		return;
 
 	if(root->node_type == ASSIGN_NODE || root->node_type == ARITHM_NODE || root->node_type == COMP_NODE) {
-		//printf("it got inside here before recursive left\n");
 		generate_code(root->left);
-		//printf("after the recursive left\n");
 		generate_code(root->right);
-		//printf("after the recursive right\n");
 	}
 	else if (root->node_type == STMT_LIST || root->node_type == IF_STMT_LIST || root->node_type == WHILE_STMT_LIST || root->node_type == WRITE_LIST || root->node_type == READ_LIST || root->node_type == IF_LIST) {
 		//since we know they only have a left child
 		generate_list(root);
-		if (root->node_type == IF_LIST) {
-			fprintf(yyout, ";LABEL %s\n", root->endlabel);
-		}
-		//printf("the statement list else cond\n");
 	}
 	else if (root->node_type == WHILE_LIST) {
 		printf(";LABEL %s\n", root->startlabel);
@@ -310,13 +263,8 @@ void generate_code(Tree * root) {
 		printf(";LABEL %s\n", root->startlabel);
 		fprintf(yyout, ";LABEL %s\n", root->startlabel);
 		generate_list(root);
-		//printf();
-		//fprintf();
-		//printf("it's here now\n");
 	}
-	//printf("before the recusive generate self root\n");
 	generate_self(root);
-	//printf("after the recursive generate self root\n");
 	return;
 }
 
@@ -341,6 +289,7 @@ void generateTiny(Tree * node) {
 		return;
 	}
 	else {
+		//printf("inside the opcode condition\n");
 		char * opcode = node->tac->data->op;
 		if (strcmp(opcode, "STOREF") == 0){
 			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
@@ -548,13 +497,40 @@ void generateTiny(Tree * node) {
 			}
 
 		}
+		if (strcmp(opcode, "NEI") == 0) {
+			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			if (node->endlabel[0] == 'W') {
+				printf("jne %s\n", node->endlabel);
+				fprintf(yyout, "jne %s\n", node->endlabel);
+			}
+			else {
+				printf("jne %s\n", node->startlabel);
+				fprintf(yyout, "jne %s\n", node->startlabel);
+			}
+
+		}
+		if (strcmp(opcode, "NEF") == 0) {
+			printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			fprintf(yyout,"cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			if (node->endlabel[0] == 'W') {
+				printf("jne %s\n", node->endlabel);
+				fprintf(yyout, "jne %s\n", node->endlabel);
+			}
+			else {
+				printf("jne %s\n", node->startlabel);
+				fprintf(yyout, "jne %s\n", node->startlabel);
+			}
+
+		}
+		
 	}
 }
 
 void walkAST(Tree * node) {
 	if (node == NULL)
 		return;
-	if(node->node_type == STMT_LIST || node->node_type == IF_STMT_LIST || node->node_type == WHILE_STMT_LIST) {// || node->node_type == IF_LIST){
+	if(node->node_type == STMT_LIST || node->node_type == IF_STMT_LIST || node->node_type == WHILE_STMT_LIST) {
 		Tree * curr = node;
 		if (curr->left != NULL) {
 			walkAST(curr->left);
@@ -574,6 +550,7 @@ void walkAST(Tree * node) {
 			curr = curr->next; 
 		}
 		printf("label %s\n", node->endlabel);
+		fprintf(yyout,"label %s\n", node->endlabel);
 
 	}
 	else if(node->node_type == WRITE_LIST || node->node_type == READ_LIST) {
@@ -644,7 +621,7 @@ void walkAST(Tree * node) {
 		walkAST(node->left);
 		walkAST(node->right);
 	}
-
+	//printf("generating tiny code\n");
 	generateTiny(node);
 }
 
