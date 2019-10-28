@@ -569,8 +569,8 @@ void printIR(){
 
 	walkAST(stmt_list);
 	
-	fprintf(yyout, "unlk\n");
-	printf("unlk\n");
+	fprintf(yyout, "unlnk\n");
+	printf("unlnk\n");
 	
 	fprintf(yyout, "ret\n");
 	printf("ret\n");

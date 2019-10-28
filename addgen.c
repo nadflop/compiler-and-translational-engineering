@@ -68,6 +68,16 @@ void generate_self(Tree * node) {
 			switch(node->node_type) {
 				case ASSIGN_NODE:
 					t->data->op = (strcmp(node->left->tac->result_type, "INT") == 0) ? ("STOREI") : ("STOREF");
+					if (node->right->node_type == VAR_REF) {
+						newTemp(s);
+						node->right->tac->data->op = (strcmp(node->right->tac->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
+						node->right->tac->temp = strdup(s);
+						node->right->tac->data->src1 = node->right->name;
+						//print out the variable store assignment
+						printf(";%s %s %s\n", node->right->tac->data->op, node->right->name, node->right->tac->temp);
+						fprintf(yyout, ";%s %s %s\n", node->right->tac->data->op, node->right->name, node->right->tac->temp);
+					}
+					
 					t->data->src1 = node->right->tac->temp;
 					t->data->src2 = NULL;
 					t->temp = node->left->tac->temp;
@@ -112,6 +122,15 @@ void generate_self(Tree * node) {
 					newTemp(s);
 					t->temp = strdup(s);
 					t->data->src1 = node->left->tac->temp;
+					if (node->right->node_type == VAR_REF) {
+						newTemp(s);
+						node->right->tac->data->op = (strcmp(node->right->tac->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
+						node->right->tac->temp = strdup(s);
+						node->right->tac->data->src1 = node->right->name;
+						//print out the variable store assignment
+						printf(";%s %s %s\n", node->right->tac->data->op, node->right->name, node->right->tac->temp);
+						fprintf(yyout, ";%s %s %s\n", node->right->tac->data->op, node->right->name, node->right->tac->temp);
+					}
 					t->data->src2 = node->right->tac->temp;
 					/*determine result type*/
 					if(strcmp(node->left->tac->result_type,"INT") == 0)
@@ -257,8 +276,9 @@ void deleteCode(CodeObject * cur_item, NodeType n_type) {
 
 void generateTiny(Tree * node) {
 
-	if (node->node_type == VAR_REF)
+	if (node->node_type == VAR_REF){
 		return;
+	}
 	else if(node->node_type == WRITE_LIST || node->node_type == READ_LIST || node->node_type == STMT_LIST || node->node_type == IF_LIST || node->node_type == ELSE_LIST || node->node_type == WHILE_LIST || node->node_type == IF_STMT_LIST || node->node_type == WHILE_STMT_LIST){
 		return;
 	}
@@ -266,10 +286,36 @@ void generateTiny(Tree * node) {
 		//printf("inside the opcode condition\n");
 		char * opcode = node->tac->data->op;
 		if (strcmp(opcode, "STOREF") == 0){
+			if (node->right != NULL) {
+				if (node->right->node_type == VAR_REF) {
+					char * rhs_op = node->right->tac->data->op;
+					if (strcmp(rhs_op, "STOREF") == 0){
+						fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+						printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					}
+					if (strcmp(rhs_op, "STOREI") == 0){
+						fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+						printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					}
+				}
+			}
 			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
 			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
 		}
 		if (strcmp(opcode, "STOREI") == 0){
+			if (node->right != NULL) {
+				if (node->right->node_type == VAR_REF) {
+					char * rhs_op = node->right->tac->data->op;
+					if (strcmp(rhs_op, "STOREF") == 0){
+						fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+						printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					}
+					if (strcmp(rhs_op, "STOREI") == 0){
+						fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+						printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					}
+				}
+			}
 			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
 			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
 		}
@@ -342,6 +388,17 @@ void generateTiny(Tree * node) {
 			printf("divr %s %s\n", node->tac->data->src2, node->tac->temp);
 		}
 		if (strcmp(opcode, "LEI") == 0) {
+			if (node->right->node_type == VAR_REF) {
+				char * rhs_op = node->right->tac->data->op;
+				if (strcmp(rhs_op, "STOREF") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+				if (strcmp(rhs_op, "STOREI") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+			}
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
@@ -355,6 +412,18 @@ void generateTiny(Tree * node) {
 
 		}
 		if (strcmp(opcode, "LEF") == 0) {
+			if (node->right->node_type == VAR_REF) {
+				char * rhs_op = node->right->tac->data->op;
+				if (strcmp(rhs_op, "STOREF") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+				if (strcmp(rhs_op, "STOREI") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+			}
+		
 			printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
@@ -368,6 +437,18 @@ void generateTiny(Tree * node) {
 
 		}
 		if (strcmp(opcode, "LTI") == 0) {
+			if (node->right->node_type == VAR_REF) {
+				char * rhs_op = node->right->tac->data->op;
+				if (strcmp(rhs_op, "STOREF") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+				if (strcmp(rhs_op, "STOREI") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+			}
+		
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
@@ -381,6 +462,18 @@ void generateTiny(Tree * node) {
 
 		}
 		if (strcmp(opcode, "LTF") == 0) {
+			if (node->right->node_type == VAR_REF) {
+				char * rhs_op = node->right->tac->data->op;
+				if (strcmp(rhs_op, "STOREF") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+				if (strcmp(rhs_op, "STOREI") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+			}
+		
 			printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
@@ -394,6 +487,18 @@ void generateTiny(Tree * node) {
 	
 		}
 		if (strcmp(opcode, "GEI") == 0) {
+			if (node->right->node_type == VAR_REF) {
+				char * rhs_op = node->right->tac->data->op;
+				if (strcmp(rhs_op, "STOREF") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+				if (strcmp(rhs_op, "STOREI") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+			}
+		
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
@@ -407,6 +512,18 @@ void generateTiny(Tree * node) {
 	
 		}
 		if (strcmp(opcode, "GEF") == 0) {
+			if (node->right->node_type == VAR_REF) {
+				char * rhs_op = node->right->tac->data->op;
+				if (strcmp(rhs_op, "STOREF") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+				if (strcmp(rhs_op, "STOREI") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+			}
+		
 			printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
@@ -420,6 +537,18 @@ void generateTiny(Tree * node) {
 
 		}
 		if (strcmp(opcode, "GTI") == 0) {
+			if (node->right->node_type == VAR_REF) {
+				char * rhs_op = node->right->tac->data->op;
+				if (strcmp(rhs_op, "STOREF") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+				if (strcmp(rhs_op, "STOREI") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+			}
+		
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
@@ -433,6 +562,18 @@ void generateTiny(Tree * node) {
 
 		}
 		if (strcmp(opcode, "GTF") == 0) {
+			if (node->right->node_type == VAR_REF) {
+				char * rhs_op = node->right->tac->data->op;
+				if (strcmp(rhs_op, "STOREF") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+				if (strcmp(rhs_op, "STOREI") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+			}
+		
 			printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
@@ -446,6 +587,18 @@ void generateTiny(Tree * node) {
 
 		}
 		if (strcmp(opcode, "EQI") == 0) {
+			if (node->right->node_type == VAR_REF) {
+				char * rhs_op = node->right->tac->data->op;
+				if (strcmp(rhs_op, "STOREF") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+				if (strcmp(rhs_op, "STOREI") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+			}
+		
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
@@ -459,6 +612,18 @@ void generateTiny(Tree * node) {
 
 		}
 		if (strcmp(opcode, "EQF") == 0) {
+			if (node->right->node_type == VAR_REF) {
+				char * rhs_op = node->right->tac->data->op;
+				if (strcmp(rhs_op, "STOREF") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+				if (strcmp(rhs_op, "STOREI") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+			}
+		
 			printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
@@ -472,6 +637,18 @@ void generateTiny(Tree * node) {
 
 		}
 		if (strcmp(opcode, "NEI") == 0) {
+			if (node->right->node_type == VAR_REF) {
+				char * rhs_op = node->right->tac->data->op;
+				if (strcmp(rhs_op, "STOREF") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+				if (strcmp(rhs_op, "STOREI") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+			}
+		
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
@@ -485,6 +662,18 @@ void generateTiny(Tree * node) {
 
 		}
 		if (strcmp(opcode, "NEF") == 0) {
+			if (node->right->node_type == VAR_REF) {
+				char * rhs_op = node->right->tac->data->op;
+				if (strcmp(rhs_op, "STOREF") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+				if (strcmp(rhs_op, "STOREI") == 0){
+					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+				}
+			}
+		
 			printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
@@ -597,6 +786,7 @@ void walkAST(Tree * node) {
 		
 		return;
 	}
+	//ONLY IF ITS A COMPNODE OR OPNODE
 	else if(node->node_type != VAR_REF && node->node_type != LIT_VAL) {
 		walkAST(node->left);
 		walkAST(node->right);
