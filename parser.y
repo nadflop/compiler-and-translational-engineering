@@ -522,55 +522,55 @@ int main(int argc, char **argv){
 void printIR(){
 	
 	fprintf(yyout, ";IR code\n");
-	printf(";IR code\n"); 
+	//printf(";IR code\n"); 
 	
 	fprintf(yyout, ";PUSH\n");
-	printf(";PUSH\n"); 
+	//printf(";PUSH\n"); 
 	
 	fprintf(yyout, ";PUSHREGS\n");
-	printf(";PUSHREGS\n"); 
+	//printf(";PUSHREGS\n"); 
 	
 	fprintf(yyout, ";JSR FUNC_main\n"); 
-	printf(";JSR FUNC_main\n"); 
+	//printf(";JSR FUNC_main\n"); 
 	
 	fprintf(yyout, ";HALT\n");
-	printf(";HALT\n");
+	//printf(";HALT\n");
 
 	fprintf(yyout, ";LABEL FUNC_main\n");
-	printf(";LABEL FUNC_main\n");
+	//printf(";LABEL FUNC_main\n");
 
 	fprintf(yyout, ";LINK 1\n");
-	printf(";LINK 1\n");
+	//printf(";LINK 1\n");
 
 	generate_code(stmt_list); 
 
 	fprintf(yyout, ";RET\n");
-	printf(";RET\n"); 
+	//printf(";RET\n"); 
 
 	printArray();
 	
 	fprintf(yyout, "push\n");
-	printf("push\n");
+	//printf("push\n");
 
 	fprintf(yyout, "jsr FUNC_main\n");
-	printf("jsr FUNC_main\n");
+	//printf("jsr FUNC_main\n");
 
 	fprintf(yyout, "sys halt\n");
-	printf("sys halt\n");
+	//printf("sys halt\n");
 
 	fprintf(yyout, "label FUNC_main\n");
-	printf("label FUNC_main\n");
+	//printf("label FUNC_main\n");
 
 	fprintf(yyout, "link 1\n");
-	printf("link 1\n");
+	//printf("link 1\n");
 
 	walkAST(stmt_list);
 	
 	fprintf(yyout, "unlnk\n");
-	printf("unlnk\n");
+	//printf("unlnk\n");
 	
 	fprintf(yyout, "ret\n");
-	printf("ret\n");
+	//printf("ret\n");
 
 	return; 
 
@@ -897,11 +897,11 @@ void printArray(){
 				break; 
 			}
 			if(strcmp(eptr->type, "STRING") == 0){
-				printf("%s %s\n", eptr->name, eptr->strval);
+				//printf("%s %s\n", eptr->name, eptr->strval);
 				fprintf(yyout, "str %s %s\n", eptr->name, eptr->strval);
 			}
 			else{
-				printf("var %s\n", eptr->name);
+				//printf("var %s\n", eptr->name);
 				fprintf(yyout, "var %s\n", eptr->name); 
 			}
 			eptr = eptr->next; 
