@@ -264,8 +264,8 @@ func_body: 	decl
 			stmt_list 
 			{	
 				stmt_list = list_pop();
-				ast_print(func_node);
-				printf("\n\n");
+				//ast_print(func_node);
+				//printf("\n\n");
 				printIR();
 			}
 ; 
@@ -420,7 +420,7 @@ else_part: 	_ELSE {	blocknum++;
 cond: 		expr 
 			{ 
 				if (op_head != NULL) {	
-					printf("ophead is not null\n"); 
+					//printf("ophead is not null\n"); 
 					oplist_extract(100); 	// 100 > 50 tells oplist_extract to extract every opnode until end of oplist. 
 				}
 
@@ -435,12 +435,12 @@ cond: 		expr
 			compop expr 
 			{	
 				if (op_head != NULL) {	
-					printf("ophead is not null\n");
+					//printf("ophead is not null\n");
 					oplist_extract(100); 	// 100 > 50 tells oplist_extract to extract every opnode until end of oplist. 
 				}
 					
 				if (inf_head != inf_tail) {	// if the 'expr' is a mathematical expression 
-					printf("is a tree\n");
+					//printf("is a tree\n");
 					infix_build_expr_tree(); 
 				} 
 				
@@ -488,9 +488,6 @@ while_stmt: _WHILE {
 				stmt_list = list_pop(); // pop WHILE_STMT_LIST
 				stmt_list = list_pop(); // pop WHILE_LIST
 			
-				printf("EESTART: %s\n", stmt_list->startlabel);
-				printf("EEEND: %s\n", stmt_list->endlabel);
-
 			} 
 			_ENDWHILE	
 ; 
@@ -606,8 +603,8 @@ void list_push(Tree * node){
 		printf("\n");
 		*/
 
-		printf("LLLSTART: %s\n", node->startlabel);
-		printf("LLLEND: %s\n", node->endlabel);
+		//printf("LLLSTART: %s\n", node->startlabel);
+		//printf("LLLEND: %s\n", node->endlabel);
 
 	}
 
@@ -649,8 +646,8 @@ Tree * list_pop(void){
 		printf("\n");
 		*/
 
-		printf("PPPSTART: %s\n", popnode->startlabel);
-		printf("PPPEND: %s\n", popnode->endlabel);
+		//printf("PPPSTART: %s\n", popnode->startlabel);
+		//printf("PPPEND: %s\n", popnode->endlabel);
 
 	}
 
