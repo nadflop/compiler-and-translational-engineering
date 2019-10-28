@@ -51,43 +51,11 @@ void generate_self(Tree * node) {
 
 		node->tac = t;
 	}
-	else if (node->node_type == STMT_LIST || node->node_type == IF_LIST || node->node_type == WHILE_STMT_LIST || node->node_type == IF_STMT_LIST){
+	else if (node->node_type == STMT_LIST || node->node_type == IF_LIST || node->node_type == WHILE_STMT_LIST || node->node_type == IF_STMT_LIST || node->node_type == ELSE_LIST){
 		return;  
-	}
-	else if (node->node_type == ELSE_LIST) {
-		//check if we have enough info to generate 3ac
-		
-		// only for debugging
-		//printf("HERE: %s\n", (node->left->left == NULL) ? "YES" : "NO");
-		
-		// only for debugging
-		if (node->left->left != NULL){
-			//printf("TEST TAC %s\n", (node->left->left->tac == NULL) ? "YES" : "NO"); // check if tac is NULL
-			if(node->left->left->tac == NULL){
-				//return;
-			}
-		}
-
-		if(node->left->left == NULL){
-			printf(";LABEL %s\n", node->endlabel);
-			fprintf(yyout, ";LABEL %s\n", node->endlabel);
-			return;
-		}
-		else if (node->left->left->tac == NULL){
-			printf(";LABEL %s\n", node->endlabel);
-			fprintf(yyout, ";LABEL %s\n", node->endlabel);
-			return;
-		}
-		else if(node->left->left->tac->temp != NULL && node->left->right->tac->temp != NULL) {
-			printf(";LABEL %s\n", node->endlabel);
-			fprintf(yyout, ";LABEL %s\n", node->endlabel);
-			return;
-		}
-
 	}
 	else if (node->node_type == WHILE_LIST) {
 		//check if we have enough info to generate 3ac
-		//printf("it's here now\n");	
 		if(node->left->tac->temp != NULL && node->right->right->tac->temp != NULL) {
 			printf(";LABEL %s\n", node->endlabel);
 			fprintf(yyout,";LABEL %s\n", node->endlabel);
@@ -96,7 +64,6 @@ void generate_self(Tree * node) {
 	}
 	else {
 		/*check if we have enough info to generate 3ac*/
-		//printf("it's actually here now?\n");
 		if(node->left->tac->temp != NULL && node->right->tac->temp != NULL) {
 			switch(node->node_type) {
 				case ASSIGN_NODE:
@@ -233,7 +200,18 @@ void generate_list(Tree * list) {
 	if(curr == NULL)
 		return;
 	while(curr != NULL) {
+		if (curr->node_type == ELSE_LIST){
+			//we want to print the jump label here
+			printf(";JUMP %s\n", list->endlabel);
+			fprintf(yyout,";JUMP %s\n", list->endlabel);
+			printf(";LABEL %s\n", list->startlabel);
+			fprintf(yyout,";LABEL %s\n", list->startlabel);
+		}
 		generate_code(curr);
+		if (curr->node_type == ELSE_LIST) {
+			printf(";LABEL %s\n", list->endlabel);
+			fprintf(yyout,";LABEL %s\n", list->endlabel);
+		}
 		curr = curr->next;
 	}
 }
@@ -258,10 +236,6 @@ void generate_code(Tree * root) {
 		fprintf(yyout, ";JUMP %s\n", root->startlabel);
 	}
 	else if (root->node_type == ELSE_LIST) {
-		printf(";JUMP %s\n", root->endlabel);
-		fprintf(yyout, ";JUMP %s\n", root->endlabel);
-		printf(";LABEL %s\n", root->startlabel);
-		fprintf(yyout, ";LABEL %s\n", root->startlabel);
 		generate_list(root);
 	}
 	generate_self(root);
@@ -546,7 +520,13 @@ void walkAST(Tree * node) {
 		walkAST(curr->left);
 		curr = curr->left->next; 
 		while(curr != NULL) {  
-			walkAST(curr); 
+			if (curr->node_type == ELSE_LIST) {
+				printf("jmp %s\n", node->endlabel);
+				fprintf(yyout, "jmp %s\n", node->endlabel);
+				printf("label %s\n", node->startlabel);
+				fprintf(yyout, "label %s\n", node->startlabel);
+			}
+			walkAST(curr);
 			curr = curr->next; 
 		}
 		printf("label %s\n", node->endlabel);
@@ -599,10 +579,10 @@ void walkAST(Tree * node) {
 	}
 	else if(node->node_type == ELSE_LIST) {		
 		Tree * curr3 = node;
-		printf("jmp %s\n",node->endlabel);
-		fprintf(yyout, "jmp %s\n", node->endlabel);
-		printf("label %s\n", node->startlabel);
-		fprintf(yyout, "label %s\n", node->startlabel);
+		//printf("jmp %s\n",node->endlabel);
+		//fprintf(yyout, "jmp %s\n", node->endlabel);
+		//printf("label %s\n", node->startlabel);
+		//fprintf(yyout, "label %s\n", node->startlabel);
 		if (curr3->left != NULL) {
 			walkAST(curr3->left);
 			//printf("here!\n");

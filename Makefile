@@ -30,7 +30,7 @@ test: clean compiler
 		./runme step5/input/step5_test3.micro step5_test3.out
 
 testcheck: clean compiler
-		$(VALGRIND) ./runme step5/input/step5_test2.micro step5_test2.out
+		$(VALGRIND) ./runme step5/input/step5_test5.micro step5_test5.out
 
 
 testall: clean compiler
