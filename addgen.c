@@ -340,65 +340,133 @@ void generateTiny(Tree * node) {
 		}
 		if (strcmp(opcode, "LEI") == 0) {
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			printf("jle %s\n", node->endlabel);
 			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			fprintf(yyout, "jle %s\n", node->endlabel);
+			if (node->endlabel[0] == 'W') {
+				printf("jle %s\n", node->endlabel);
+				fprintf(yyout, "jle %s\n", node->endlabel);
+			}
+			else {
+				printf("jle %s\n", node->startlabel);
+				fprintf(yyout, "jle %s\n", node->startlabel);
+			}
 
 		}
 		if (strcmp(opcode, "LEF") == 0) {
-			printf("cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			printf("jle %s\n", node->endlabel);
-			fprintf(yyout, "cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			fprintf(yyout, "jle %s\n", node->endlabel);
+			printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			fprintf(yyout,"cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			if (node->endlabel[0] == 'W') {
+				printf("jle %s\n", node->endlabel);
+				fprintf(yyout, "jle %s\n", node->endlabel);
+			}
+			else {
+				printf("jle %s\n", node->startlabel);
+				fprintf(yyout, "jle %s\n", node->startlabel);
+			}
+
 		}
 		if (strcmp(opcode, "LTI") == 0) {
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			printf("jlt %s\n", node->endlabel);
-			fprintf(yyout, "cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			fprintf(yyout, "jlt %s\n", node->endlabel);
+			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			if (node->endlabel[0] == 'W') {
+				printf("jlt %s\n", node->endlabel);
+				fprintf(yyout, "jlt %s\n", node->endlabel);
+			}
+			else {
+				printf("jlt %s\n", node->startlabel);
+				fprintf(yyout, "jlt %s\n", node->startlabel);
+			}
 
 		}
 		if (strcmp(opcode, "LTF") == 0) {
-			printf("cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			printf("jlt %s\n", node->endlabel);
-			fprintf(yyout,"cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			fprintf(yyout, "jlt %s\n", node->endlabel);	
+			printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			fprintf(yyout,"cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			if (node->endlabel[0] == 'W') {
+				printf("jlt %s\n", node->endlabel);
+				fprintf(yyout, "jlt %s\n", node->endlabel);
+			}
+			else {
+				printf("jlt %s\n", node->startlabel);
+				fprintf(yyout, "jlt %s\n", node->startlabel);
+			}
+	
 		}
 		if (strcmp(opcode, "GEI") == 0) {
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			printf("jge %s\n", node->endlabel);	
 			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			fprintf(yyout,"jge %s\n", node->endlabel);	
+			if (node->endlabel[0] == 'W') {
+				printf("jge %s\n", node->endlabel);
+				fprintf(yyout, "jge %s\n", node->endlabel);
+			}
+			else {
+				printf("jge %s\n", node->startlabel);
+				fprintf(yyout, "jge %s\n", node->startlabel);
+			}
+	
 		}
 		if (strcmp(opcode, "GEF") == 0) {
-			printf("cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			printf("jge %s\n", node->endlabel);		
-			fprintf(yyout,"cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			fprintf(yyout,"jge %s\n", node->endlabel);		
+			printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			fprintf(yyout,"cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			if (node->endlabel[0] == 'W') {
+				printf("jge %s\n", node->endlabel);
+				fprintf(yyout, "jge %s\n", node->endlabel);
+			}
+			else {
+				printf("jge %s\n", node->startlabel);
+				fprintf(yyout, "jge %s\n", node->startlabel);
+			}
+
 		}
 		if (strcmp(opcode, "GTI") == 0) {
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			printf("jgt %s\n", node->endlabel);		
 			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			fprintf(yyout, "jgt %s\n", node->endlabel);		
+			if (node->endlabel[0] == 'W') {
+				printf("jgt %s\n", node->endlabel);
+				fprintf(yyout, "jgt %s\n", node->endlabel);
+			}
+			else {
+				printf("jgt %s\n", node->startlabel);
+				fprintf(yyout, "jgt %s\n", node->startlabel);
+			}
+
 		}
 		if (strcmp(opcode, "GTF") == 0) {
-			printf("cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			printf("jgt %s\n", node->endlabel);			
-			fprintf(yyout,"cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			fprintf(yyout,"jgt %s\n", node->endlabel);		
+			printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			fprintf(yyout,"cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			if (node->endlabel[0] == 'W') {
+				printf("jgt %s\n", node->endlabel);
+				fprintf(yyout, "jgt %s\n", node->endlabel);
+			}
+			else {
+				printf("jgt %s\n", node->startlabel);
+				fprintf(yyout, "jgt %s\n", node->startlabel);
+			}
+
 		}
 		if (strcmp(opcode, "EQI") == 0) {
 			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			printf("jeq %s\n", node->endlabel);				
 			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			fprintf(yyout,"jeq %s\n", node->endlabel);		
+			if (node->endlabel[0] == 'W') {
+				printf("jeq %s\n", node->endlabel);
+				fprintf(yyout, "jeq %s\n", node->endlabel);
+			}
+			else {
+				printf("jeq %s\n", node->startlabel);
+				fprintf(yyout, "jeq %s\n", node->startlabel);
+			}
+
 		}
 		if (strcmp(opcode, "EQF") == 0) {
-			printf("cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			printf("jeq %s\n", node->endlabel);		
-			fprintf(yyout,"cmpf %s %s\n", node->tac->data->src1, node->tac->data->src2);
-			fprintf(yyout,"jeq %s\n", node->endlabel);			
+			printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			fprintf(yyout,"cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			if (node->endlabel[0] == 'W') {
+				printf("jeq %s\n", node->endlabel);
+				fprintf(yyout, "jeq %s\n", node->endlabel);
+			}
+			else {
+				printf("jeq %s\n", node->startlabel);
+				fprintf(yyout, "jeq %s\n", node->startlabel);
+			}
+
 		}
 	}
 }

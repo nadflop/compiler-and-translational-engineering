@@ -69,11 +69,7 @@ Tree * opnode;
 Tree * term;
 Tree * root_expr;
 Tree * temp;
-<<<<<<< HEAD
 Tree * expr;
-=======
-Tree * expr; 
->>>>>>> 6c7210bc64a6b63c668277291d9ee452acd12f8e
 
 Tree * ast_root;
 Tree * func_node;
@@ -304,11 +300,7 @@ assign_expr:	id ASSIGNMENT {	inf_head = NULL; op_head = NULL; inf_tail = NULL; o
 					lhs = new_varleaf(ht, "GLOBAL", $1); 
 					rhs = inf_head;
 					root_expr = new_node(ASSIGN_NODE, lhs, rhs); 
-<<<<<<< HEAD
-					ast_add_node_to_list(list_head, root_expr); 
-=======
 					ast_add_node_to_list(list_head, root_expr);
->>>>>>> 6c7210bc64a6b63c668277291d9ee452acd12f8e
 					inf_head = NULL;
 				}
 ; 
@@ -425,36 +417,7 @@ else_part: 	_ELSE {	blocknum++;
 			stmt_list
 			|
 ; 
-<<<<<<< HEAD
-cond: 		expr { 
-					if (op_head != NULL) {
-						printf("ophead is not null\n");
-						oplist_extract(100);
-					}
 
-					if (inf_head != inf_tail) {
-						infix_build_expr_tree();
-					}
-
-					temp = inf_head;
-					list_push(temp);
-					inf_head = NULL;
-
-			} 
-			compop expr 
-			{
-				if (op_head != NULL) {
-					printf("ophead is not null\n");
-					oplist_extract(100);
-				}
-
-				if (inf_head != inf_tail) {
-					infix_build_expr_tree();
-				}
-
-				lhs = list_pop();
-				rhs = inf_head;
-=======
 cond: 		expr 
 			{ 
 				if (op_head != NULL) {	
@@ -493,7 +456,6 @@ cond: 		expr
 				printf("lhs type: %d\n", lhs->node_type);
 				rhs = inf_head; 	
 				printf("rhs type: %d\n", rhs->node_type); 
->>>>>>> 6c7210bc64a6b63c668277291d9ee452acd12f8e
 				comp_node = new_compnode(COMP_NODE, $3, lhs, rhs);
 				comp_node->endlabel = list_head->endlabel;
 				inf_head = NULL;
@@ -501,11 +463,7 @@ cond: 		expr
 			| _TRUE
 			| _FALSE
 ; 
-<<<<<<< HEAD
 compop: 	COMPARATOR {$$ = $1; }
-=======
-compop: 	COMPARATOR { $$ = $1; }
->>>>>>> 6c7210bc64a6b63c668277291d9ee452acd12f8e
 ; 
 while_stmt: _WHILE {
 				blocknum++; 
