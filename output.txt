@@ -1,0 +1,67 @@
+Commit ID tagged for submission: 1a361e2e378468760e31d53a5b1eedb21803960c
+Submission graded at: 2019-10-28 15:38:38
+
+/bin/rm -f *.gcda *.gcno gmon.out *gcov
+/bin/rm -f *.o
+/bin/rm -f *.out
+/bin/rm -f lex.yy.c
+/bin/rm -f parser.tab.h parser.tab.c
+bison -d parser.y
+flex scanner.l
+gcc parser.tab.c lex.yy.c -lfl
+tinyNew.c: In member function ‘float operand::rval()’:
+tinyNew.c:262:3: warning: control reaches end of non-void function [-Wreturn-type]
+   }
+   ^
+tinyNew.c: In member function ‘int operand::ival()’:
+tinyNew.c:255:3: warning: control reaches end of non-void function [-Wreturn-type]
+   }
+   ^
+tinyNew.c: In member function ‘std::__cxx11::string operand::sval()’:
+tinyNew.c:266:3: warning: control reaches end of non-void function [-Wreturn-type]
+   }
+   ^
+Testing..... step5_test1.micro
+Key output:
+ 73
+
+InstLine: 405
+Student output:
+ 73
+
+Testing..... step5_test4.micro
+Key output:
+ 2.64575
+
+
+InstLine: 5032
+Student output:
+ 2.64575
+
+
+Testing..... step5_test5.micro
+Key output:
+ 91
+
+InstLine: 59
+Student output:
+ 91
+
+Testing..... step5_test3.micro
+Key output:
+ 2.72029 5
+
+
+InstLine: 490
+Student output:
+ 2.72029 5
+
+
+Testing..... step5_test2.micro
+Key output:
+ 142123244
+
+InstLine: 405
+Student output:
+ 142123244
+
