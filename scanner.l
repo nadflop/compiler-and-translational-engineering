@@ -32,11 +32,11 @@ float	{return _FLOAT;}
 
 return	{return _RETURN;}
 
-true	{return _TRUE;}
-false	{return _FALSE;}
+true	{yylval.strval = (char * ) strdup(yytext); return _TRUE;}
+false	{yylval.strval = (char* ) strdup (yytext); return _FALSE;}
 
-==|!=|<|>|<=|>=		{return COMPARATOR;}
-=					{return ASSIGNMENT;} 
+==|!=|<|>|<=|>=		{yylval.strval = (char *) strdup(yytext); return COMPARATOR;}
+=					{yylval.strval = (char *) strdup(yytext); return ASSIGNMENT;} 
 
 [\+\-]		{	yylval.op = (char *) strdup(yytext); return ADDOP;}
 [\*\/]		{	yylval.op = (char *) strdup(yytext); return MULOP;}

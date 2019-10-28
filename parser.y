@@ -68,6 +68,8 @@ Tree * parent;
 Tree * opnode;
 Tree * term;
 Tree * root_expr;
+Tree * temp;
+Tree * expr;
 
 Tree * ast_root;
 Tree * func_node;
@@ -90,6 +92,7 @@ Tree * list_tail;
 
 int labelnum = 0;
 
+Tree * infix_pop(void);
 void infix_add_node(Tree * node); 
 void oplist_add_op(Tree * node); 
 void oplist_extract(NodeType type); 
@@ -137,8 +140,8 @@ char buf_END_IF_ELSE[20];
 %token <keyword>_END _ENDIF _ENDWHILE
 %token <strval> _INT _VOID _STRING _FLOAT
 %token <keyword> _RETURN
-%token <op> _TRUE _FALSE
-%token <op> COMPARATOR 
+%token <strval> _TRUE _FALSE
+%token <strval> COMPARATOR 
 %token <operator> ASSIGNMENT
 %token <op> ADDOP MULOP
 %token <operator> TERMINATOR OPENPARENT CLOSEPARENT COMMA
@@ -158,7 +161,7 @@ char buf_END_IF_ELSE[20];
 //type declare the type of semantic values for a non-terminal symbol
 %type <strval> id str_literal string_decl
 %type <strval> var_type any_type var_decl id_list
-%type <op> compop
+%type <strval> compop cond
 
 
 %%
@@ -262,6 +265,7 @@ func_body: 	decl
 			{	
 				stmt_list = list_pop();
 				ast_print(func_node);
+				printf("\n\n");
 				printIR();
 			}
 ; 
@@ -297,6 +301,7 @@ assign_expr:	id ASSIGNMENT {	inf_head = NULL; op_head = NULL; inf_tail = NULL; o
 					rhs = inf_head; 
 					root_expr = new_node(ASSIGN_NODE, lhs, rhs); 
 					ast_add_node_to_list(list_head, root_expr); 
+					inf_head = NULL;
 				}
 ; 
 read_stmt: 		_READ { read_list = new_list(READ_LIST, NULL, NULL); ast_add_node_to_list(list_head, read_list); read = 1; } OPENPARENT { declare = 0; } id_list CLOSEPARENT TERMINATOR { read = 0; }
@@ -411,17 +416,42 @@ else_part: 	_ELSE {	blocknum++;
 			stmt_list
 			|
 ; 
-cond: 		expr { list_push(inf_head); } compop expr 
+cond: 		expr { 
+					if (op_head != NULL) {
+						printf("ophead is not null\n");
+						oplist_extract(100);
+					}
+
+					if (inf_head != inf_tail) {
+						infix_build_expr_tree();
+					}
+
+					temp = inf_head;
+					list_push(temp);
+					inf_head = NULL;
+
+			} 
+			compop expr 
 			{
-				//printf("%s\n", comp);
-				//TODO: think of a way to pass the compop to the function
-				comp_node = new_compnode(COMP_NODE, cp, list_pop(), inf_head); 
+				if (op_head != NULL) {
+					printf("ophead is not null\n");
+					oplist_extract(100);
+				}
+
+				if (inf_head != inf_tail) {
+					infix_build_expr_tree();
+				}
+
+				lhs = list_pop();
+				rhs = inf_head;
+				comp_node = new_compnode(COMP_NODE, $3, lhs, rhs);
 				comp_node->endlabel = list_head->endlabel;
+				inf_head = NULL;
 			}
 			| _TRUE
 			| _FALSE
 ; 
-compop: 	COMPARATOR {cp = yytext; }
+compop: 	COMPARATOR {$$ = $1; }
 ; 
 while_stmt: _WHILE {
 				blocknum++; 
@@ -510,11 +540,29 @@ void printIR(){
 	printf(";RET\n"); 
 
 	printArray();
-
-	//walkAST(stmt_list);
 	
+	fprintf(yyout, "push\n");
+	printf("push\n");
+
+	fprintf(yyout, "jsr FUNC_main\n");
+	printf("jsr FUNC_main\n");
+
 	fprintf(yyout, "sys halt\n");
 	printf("sys halt\n");
+
+	fprintf(yyout, "label FUNC_main\n");
+	printf("label FUNC_main\n");
+
+	fprintf(yyout, "link 1\n");
+	printf("link 1\n");
+
+	walkAST(stmt_list);
+	
+	fprintf(yyout, "unlk\n");
+	printf("unlk\n");
+	
+	fprintf(yyout, "ret\n");
+	printf("ret\n");
 
 	return; 
 
@@ -809,7 +857,7 @@ void printArray(){
 		}
 	}
 	*/
-
+	
 	for(i = 0; i <= maxind; i++){
 		eptr = symtab[i]; 
 		while(eptr != NULL){
@@ -817,9 +865,11 @@ void printArray(){
 				break; 
 			}
 			if(strcmp(eptr->type, "STRING") == 0){
+				printf("%s %s\n", eptr->name, eptr->strval);
 				fprintf(yyout, "str %s %s\n", eptr->name, eptr->strval);
 			}
 			else{
+				printf("var %s\n", eptr->name);
 				fprintf(yyout, "var %s\n", eptr->name); 
 			}
 			eptr = eptr->next; 
