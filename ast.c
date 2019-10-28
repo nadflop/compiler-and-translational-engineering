@@ -25,11 +25,13 @@ Tree * new_opnode(NodeType node_type, enum Operator op, Tree * left, Tree * righ
 	return t;
 }
 //ast node for comparator operations (like boolean, relational or equivalent//
-Tree * new_compnode(NodeType node_type, char * c, Tree * left, Tree * right) {
+Tree * new_compnode(NodeType node_type, char * comp, Tree * left, Tree * right) {
 	Tree * t = malloc(sizeof(Tree));
 	t->node_type = node_type;
 	t->left = left;
 	t->right = right;
+	
+	/*
 	//case for comp
 	char ex1 =  c[0];
 	char ex2 = c[1];
@@ -45,7 +47,8 @@ Tree * new_compnode(NodeType node_type, char * c, Tree * left, Tree * right) {
 		t->comp = LT;
 	else if (ex1 == '<' && ex2 == '=')
 		t->comp = LE;
-	/*
+	*/
+
 	if (strcmp("> ", comp) == 0)
 		t->comp = GT;
 	else if (strcmp(">=", comp) == 0)
@@ -58,7 +61,7 @@ Tree * new_compnode(NodeType node_type, char * c, Tree * left, Tree * right) {
 		t->comp = NE;
 	else if (strcmp("==", comp) == 0)
 		t->comp = EQ;
-*/	
+	
 	return t;
 }
 
@@ -126,7 +129,7 @@ void ast_print(Tree * node){
 	}
 
 	else if(node->node_type == COMP_NODE){
-		printf("COMP_NODE\n");	// TODO: labels for JMP
+		printf("COMP_NODE: %d\n", node->comp);	// TODO: labels for JMP
 	}
 
 	else if(node->node_type == FUNC_NODE){
@@ -149,7 +152,7 @@ void ast_print(Tree * node){
 			ast_print(curr); 
 			curr = curr->next; 
 		}
-		printf("%s\n", node->startlabel);
+		//printf("%s\n", node->startlabel);
 	}
 
 	else if(node->node_type == ELSE_LIST){
