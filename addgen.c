@@ -56,7 +56,29 @@ void generate_self(Tree * node) {
 	}
 	else if (node->node_type == ELSE_LIST) {
 		//check if we have enough info to generate 3ac
-		if(node->left->left->tac->temp != NULL && node->left->right->tac->temp != NULL) {
+		
+		// only for debugging
+		//printf("HERE: %s\n", (node->left->left == NULL) ? "YES" : "NO");
+		
+		// only for debugging
+		if (node->left->left != NULL){
+			//printf("TEST TAC %s\n", (node->left->left->tac == NULL) ? "YES" : "NO"); // check if tac is NULL
+			if(node->left->left->tac == NULL){
+				//return;
+			}
+		}
+
+		if(node->left->left == NULL){
+			printf(";LABEL %s\n", node->endlabel);
+			fprintf(yyout, ";LABEL %s\n", node->endlabel);
+			return;
+		}
+		else if (node->left->left->tac == NULL){
+			printf(";LABEL %s\n", node->endlabel);
+			fprintf(yyout, ";LABEL %s\n", node->endlabel);
+			return;
+		}
+		else if(node->left->left->tac->temp != NULL && node->left->right->tac->temp != NULL) {
 			printf(";LABEL %s\n", node->endlabel);
 			fprintf(yyout, ";LABEL %s\n", node->endlabel);
 			return;

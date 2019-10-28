@@ -114,7 +114,7 @@ void ast_print(Tree * node){
 	}
 
 	else if(node->node_type == COMP_NODE){
-		printf("COMP_NODE: %d\n", node->comp);	// TODO: labels for JMP
+		//printf("COMP_NODE: %d\n", node->comp);	// TODO: labels for JMP
 	}
 
 	else if(node->node_type == FUNC_NODE){
@@ -132,12 +132,13 @@ void ast_print(Tree * node){
 	else if(node->node_type == IF_LIST){
 		// curr points to bool_expr (compnode)
 		printf("IF_LIST\n");
-		printf("%s\n", node->startlabel);
-		printf("%s\n", node->endlabel);
+		//printf("---%s\n", node->startlabel);
+		//printf("---%s\n", node->endlabel);
 		while(curr != NULL){
 			ast_print(curr); 
 			curr = curr->next; 
 		}
+		//printf("---%s\n", node->endlabel);
 
 	}
 
@@ -145,19 +146,20 @@ void ast_print(Tree * node){
 		printf("ELSE_LIST\n");
 		// curr is stmt_list
 		ast_print(curr); // else's stmt_list
+		printf("ENDIF\n");
 	}
 
 	else if(node->node_type == WHILE_LIST){
 		// curr points to bool_expr (compnode)
 		printf("WHILE_LIST\n");
-		printf("%s\n", node->startlabel); 
-		printf("%s\n", node->endlabel);
+		//printf("---%s\n", node->startlabel); 
+		//printf("---%s\n", node->endlabel);
 
 		while(curr != NULL){
 			ast_print(curr);
 			curr = curr->next;
 		}
-		//printf("--%s\n", node->endlabel);
+		//printf("---%s\n", node->endlabel);
 	}
 
 	else if(node->node_type == ASSIGN_NODE){
