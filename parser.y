@@ -105,12 +105,10 @@ Tree * list_pop(void);
 void printIR(void);
 
 char buf_FUNC[20]; 
-char buf_WHILE_START[20]; 
-char buf_WHILE_END[20]; 
+char buf_WHILE_START[20];
+char buf_WHILE_END[20];
 char buf_ELSE[20]; 
 char buf_END_IF_ELSE[20]; 
-
-
 
 %}
 // Bison Definitions
@@ -250,8 +248,10 @@ func_decl: _FUNC any_type id
 			{	
 				ht_insert(ht, $3, NULL, NULL, NULL); 
 				updateArray($3);
+				
+				char buf_FUNC[20]; 
 				snprintf(buf_FUNC, sizeof buf_FUNC, "LABEL FUNC_%s", $3); 
-				func_node = new_list(FUNC_NODE, buf_FUNC, NULL);
+				func_node = new_list(FUNC_NODE, strdup(buf_FUNC), NULL);
 			}
 			OPENPARENT param_decl_list CLOSEPARENT _BEGIN func_body _END
 ; 
@@ -379,7 +379,7 @@ if_stmt: 	_IF
 				labelnum++;
 				snprintf(buf_END_IF_ELSE, sizeof buf_END_IF_ELSE, "END_IF_ELSE%d", labelnum);
 				
-				stmt_list = new_list(IF_LIST, buf_ELSE, buf_END_IF_ELSE); 	// CREATE IF_LIST
+				stmt_list = new_list(IF_LIST, strdup(buf_ELSE), strdup(buf_END_IF_ELSE)); 	// CREATE IF_LIST
 				ast_add_node_to_list(list_head, stmt_list); // add IF_LIST to current list_head (any stmt_list)
 				list_push(stmt_list);	// make IF_LIST to be the current head
 			} 
@@ -388,17 +388,16 @@ if_stmt: 	_IF
 				ast_add_node_to_list(list_head, comp_node);	// add COMP_NODE to IF_LIST	
 			}
 			CLOSEPARENT decl {
-				stmt_list = new_list(IF_STMT_LIST, NULL, NULL); // create IF_STMT_LIST
+				stmt_list = new_list(IF_STMT_LIST, strdup(buf_ELSE), strdup(buf_END_IF_ELSE)); // create IF_STMT_LIST
 				ast_add_node_to_list(list_head, stmt_list); 	// add IF_STMT_LIST to IF_LIST
 				list_push(stmt_list); 	// make IF_STMT_LIST to be the current head
 			}
 			stmt_list {
 				stmt_list = list_pop(); // pop IF_STMT_LIST
-				stmt_list->right->startlabel = list_head->startlabel;
-				stmt_list = new_list(ELSE_LIST, buf_ELSE, buf_END_IF_ELSE); // create ELSE_LIST
+				stmt_list = new_list(ELSE_LIST, strdup(buf_ELSE), strdup(buf_END_IF_ELSE)); // create ELSE_LIST
 				ast_add_node_to_list(list_head, stmt_list); // add ELSE_LIST to IF_LIST
 				list_push(stmt_list); // make ELSE_LIST to be the current head
-				stmt_list = new_list(STMT_LIST, buf_ELSE, buf_END_IF_ELSE); // create STMT_LIST
+				stmt_list = new_list(STMT_LIST, strdup(buf_ELSE), strdup(buf_END_IF_ELSE)); // create STMT_LIST
 				ast_add_node_to_list(list_head, stmt_list); // add STMT_LIST to ELSE_LIST
 				list_push(stmt_list); // make STMT_LIST to be the current head				
 			}
@@ -426,38 +425,30 @@ cond: 		expr
 				}
 
 				if (inf_head != inf_tail) {	// if the 'expr' is a mathematical expression 
-					printf("is a tree\n");
-					printf("inf_head->node_type: %d\n", inf_head->node_type);
-					printf("inf_tail->node_type: %d\n", inf_tail->node_type);
 					infix_build_expr_tree(); 
 				} 
 				
-
 				temp = inf_head; 
 				list_push(temp); 
 				inf_head = NULL; 
 			} 
 			compop expr 
-			{
-				
+			{	
 				if (op_head != NULL) {	
 					printf("ophead is not null\n");
 					oplist_extract(100); 	// 100 > 50 tells oplist_extract to extract every opnode until end of oplist. 
 				}
 					
 				if (inf_head != inf_tail) {	// if the 'expr' is a mathematical expression 
-					
 					printf("is a tree\n");
 					infix_build_expr_tree(); 
 				} 
 				
 
 				lhs = list_pop();
-				printf("lhs type: %d\n", lhs->node_type);
 				rhs = inf_head; 	
-				printf("rhs type: %d\n", rhs->node_type); 
 				comp_node = new_compnode(COMP_NODE, $3, lhs, rhs);
-				comp_node->endlabel = list_head->endlabel;
+				//comp_node->endlabel = list_head->endlabel;
 				inf_head = NULL;
 			}
 			| _TRUE
@@ -471,27 +462,34 @@ while_stmt: _WHILE {
 				ht_insert(ht, buf, NULL, NULL, NULL); 
 				updateArray(buf);
 				
+				//char buf_WHILE_START[20];
+				//char buf_WHILE_END[20];
+
 				labelnum++;
 				snprintf(buf_WHILE_START, sizeof buf_WHILE_START, "WHILE_START_%d", labelnum);
 				labelnum++;
-				snprintf(buf_WHILE_END, sizeof buf_WHILE_END, "WHILE_END_%d", labelnum);
-				
-				stmt_list = new_list(WHILE_LIST, buf_WHILE_START, buf_WHILE_END); // CREATE WHILE_LIST
+				snprintf(buf_WHILE_END, sizeof buf_WHILE_END, "WHILE_END_%d", labelnum);	
+
+				stmt_list = new_list(WHILE_LIST, strdup(buf_WHILE_START), strdup(buf_WHILE_END)); // CREATE WHILE_LIST 
 				ast_add_node_to_list(list_head, stmt_list);		// add WHILE_LIST to current list_head (any stmt_list)
 				list_push(stmt_list);	// make WHILE_LIST to be the current head
 			} 
 			OPENPARENT cond	{
-				ast_add_node_to_list(list_head, comp_node); // add COMP_NODE to WHILE_LIST			
+				ast_add_node_to_list(list_head, comp_node); // add COMP_NODE to WHILE_LIST	
 			}
 			CLOSEPARENT decl {
-				stmt_list = new_list(WHILE_STMT_LIST, NULL, NULL); // create WHILE_STMT_LIST
+				stmt_list = new_list(WHILE_STMT_LIST, buf_WHILE_START, buf_WHILE_END); // create WHILE_STMT_LIST
 				ast_add_node_to_list(list_head, stmt_list); // add WHILE_STMT_LIST to WHILE_LIST
-				list_push(stmt_list); // make WHILE_STMT_LIST to be the current head				
+				list_push(stmt_list); // make WHILE_STMT_LIST to be the current head		
 			} 
-			stmt_list {
+			stmt_list 
+			{	
 				stmt_list = list_pop(); // pop WHILE_STMT_LIST
-				stmt_list->right->startlabel = list_head->startlabel;
 				stmt_list = list_pop(); // pop WHILE_LIST
+			
+				printf("EESTART: %s\n", stmt_list->startlabel);
+				printf("EEEND: %s\n", stmt_list->endlabel);
+
 			} 
 			_ENDWHILE	
 ; 
@@ -596,15 +594,22 @@ void list_push(Tree * node){
 	node->next = list_head; 
 	list_head = node;
 
-	/*
-	Tree * curr = list_head; 
-	printf("STACK: ");
-	while(curr != NULL){
-		printf("<%d> ", curr->node_type);
-		curr = curr->next; 
+	if(node->node_type == WHILE_LIST){
+		/*
+		Tree * curr = list_head; 
+		printf("LIST_STACK: ");
+		while(curr != NULL){
+			printf("<%d> ", curr->node_type);
+			curr = curr->next; 
+		}
+		printf("\n");
+		*/
+
+		printf("LLLSTART: %s\n", node->startlabel);
+		printf("LLLEND: %s\n", node->endlabel);
+
 	}
-	printf("\n");
-	*/
+
 	
 
 	return;
@@ -631,6 +636,23 @@ Tree * list_pop(void){
 	}
 	printf("\n");
 	*/
+
+	if(popnode->node_type == WHILE_LIST){
+		/*
+		Tree * curr = list_head; 
+		printf("LIST_STACK: ");
+		while(curr != NULL){
+			printf("<%d> ", curr->node_type);
+			curr = curr->next; 
+		}
+		printf("\n");
+		*/
+
+		printf("PPPSTART: %s\n", popnode->startlabel);
+		printf("PPPEND: %s\n", popnode->endlabel);
+
+	}
+
 
 	return popnode;
 }

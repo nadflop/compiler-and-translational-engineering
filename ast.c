@@ -62,12 +62,13 @@ Tree * new_varleaf(ht_hash_table * ht, char * key, char * name) {
 }
 
 //only for STMT_LIST, WRITE_LIST, READ_LIST, IF_LIST, ELSE_LIST, WHILE_LIST
-Tree * new_list(NodeType node_type, char * startlabel, char * endlabel){
+Tree * new_list(NodeType node_type, const char * startlabel, const char * endlabel){
 	Tree * node = malloc(sizeof(Tree)); 
 	node->node_type = node_type;
 	node->left = NULL;
 	node->right = NULL;
 	node->next = NULL;
+
 	node->startlabel = startlabel;
 	node->endlabel = endlabel;
 
@@ -79,10 +80,10 @@ void ast_add_node_to_list(Tree * list, Tree * node){
 	if (list->left == NULL) {
 		list->left = node; 
 		list->right = node; 
-		list->head = node; 
-		list->tail = node;
-		node->startlabel = list->startlabel;
-		node->endlabel = list->endlabel;
+		//list->head = node; 
+		//list->tail = node;
+		//node->startlabel = list->startlabel;
+		//node->endlabel = list->endlabel;
 		return; 
 	}
 
@@ -90,6 +91,7 @@ void ast_add_node_to_list(Tree * list, Tree * node){
 	list->right->next = node; 
 	list->right = list->right->next; 
 	list->right->next = NULL;
+
 	/*
 	Tree * curr = list->left;
 	printf("\nin list: %s");
@@ -97,6 +99,7 @@ void ast_add_node_to_list(Tree * list, Tree * node){
 		printf("<%d> ", curr->node_type);
 		curr = curr->next;
 	}
+	printf("\n");
 	*/
 
 	return;
@@ -129,12 +132,13 @@ void ast_print(Tree * node){
 	else if(node->node_type == IF_LIST){
 		// curr points to bool_expr (compnode)
 		printf("IF_LIST\n");
-		//printf("IF_LIST (%s %d %d)\n", curr->left, curr->comp, curr->right->node_type);
+		printf("%s\n", node->startlabel);
+		printf("%s\n", node->endlabel);
 		while(curr != NULL){
 			ast_print(curr); 
 			curr = curr->next; 
 		}
-		//printf("%s\n", node->startlabel);
+
 	}
 
 	else if(node->node_type == ELSE_LIST){
@@ -145,13 +149,15 @@ void ast_print(Tree * node){
 
 	else if(node->node_type == WHILE_LIST){
 		// curr points to bool_expr (compnode)
-		printf("%s\n", node->startlabel);  // TODO: start and end labels
-		//printf("WHILE_LIST (%s %d %d)\n", curr->left, curr->comp, curr->right->node_type);
+		printf("WHILE_LIST\n");
+		printf("%s\n", node->startlabel); 
+		printf("%s\n", node->endlabel);
+
 		while(curr != NULL){
 			ast_print(curr);
 			curr = curr->next;
 		}
-		printf("%s\n", node->endlabel);
+		//printf("--%s\n", node->endlabel);
 	}
 
 	else if(node->node_type == ASSIGN_NODE){
