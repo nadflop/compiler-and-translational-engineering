@@ -60,6 +60,7 @@ void generate_self(Tree * node) {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 		
 		// only for debugging
 		//printf("HERE: %s\n", (node->left->left == NULL) ? "YES" : "NO");
@@ -83,6 +84,11 @@ void generate_self(Tree * node) {
 			return;
 		}
 		else if(node->left->left->tac->temp != NULL && node->left->right->tac->temp != NULL) {
+=======
+		//printf("left of else list: %d\n", node->left->node_type);
+	/*	
+		if (node->left->left == NULL || node->left->right == NULL ) {
+>>>>>>> Stashed changes
 =======
 		//printf("left of else list: %d\n", node->left->node_type);
 	/*	
