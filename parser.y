@@ -32,6 +32,7 @@ ht_item * symtab[50];
 int maxind = -1; 
 void updateArray(const char * key); 
 void printArray(void); 
+void test_print_collection(void);
 
 char * scopename; 
 char * name;
@@ -509,7 +510,7 @@ int main(int argc, char **argv){
 	//printf("\n"); 
 	yyparse();
 
-	//printArray();
+	test_print_collection();
 	//deleteTree(stmt_list); 
 	ht_del_hash_table(ht);
 	//printf("\n_________________________________________________________________________________\n");
@@ -908,6 +909,22 @@ void printArray(){
 		}
 	}
 
+}
+
+void test_print_collection(){
+	int i; 
+	ht_item * eptr; 
+
+	for(i = 0; i <= maxind; i++){
+		printf("\nScope: %s === ", symtab[i]->key); 
+		eptr = symtab[i]; 
+		while(eptr != NULL){
+			printf("%s ", eptr->name); 
+			eptr = eptr->next; 
+		}
+	}
+
+	return;
 }
 
 void yyerror(const char *s){
