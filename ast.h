@@ -21,7 +21,12 @@ typedef enum NodeType {
 	ELSE_LIST, //13 similar to stmt list but this is local to the else body
 	WHILE_LIST, //14
 	IF_STMT_LIST, //15
-	WHILE_STMT_LIST //16
+	WHILE_STMT_LIST, //16
+	PROG_NODE,//17
+	DECL_LIST,//18
+	PARAM_LIST,//19
+	RETURN_STMT,//20
+	CALL_LIST//21
 }NodeType;
 
 typedef enum Operator{

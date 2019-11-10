@@ -6,7 +6,7 @@
 #include "hash_table.h"
 #include "addgen.h"
 
-/*basic ast node that can be either assign, write*/
+/*basic ast node that can be either assign, write, return stmt*/
 Tree * new_node(NodeType node_type, Tree * left, Tree * right) {
 	Tree * t = malloc(sizeof(Tree));
 	t->node_type = node_type;
@@ -61,7 +61,7 @@ Tree * new_varleaf(ht_hash_table * ht, char * key, char * name) {
 	return t;
 }
 
-//only for STMT_LIST, WRITE_LIST, READ_LIST, IF_LIST, ELSE_LIST, WHILE_LIST
+//only for STMT_LIST, WRITE_LIST, READ_LIST, IF_LIST, ELSE_LIST, WHILE_LIST, PROG_NODE, DECL_LIST, PARAM_LIST, CALL_LIST
 Tree * new_list(NodeType node_type, const char * startlabel, const char * endlabel){
 	Tree * node = malloc(sizeof(Tree)); 
 	node->node_type = node_type;
