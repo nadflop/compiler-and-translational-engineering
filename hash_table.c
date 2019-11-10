@@ -133,12 +133,14 @@ void ht_insert(ht_hash_table * ht, const char * key, const char* name, const cha
 	int index = ht_hash(item->key, ht->size);
 	ht_item * cur_item = ht->items[index]; 
 
-	//printf("Function Enter: %s, %s, %s, %s\n", key, name, type, strval); 
-
-	if (ht->items[index] != NULL) {
-		//printf("Key Found\n");  
-		if (cur_item->name == NULL) {
-			// Key exists, but no entry; 
+	if(name == NULL){
+		ht->items[index] = item;
+	}
+	else if (cur_item != NULL) {
+		//printf("Key Found\n");
+		//printf("cur_item NULL? %s\n", (cur_item->name == NULL) ? "YES" : cur_item->name);
+		if (cur_item->name == NULL){
+			// Key exists, but no entry;
 			cur_item->name = item->name; 
 			cur_item->type = item->type; 
 			cur_item->strval = item->strval; 
@@ -173,9 +175,6 @@ void ht_insert(ht_hash_table * ht, const char * key, const char* name, const cha
 			}
 			cur_item->next = item;
 		}
-	}
-	else {
-		ht->items[index] = item; 
 	}
 
 	//printf("Adding new item\n"); 
@@ -212,6 +211,10 @@ int ht_search(ht_hash_table * ht, const char * key, const char * name){
 ht_item * ht_get_item(ht_hash_table * ht, const char * key, const char * name){
 	int index = ht_hash(key, ht->size); 
 	ht_item * item = ht->items[index]; 
+
+	if(item->name == NULL){
+		return NULL;
+	}
 
 	while (item != NULL){ 
 		if (strcmp(item->name, name) == 0){

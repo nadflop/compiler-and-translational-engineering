@@ -26,10 +26,10 @@ ast: clean
 		./a.out
 
 test: clean compiler
-		./runme step3/input/test6.micro test6.out
+		./runme step6/input/step6_test2.micro test2.out
 
 testcheck: clean compiler
-		$(VALGRIND) ./runme step5/input/step5_test5.micro step5_test5.out
+		$(VALGRIND) ./runme step6/input/step6_test2.micro step5_test2.out
 
 
 testall: clean compiler

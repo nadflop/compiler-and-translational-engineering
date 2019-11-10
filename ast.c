@@ -49,8 +49,17 @@ Tree * new_compnode(NodeType node_type, char * comp, Tree * left, Tree * right) 
 
 /*var reference leaf*/
 Tree * new_varleaf(ht_hash_table * ht, char * key, char * name) {
+
 	ht_item * entry = ht_get_item(ht, key, name); 
-	
+	if (entry == NULL)
+	{
+		entry = ht_get_item(ht, "GLOBAL", name);
+		if (entry == NULL){
+			// variable is in a BLOCK scope -- need to search in previous scope that is not a BLOCK scope.
+			return NULL;
+		}
+	}
+
 	Tree * t = malloc(sizeof(Tree));	
 	t->node_type = VAR_REF;
 	t->name = name;
@@ -106,44 +115,101 @@ void ast_add_node_to_list(Tree * list, Tree * node){
 }
 
 void ast_print(Tree * node){
-	Tree * curr = node->left; 
-	Tree * rw; 
 
-	if(curr == NULL){
-		printf("List is empty\n"); 
+	Tree * curr; 
+	Tree * rw;
+	
+	if(node == NULL){
+		return;
 	}
 
-	else if(node->node_type == COMP_NODE){
-		//printf("COMP_NODE: %d\n", node->comp);	// TODO: labels for JMP
+	else if(node->node_type == PROG_NODE){
+		printf("PROGRAM: %s\n", node->startlabel); 
+		curr = node->left; 
+		while(curr != NULL){
+			ast_print(curr); 
+			curr = curr->next;
+		}
+	}
+
+	else if(node->node_type == VAR_REF){
+		printf("VAR_REF: %s\n", node->name);
+	}
+
+	else if(node->node_type == DECL_LIST){
+		printf("DECL_LIST\n");
+		curr = node->left; 
+		while(curr != NULL){
+			ast_print(curr);
+			curr = curr->next; 
+		}
 	}
 
 	else if(node->node_type == FUNC_NODE){
-		printf("%s\n", node->startlabel); // TODO: name label "LABEL FUNC_funcname"
-		ast_print(curr);
+		printf("%s\n", node->startlabel); // LABEL FUNC_<funcname>
+		curr = node->left; 
+		while(curr != NULL){
+			ast_print(curr);
+			curr = curr->next;
+		}
 	}
 
-	else if(node->node_type == STMT_LIST ||  node->node_type == WHILE_STMT_LIST || node->node_type == IF_STMT_LIST){
+	else if(node->node_type == PARAM_LIST){
+		curr = node->left; 
+		while(curr != NULL){
+			ast_print(curr);
+			curr = curr->next;
+		}
+	}
+
+	else if(node->node_type == STMT_LIST){
+		printf("STMT_LIST\n");
+		curr = node->left; 
+		while(curr != NULL){
+			ast_print(curr);
+			curr = curr->next; 
+		} 
+	}
+
+	else if(node->node_type == WHILE_STMT_LIST){
+		printf("WHILE_STMT_LIST\n");
+		curr = node->left; 
 		while(curr != NULL){
 			ast_print(curr); 
-			curr = curr->next; 
-		}	
+			curr = curr->next;
+		}
+	}
+
+	else if(node->node_type == IF_STMT_LIST){
+		printf("IF_STMT_LIST\n");
+		curr = node->left; 
+		while(curr != NULL){
+			ast_print(curr); 
+			curr = curr->next;
+		}
+	}
+
+	else if(node->node_type == ASSIGN_NODE){
+		printf("ASSIGN NODE for: %s\n", node->left->name); // print lhs of assignment expression for reference 
+	}
+
+	else if(node->node_type == COMP_NODE){
+		printf("COMP_NODE: %d\n", node->comp);	
 	}
 
 	else if(node->node_type == IF_LIST){
-		// curr points to bool_expr (compnode)
 		printf("IF_LIST\n");
-		//printf("---%s\n", node->startlabel);
-		//printf("---%s\n", node->endlabel);
+		curr = node->left;
+		// curr points to bool_expr (compnode)
 		while(curr != NULL){
 			ast_print(curr); 
 			curr = curr->next; 
 		}
-		//printf("---%s\n", node->endlabel);
-
 	}
 
 	else if(node->node_type == ELSE_LIST){
 		printf("ELSE_LIST\n");
+		curr = node->left;
 		// curr is stmt_list
 		ast_print(curr); // else's stmt_list
 		printf("ENDIF\n");
@@ -154,20 +220,18 @@ void ast_print(Tree * node){
 		printf("WHILE_LIST\n");
 		//printf("---%s\n", node->startlabel); 
 		//printf("---%s\n", node->endlabel);
-
+		curr = node->left;
 		while(curr != NULL){
 			ast_print(curr);
 			curr = curr->next;
 		}
+		printf("ENDWHILE\n");
 		//printf("---%s\n", node->endlabel);
-	}
-
-	else if(node->node_type == ASSIGN_NODE){
-		printf("ASSIGN NODE for: %s\n", node->left->name); // print lhs of assignment expression for reference 
 	}
 
 	else if(node->node_type == WRITE_LIST){
 		printf("WRITE_LIST: ");
+		curr = node->left;
 		while(curr != NULL){
 			printf("%s ", curr->name);
 			curr = curr->next; 
@@ -177,11 +241,25 @@ void ast_print(Tree * node){
 
 	else if(node->node_type == READ_LIST){
 		printf("READ_LIST: "); 
+		curr = node->left;
 		while(curr != NULL){
 			printf("%s ", curr->name); 
 			curr = curr->next;
 		}
 		printf("\n");
+	}
+
+	else if (node->node_type == RETURN_STMT){
+		printf("RETURN_STMT\n");
+		if(node->left->node_type == ARITHM_NODE){
+			printf("RETURN EXPRESSION\n");
+		}
+		else if(node->left->node_type == LIT_VAL){
+			printf("RETURN LITERAL: %s\n", node->left->literal);
+		}
+		else{
+			ast_print(node->left); // should be a var_ref
+		}
 	}
 
 	return; 

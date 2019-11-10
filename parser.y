@@ -72,15 +72,20 @@ Tree * root_expr;
 Tree * temp;
 Tree * expr;
 
+Tree * prog_node;
 Tree * ast_root;
 Tree * func_node;
 Tree * stmt_list; 
+Tree * decl_list; 
+Tree * param_list; 
 Tree * write_list; 
 Tree * read_list; 
 Tree * if_list; 
 Tree * else_list; 
 Tree * while_list; 
 Tree * comp_node;
+Tree * call_list;
+Tree * ret_stmt; 
 
 Tree * inf_head; 
 Tree * inf_tail; 
@@ -92,6 +97,7 @@ Tree * list_head;
 Tree * list_tail; 
 
 int labelnum = 0;
+int i;
 
 Tree * infix_pop(void);
 void infix_add_node(Tree * node); 
@@ -105,7 +111,7 @@ Tree * list_pop(void);
 
 void printIR(void);
 
-char buf_FUNC[20]; 
+char buf_FUNC[30]; 
 char buf_WHILE_START[20];
 char buf_WHILE_END[20];
 char buf_ELSE[20]; 
@@ -168,13 +174,20 @@ char buf_END_IF_ELSE[20];
 // Program
 // GLOBAL
 program: 	_PROG id _BEGIN 
-			{ 	
+			{
 				ht = ht_new(); 
-				scopename = "GLOBAL"; 
+				scopename = "GLOBAL";
 				ht_insert(ht, scopename, NULL, NULL, NULL); 
-				updateArray(scopename); 	
+				updateArray(scopename); 
+				prog_node = new_list(PROG_NODE, $2, NULL);
+				decl_list = new_list(DECL_LIST, NULL, NULL); 
+				ast_add_node_to_list(prog_node, decl_list);
 			} 
 			pgm_body _END 
+			{
+				printf("\nPrinting AST Tree..\n");
+				ast_print(prog_node);
+			}
 ;
 id: IDENTIFIER
 ; 
@@ -186,7 +199,15 @@ decl: 	string_decl decl
 ; 
 
 // String Declaration
-string_decl: 	_STRING { declare = 1; datatype = "STRING"; } id ASSIGNMENT str_literal { ht_insert(ht, symtab[maxind]->key, $3, datatype, $5); declare = 0; } TERMINATOR
+string_decl: 	_STRING { declare = 1; datatype = "STRING"; } 
+				id ASSIGNMENT str_literal 
+				{
+					ht_insert(ht, symtab[maxind]->key, $3, datatype, $5); 
+					lhs = new_varleaf(ht, symtab[maxind]->key, $3);
+					ast_add_node_to_list(decl_list, lhs);
+					declare = 0; 
+				} 
+				TERMINATOR
 ;
 str_literal: STRINGLITERAL
 ; 
@@ -202,14 +223,32 @@ any_type: 	var_type
 ; 
 id_list: 	id 
 			{ 	if(declare == 1){
-					ht_insert(ht, symtab[maxind]->key, $1, datatype, NULL); 
+					ht_insert(ht, symtab[maxind]->key, $1, datatype, NULL);
+					lhs = new_varleaf(ht, symtab[maxind]->key, $1);
+					ast_add_node_to_list(decl_list, lhs);
 				}
 				else if(write == 1){
-					lhs = new_varleaf(ht, "GLOBAL", $1); 
+					lhs = new_varleaf(ht, symtab[maxind]->key, $1);
+					if(lhs == NULL){
+						i = 0;
+						while(lhs == NULL){
+							i++; 
+							lhs = new_varleaf(ht, symtab[maxind-i]->key, $1);
+						}
+					}
+
 					ast_add_node_to_list(write_list, lhs);
 				}
 				else if(read == 1){
-					lhs = new_varleaf(ht, "GLOBAL", $1); 
+					lhs = new_varleaf(ht, symtab[maxind]->key, $1);
+					if(lhs == NULL){
+						i = 0;
+						while(lhs == NULL){
+							i++; 
+							lhs = new_varleaf(ht, symtab[maxind-i]->key, $1);
+						}
+					}
+
 					ast_add_node_to_list(read_list, lhs); 
 				}
 
@@ -217,14 +256,32 @@ id_list: 	id
 ; 
 id_tail:	COMMA id 
 			{ 	if(declare == 1) {
-					ht_insert(ht, symtab[maxind]->key, $2, datatype, NULL);	
+					ht_insert(ht, symtab[maxind]->key, $2, datatype, NULL);
+					lhs = new_varleaf(ht, symtab[maxind]->key, $2);
+					ast_add_node_to_list(decl_list, lhs);
 				}
 				else if(write == 1){
-					lhs = new_varleaf(ht, "GLOBAL", $2); 
+					lhs = new_varleaf(ht, symtab[maxind]->key, $2); 
+					if(lhs == NULL){
+						i = 0;
+						while(lhs == NULL){
+							i++; 
+							lhs = new_varleaf(ht, symtab[maxind-i]->key, $2);
+						}
+					}
+
 					ast_add_node_to_list(write_list, lhs); 
 				}
 				else if(read == 1){
-					lhs = new_varleaf(ht, "GLOBAL", $2); 
+					lhs = new_varleaf(ht, symtab[maxind]->key, $2);
+					if(lhs == NULL){
+						i = 0;
+						while(lhs == NULL){
+							i++; 
+							lhs = new_varleaf(ht, symtab[maxind-i]->key, $2);
+						}
+					}
+
 					ast_add_node_to_list(read_list, lhs); 
 				}
 			} id_tail
@@ -235,7 +292,12 @@ id_tail:	COMMA id
 param_decl_list:  	param_decl param_decl_tail
 					|
 ;
-param_decl:	 var_type id { ht_insert(ht, symtab[maxind]->key, $2, datatype, NULL); } 
+param_decl:	 var_type id 
+			{
+				ht_insert(ht, symtab[maxind]->key, $2, datatype, NULL); 
+				lhs = new_varleaf(ht, symtab[maxind]->key, $2); 
+				ast_add_node_to_list(param_list, lhs);
+			} 
 ;
 param_decl_tail:	COMMA param_decl param_decl_tail
 					|
@@ -250,24 +312,30 @@ func_decl: _FUNC any_type id
 				ht_insert(ht, $3, NULL, NULL, NULL); 
 				updateArray($3);
 				
-				char buf_FUNC[20]; 
 				snprintf(buf_FUNC, sizeof buf_FUNC, "LABEL FUNC_%s", $3); 
 				func_node = new_list(FUNC_NODE, strdup(buf_FUNC), NULL);
+				ast_add_node_to_list(prog_node, func_node);
+				param_list = new_list(PARAM_LIST, NULL, NULL);
+				ast_add_node_to_list(func_node, param_list); 
 			}
-			OPENPARENT param_decl_list CLOSEPARENT _BEGIN func_body _END
+			OPENPARENT param_decl_list CLOSEPARENT _BEGIN 
+			{
+				decl_list = new_list(DECL_LIST, NULL, NULL); 
+				ast_add_node_to_list(func_node, decl_list); 
+			}
+			func_body _END
 ; 
 func_body: 	decl 
 			{	
 				stmt_list = new_list(STMT_LIST, NULL, NULL);
 				ast_add_node_to_list(func_node, stmt_list);
-				list_push(stmt_list); 
+				list_push(stmt_list);
 			} 
 			stmt_list 
 			{	
 				stmt_list = list_pop();
-				//ast_print(func_node);
 				//printf("\n\n");
-				printIR();
+				//printIR();
 			}
 ; 
 
@@ -286,30 +354,63 @@ base_stmt:		assign_stmt
 ;
 
 // Basic Statements
-assign_stmt: 	assign_expr TERMINATOR
+assign_stmt: 	assign_expr TERMINATOR  
 ; 
-assign_expr:	id ASSIGNMENT {	inf_head = NULL; op_head = NULL; inf_tail = NULL; op_tail = NULL; } expr 
+assign_expr:	id ASSIGNMENT {	inf_head = NULL; op_head = NULL; inf_tail = NULL; op_tail = NULL; call_list = NULL; } expr 
 				{	
-					if (op_head != NULL) {	
-						oplist_extract(100); 	// 100 > 50 tells oplist_extract to extract every opnode until end of oplist. 
+					if(call_list != NULL){
+						rhs = call_list; 
 					}
-					
-					if (inf_head != inf_tail) {			// if the 'expr' is a mathematical expression 
-						infix_build_expr_tree();
-					} 
 
-					lhs = new_varleaf(ht, "GLOBAL", $1); 
-					rhs = inf_head;
+					else{
+						if (op_head != NULL) {	
+							oplist_extract(100); // 100 > 50 tells oplist_extract to extract every opnode until end of oplist. 
+						}
+						if (inf_head != inf_tail) {			// if the 'expr' is a mathematical expression 
+							infix_build_expr_tree();
+						}	
+						rhs = inf_head; 
+					}
+
+					lhs = new_varleaf(ht, symtab[maxind]->key, $1);
+					if(lhs == NULL){
+						i = 0;
+						while(lhs == NULL){
+							i++; 
+							lhs = new_varleaf(ht, symtab[maxind-i]->key, $1);
+						}
+					}
+
 					root_expr = new_node(ASSIGN_NODE, lhs, rhs); 
 					ast_add_node_to_list(list_head, root_expr);
 					inf_head = NULL;
+					call_list = NULL; 
 				}
 ; 
 read_stmt: 		_READ { read_list = new_list(READ_LIST, NULL, NULL); ast_add_node_to_list(list_head, read_list); read = 1; } OPENPARENT { declare = 0; } id_list CLOSEPARENT TERMINATOR { read = 0; }
 ; 
 write_stmt: 	_WRITE { write_list = new_list(WRITE_LIST, NULL, NULL); ast_add_node_to_list(list_head, write_list); write = 1; } OPENPARENT { declare = 0; } id_list CLOSEPARENT TERMINATOR { write = 0; }
 ; 
-return_stmt: 	_RETURN expr TERMINATOR
+return_stmt: 	_RETURN expr 
+				{
+					ret_stmt = new_list(RETURN_STMT, NULL, NULL);	
+
+					if (op_head != NULL) {	
+						oplist_extract(100); // 100 > 50 tells oplist_extract to extract every opnode until end of oplist. 
+					}
+
+					// check if 'expr' is a mathematical expression
+					if(inf_head != inf_tail){
+						// make inf_head to be the 'root' of expression
+						infix_build_expr_tree();
+					}
+
+					ast_add_node_to_list(ret_stmt, inf_head);
+					inf_head = NULL;
+					ast_add_node_to_list(list_head, ret_stmt);
+					ret_stmt = NULL;
+				}
+				TERMINATOR
 ; 
 
 // Expressions
@@ -326,18 +427,55 @@ factor_prefix: 	factor_prefix postfix_expr mulop
 postfix_expr: 	primary
 				| call_expr
 ; 
-call_expr: 		id OPENPARENT expr_list CLOSEPARENT 
+call_expr: 		id 
+				{
+					call_list = new_list(CALL_LIST, $1, NULL);
+				}
+				OPENPARENT expr_list CLOSEPARENT
 ; 
-expr_list: 		expr expr_list_tail 
+expr_list: 		expr 
+				{
+					if (op_head != NULL) {	
+						oplist_extract(100); // 100 > 50 tells oplist_extract to extract every opnode until end of oplist. 
+					}
+
+					if(inf_head != inf_tail){
+						infix_build_expr_tree();
+					}
+
+					ast_add_node_to_list(call_list, inf_head);
+					inf_head = NULL; 
+				}
+				expr_list_tail 
 				|
 ; 
-expr_list_tail: COMMA expr expr_list_tail
+expr_list_tail: COMMA expr
+				{
+					if (op_head != NULL) {	
+						oplist_extract(100); // 100 > 50 tells oplist_extract to extract every opnode until end of oplist. 
+					}
+
+					if(inf_head != inf_tail){
+						infix_build_expr_tree();
+					}
+
+					ast_add_node_to_list(call_list, inf_head);
+					inf_head = NULL; 
+				}
+				expr_list_tail
 				|
 ; 
 primary: 		OPENPARENT { oplist_add_op(new_node(OPEN_PARENT, NULL, NULL)); } expr CLOSEPARENT { oplist_extract(CLOSE_PARENT); }
 				| id
 				{
-					term = new_varleaf(ht, "GLOBAL", $1); 
+					term = new_varleaf(ht, symtab[maxind]->key, $1);
+					if(term == NULL){
+						i = 0;
+						while(term == NULL){
+							i++; 
+							term = new_varleaf(ht, symtab[maxind-i]->key, $1);
+						}
+					}
 					infix_add_node(term); 
 				}
 
@@ -407,14 +545,16 @@ if_stmt: 	_IF
 				stmt_list = list_pop(); // pop ELSE_LIST
 				stmt_list = list_pop(); // pop IF_LIST
 			}
-			_ENDIF 
+			_ENDIF
 ; 
-else_part: 	_ELSE {	blocknum++; 
-					snprintf(buf, 100, "BLOCK %d", blocknum); 
-					ht_insert(ht, buf, NULL, NULL, NULL); 
-					updateArray(buf);  
+else_part: 	_ELSE 
+			{	
+				blocknum++; 
+				snprintf(buf, 100, "BLOCK %d", blocknum); 
+				ht_insert(ht, buf, NULL, NULL, NULL); 
+				updateArray(buf);  
 			}
-			stmt_list
+			stmt_list 
 			|
 ; 
 
@@ -464,9 +604,6 @@ while_stmt: _WHILE {
 				ht_insert(ht, buf, NULL, NULL, NULL); 
 				updateArray(buf);
 				
-				//char buf_WHILE_START[20];
-				//char buf_WHILE_END[20];
-
 				labelnum++;
 				snprintf(buf_WHILE_START, sizeof buf_WHILE_START, "WHILE_START_%d", labelnum);
 				labelnum++;
@@ -507,10 +644,11 @@ int main(int argc, char **argv){
 	yyin = fopen(argv[1], "r"); 
 	yyout = fopen(argv[2], "w");
 	
-	//printf("\n"); 
+	printf("\nBegin parsing..\n"); 
 	yyparse();
 
 	test_print_collection();
+	
 	//deleteTree(stmt_list); 
 	ht_del_hash_table(ht);
 	//printf("\n_________________________________________________________________________________\n");
@@ -679,7 +817,7 @@ Tree * infix_pop(){
 	
 	// stack should not be empty!
 	if (stack_head == NULL){
-		printf("ERROR: Popping from an empty stack.\n"); 
+		printf("infix_pop ERROR: Popping from an empty stack.\n"); 
 		exit(-1); 
 	}
 
@@ -914,6 +1052,8 @@ void printArray(){
 void test_print_collection(){
 	int i; 
 	ht_item * eptr; 
+
+	printf("\nTesting print collection");
 
 	for(i = 0; i <= maxind; i++){
 		printf("\nScope: %s === ", symtab[i]->key); 
