@@ -26,7 +26,7 @@ ast: clean
 		./a.out
 
 test: clean compiler
-		./runme step6/input/step6_test2.micro test2.out
+		./runme step6/input/step6_test3.micro test3.out
 
 testcheck: clean compiler
 		$(VALGRIND) ./runme step6/input/step6_test2.micro step5_test2.out

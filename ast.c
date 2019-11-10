@@ -155,6 +155,7 @@ void ast_print(Tree * node){
 	}
 
 	else if(node->node_type == PARAM_LIST){
+		printf("PARAM_LIST\n");
 		curr = node->left; 
 		while(curr != NULL){
 			ast_print(curr);
