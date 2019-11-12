@@ -30,7 +30,10 @@ CodeObject * new_data() {
 }
 
 void generate_self(Tree * node) {
-	
+//TODO: add cases for DECL_LIST, PARAM_LIST, RETURN_STMT, CALL_LIST
+//When we see CALL_LIST, the function is active
+//for the PARAM_LIST, think of how to calculate/get the offset and where to store it
+//think where to generate the PUSH and POP code
 	CodeObject* t = new_data();
 			
 	if (node->node_type == VAR_REF) {
@@ -51,7 +54,7 @@ void generate_self(Tree * node) {
 
 		node->tac = t;
 	}
-	else if (node->node_type == STMT_LIST || node->node_type == IF_LIST || node->node_type == WHILE_STMT_LIST || node->node_type == IF_STMT_LIST || node->node_type == ELSE_LIST){
+	else if (node->node_type == STMT_LIST || node->node_type == IF_LIST || node->node_type == WHILE_STMT_LIST || node->node_type == IF_STMT_LIST || node->node_type == ELSE_LIST || node->node_type == PROG_NODE){
 		return;  
 	}
 	else if (node->node_type == WHILE_LIST) {
@@ -61,6 +64,12 @@ void generate_self(Tree * node) {
 			fprintf(yyout,";LABEL %s\n", node->endlabel);
 			return;
 		}
+	}
+	else if (node->node_type == FUNC_NODE) {
+		printf(";UNLINK\n");
+		printf(";RET\n");
+		fprintf(yyout, ";UNLINK\n");
+		fprintf(yyout, ";RET\n");
 	}
 	else {
 		/*check if we have enough info to generate 3ac*/
@@ -214,11 +223,29 @@ void generate_self(Tree * node) {
 void generate_list(Tree * list) {
 	if (list == NULL)
 		return;
+	
+	if (list->node_type == PROG_NODE) {
+		//we want to print the IR code here
+		printf(";IR code\n");
+		printf(";PUSH\n");
+		printf(";JSR FUNC_main\n");
+		printf(";HALT\n");
+	}
+
+	if (list->node_type == FUNC_NODE) {
+		printf(";LABEL %s\n", list->name);
+		fprintf(yyout, ";LABEL %s\n", list->name);
+		//think of how to print the link number here
+		printf(";LINK\n");
+		fprintf(yyout, ";LINK\n");
+	}
 
 	Tree * curr = list->left;
+
 	if(curr == NULL)
 		return;
 	while(curr != NULL) {
+		//before calling generate code
 		if (curr->node_type == ELSE_LIST){
 			//we want to print the jump label here
 			printf(";JUMP %s\n", list->endlabel);
@@ -226,7 +253,10 @@ void generate_list(Tree * list) {
 			printf(";LABEL %s\n", list->startlabel);
 			fprintf(yyout,";LABEL %s\n", list->startlabel);
 		}
+		
 		generate_code(curr);
+
+		//after calling generate code
 		if (curr->node_type == ELSE_LIST) {
 			printf(";LABEL %s\n", list->endlabel);
 			fprintf(yyout,";LABEL %s\n", list->endlabel);
@@ -235,6 +265,8 @@ void generate_list(Tree * list) {
 	}
 }
 
+//TODO: Add cases for CALL LIST AND RETURN STMT
+//when we see CALL_LIST, that's when the function is activated
 void generate_code(Tree * root) {	
 	if(root == NULL) 
 		return;
@@ -243,7 +275,7 @@ void generate_code(Tree * root) {
 		generate_code(root->left);
 		generate_code(root->right);
 	}
-	else if (root->node_type == STMT_LIST || root->node_type == IF_STMT_LIST || root->node_type == WHILE_STMT_LIST || root->node_type == WRITE_LIST || root->node_type == READ_LIST || root->node_type == IF_LIST) {
+	else if (root->node_type == STMT_LIST || root->node_type == IF_STMT_LIST || root->node_type == WHILE_STMT_LIST || root->node_type == WRITE_LIST || root->node_type == READ_LIST || root->node_type == IF_LIST || root->node_type == PROG_NODE || root->node_type == DECL_LIST || root->node_type == PARAM_LIST || root->node_type == FUNC_NODE ) {
 		//since we know they only have a left child
 		generate_list(root);
 	}
