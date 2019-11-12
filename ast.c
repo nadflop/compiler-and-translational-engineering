@@ -6,6 +6,8 @@
 #include "hash_table.h"
 #include "addgen.h"
 
+extern int yylineno;
+
 /*basic ast node that can be either assign, write, return stmt*/
 Tree * new_node(NodeType node_type, Tree * left, Tree * right) {
 	Tree * t = malloc(sizeof(Tree));
@@ -80,6 +82,8 @@ Tree * new_list(NodeType node_type, const char * startlabel, const char * endlab
 
 	node->startlabel = startlabel;
 	node->endlabel = endlabel;
+
+	node->address = yylineno;
 
 	return node; 
 }
@@ -198,7 +202,17 @@ void ast_print(Tree * node){
 	}
 
 	else if(node->node_type == CALL_LIST){
-		printf("CALL_LIST with %d argument(s)\n", node->varcount); 
+		printf("CALL_LIST with %d arguments at line %d\n", node->varcount, node->address); 
+		curr = node->left; 
+		while(curr != NULL){
+			if(curr->node_type == ARITHM_NODE){
+				printf("EXPRESSION [%d]\n", curr->offset);
+			}
+			else if(curr->node_type == VAR_REF){
+				printf("%s [%d]\n", curr->name, curr->offset);
+			}
+			curr = curr->next; 
+		}
 	}
 
 	else if(node->node_type == COMP_NODE){

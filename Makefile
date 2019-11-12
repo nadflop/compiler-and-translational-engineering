@@ -21,9 +21,13 @@ compiler:
 		flex scanner.l
 		gcc parser.tab.c lex.yy.c -lfl
 
-ast: clean 
-		gcc -g ast.c
+stack: 
+		gcc actrec.c
 		./a.out
+
+stackcheck: 
+		gcc actrec.c
+		$(VALGRIND) ./a.out
 
 test1: clean compiler
 		./runme step6/input/step6_test1.micro test1.out

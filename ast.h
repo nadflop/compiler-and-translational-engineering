@@ -70,7 +70,10 @@ typedef struct Tree {
 	char * literal; /*intliteral or floatliteral*/
 	ht_item * entry; /*pointer to symbtab entry that has the var*/
 	
-	int varcount; // only for CALL_LIST
+	int varcount; // number of variables in any list (call, decl, param, etc.)
+
+	int offset; 	// the offset for AR/stack purposes (calculated from CALLEE's frame pointer)
+	int address; 	// for function call (CALL_LIST)'s return address
 
 	struct CodeObject * tac; 
 	const char * startlabel;

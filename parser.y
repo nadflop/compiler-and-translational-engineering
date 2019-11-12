@@ -8,6 +8,8 @@
 #include "hash_table.c"
 #include "ast.c"
 
+#define regcount 4
+
 extern int yylex(); 
 extern int yyparse();
 extern int yylineno;
@@ -20,7 +22,7 @@ char * inputfile;
 char * outputfile; 
 
 int blocknum = 0;   
-int declare = 0; 
+int declare = 0;
 
 void yyerror(const char *s);
 
@@ -435,11 +437,17 @@ call_expr: 		id
 				{
 					call_list = new_list(CALL_LIST, $1, NULL);
 				}
-				OPENPARENT expr_list
+				OPENPARENT expr_list CLOSEPARENT
 				{
-					
+					// set offsets for AR
+					lhs = call_list->left;
+					i = call_list->varcount;
+					while(i > 0){
+						lhs->offset = i + 1;	// add 1 to account for return address slot
+						i--;
+						lhs = lhs->next;	// moce to the next argument
+					}
 				}
-				CLOSEPARENT
 ; 
 expr_list: 		expr 
 				{
