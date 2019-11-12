@@ -47,7 +47,7 @@ void generate_self(Tree * node) {
 		t->data->src2 = NULL; 
 		
 		fprintf(yyout, ";%s %s %s\n", t->data->op, t->data->src1, t->temp);
-		//printf(";%s %s %s\n", t->data->op, t->data->src1, t->temp);
+		printf(";%s %s %s\n", t->data->op, t->data->src1, t->temp);
 
 		node->tac = t;
 	}
@@ -57,7 +57,7 @@ void generate_self(Tree * node) {
 	else if (node->node_type == WHILE_LIST) {
 		//check if we have enough info to generate 3ac
 		if(node->left->tac->temp != NULL && node->right->right->tac->temp != NULL) {
-			//printf(";LABEL %s\n", node->endlabel);
+			printf(";LABEL %s\n", node->endlabel);
 			fprintf(yyout,";LABEL %s\n", node->endlabel);
 			return;
 		}
@@ -73,8 +73,8 @@ void generate_self(Tree * node) {
 						node->right->tac->data->op = (strcmp(node->right->tac->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
 						node->right->tac->temp = strdup(s);
 						node->right->tac->data->src1 = node->right->name;
-						//print out the variable store assignment
-						//printf(";%s %s %s\n", node->right->tac->data->op, node->right->name, node->right->tac->temp);
+						print out the variable store assignment
+						printf(";%s %s %s\n", node->right->tac->data->op, node->right->name, node->right->tac->temp);
 						fprintf(yyout, ";%s %s %s\n", node->right->tac->data->op, node->right->name, node->right->tac->temp);
 					}
 					
@@ -84,7 +84,7 @@ void generate_self(Tree * node) {
 					t->result_type = node->left->type;
 					node->tac = t;
 					fprintf(yyout, ";%s %s %s\n", t->data->op, t->data->src1, t->temp);
-					//printf(";%s %s %s\n", t->data->op, t->data->src1, t->temp);
+					printf(";%s %s %s\n", t->data->op, t->data->src1, t->temp);
 
 					break;
 
@@ -115,7 +115,7 @@ void generate_self(Tree * node) {
 					}
 					node->tac = t;
 					fprintf(yyout, ";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, t->temp);
-					//printf(";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, t->temp);
+					printf(";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, t->temp);
 					break;
 
 				case COMP_NODE:
@@ -127,8 +127,8 @@ void generate_self(Tree * node) {
 						node->right->tac->data->op = (strcmp(node->right->tac->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
 						node->right->tac->temp = strdup(s);
 						node->right->tac->data->src1 = node->right->name;
-						//print out the variable store assignment
-						//printf(";%s %s %s\n", node->right->tac->data->op, node->right->name, node->right->tac->temp);
+						print out the variable store assignment
+						printf(";%s %s %s\n", node->right->tac->data->op, node->right->name, node->right->tac->temp);
 						fprintf(yyout, ";%s %s %s\n", node->right->tac->data->op, node->right->name, node->right->tac->temp);
 					}
 					t->data->src2 = node->right->tac->temp;
@@ -162,11 +162,11 @@ void generate_self(Tree * node) {
 					char s= node->startlabel[0];
 					if (s == 'W') {
 						fprintf(yyout, ";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, node->endlabel);
-						//printf(";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, node->endlabel);
+						printf(";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, node->endlabel);
 					}
 					else {
 						fprintf(yyout, ";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, node->startlabel);
-						//printf(";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, node->startlabel);
+						printf(";%s %s %s %s\n", node->tac->data->op, node->tac->data->src1, node->tac->data->src2, node->startlabel);
 
 					}
 					break;
@@ -183,7 +183,7 @@ void generate_self(Tree * node) {
 						else
 							curr->tac->data->op = "WRITES";
 						fprintf(yyout, ";%s %s\n", curr->tac->data->op, curr->tac->temp); 
-						//printf(";%s %s\n", curr->tac->data->op, curr->tac->temp); 
+						printf(";%s %s\n", curr->tac->data->op, curr->tac->temp); 
 						curr = curr->next;
 					}
 					break;
@@ -198,7 +198,7 @@ void generate_self(Tree * node) {
 						else if (strcmp(curr1->tac->result_type,"FLOAT") == 0)
 							curr1->tac->data->op = "READF";
 						fprintf(yyout, ";%s %s\n", curr1->tac->data->op, curr1->name);
-						//printf(";%s %s\n", curr1->tac->data->op, curr1->name);
+						printf(";%s %s\n", curr1->tac->data->op, curr1->name);
 						curr1 = curr1->next;
 					}
 					break;
@@ -221,14 +221,14 @@ void generate_list(Tree * list) {
 	while(curr != NULL) {
 		if (curr->node_type == ELSE_LIST){
 			//we want to print the jump label here
-			//printf(";JUMP %s\n", list->endlabel);
+			printf(";JUMP %s\n", list->endlabel);
 			fprintf(yyout,";JUMP %s\n", list->endlabel);
-			//printf(";LABEL %s\n", list->startlabel);
+			printf(";LABEL %s\n", list->startlabel);
 			fprintf(yyout,";LABEL %s\n", list->startlabel);
 		}
 		generate_code(curr);
 		if (curr->node_type == ELSE_LIST) {
-			//printf(";LABEL %s\n", list->endlabel);
+			printf(";LABEL %s\n", list->endlabel);
 			fprintf(yyout,";LABEL %s\n", list->endlabel);
 		}
 		curr = curr->next;
@@ -248,10 +248,10 @@ void generate_code(Tree * root) {
 		generate_list(root);
 	}
 	else if (root->node_type == WHILE_LIST) {
-		//printf(";LABEL %s\n", root->startlabel);
+		printf(";LABEL %s\n", root->startlabel);
 		fprintf(yyout, ";LABEL %s\n", root->startlabel);
 		generate_list(root);
-		//printf(";JUMP %s\n", root->startlabel);
+		printf(";JUMP %s\n", root->startlabel);
 		fprintf(yyout, ";JUMP %s\n", root->startlabel);
 	}
 	else if (root->node_type == ELSE_LIST) {
@@ -291,16 +291,16 @@ void generateTiny(Tree * node) {
 					char * rhs_op = node->right->tac->data->op;
 					if (strcmp(rhs_op, "STOREF") == 0){
 						fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-						//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+						printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 					}
 					if (strcmp(rhs_op, "STOREI") == 0){
 						fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-						//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+						printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 					}
 				}
 			}
 			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
-			//printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
+			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
 		}
 		if (strcmp(opcode, "STOREI") == 0){
 			if (node->right != NULL) {
@@ -308,105 +308,105 @@ void generateTiny(Tree * node) {
 					char * rhs_op = node->right->tac->data->op;
 					if (strcmp(rhs_op, "STOREF") == 0){
 						fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-						//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+						printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 					}
 					if (strcmp(rhs_op, "STOREI") == 0){
 						fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-						//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+						printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 					}
 				}
 			}
 			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
-			//printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
+			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
 		}
 		if (strcmp(opcode, "WRITEI") == 0){
 			fprintf(yyout, "sys writei %s\n", node->tac->temp);
-			//printf("sys writei %s\n", node->tac->temp);
+			printf("sys writei %s\n", node->tac->temp);
 		}
 		if (strcmp(opcode, "WRITEF") == 0){
 			fprintf(yyout, "sys writer %s\n", node->tac->temp);
-			//printf("sys writer %s\n", node->tac->temp);
+			printf("sys writer %s\n", node->tac->temp);
 		}
 		if (strcmp(opcode, "WRITES") == 0){
 			fprintf(yyout, "sys writes %s\n", node->tac->temp);
-			//printf("sys writes %s\n", node->tac->temp);
+			printf("sys writes %s\n", node->tac->temp);
 		}
 		if (strcmp(opcode, "READI") == 0){
 			fprintf(yyout, "sys readi %s\n", node->tac->temp);	
-			//printf("sys readi %s\n", node->tac->temp);	
+			printf("sys readi %s\n", node->tac->temp);	
 		}
 		if (strcmp(opcode, "READF") == 0){
 			fprintf(yyout, "sys readr %s\n", node->tac->temp);	
-			//printf("sys readr %s\n", node->tac->temp);	
+			printf("sys readr %s\n", node->tac->temp);	
 		}
 		if (strcmp(opcode, "ADDI") == 0) {
 			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
 			fprintf(yyout, "addi %s %s\n", node->tac->data->src2, node->tac->temp);
-			//printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
-			//printf("addi %s %s\n", node->tac->data->src2, node->tac->temp);
+			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
+			printf("addi %s %s\n", node->tac->data->src2, node->tac->temp);
 		}
 		if (strcmp(opcode, "ADDF") == 0) {
 			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
 			fprintf(yyout, "addr %s %s\n", node->tac->data->src2, node->tac->temp);
-			//printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
-			//printf("addr %s %s\n", node->tac->data->src2, node->tac->temp);
+			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
+			printf("addr %s %s\n", node->tac->data->src2, node->tac->temp);
 		}
 		if (strcmp(opcode, "SUBI") == 0) {
 			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
 			fprintf(yyout, "subi %s %s\n", node->tac->data->src2, node->tac->temp);
-		//	printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
-		//	printf("subi %s %s\n", node->tac->data->src2, node->tac->temp);
+			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
+			printf("subi %s %s\n", node->tac->data->src2, node->tac->temp);
 		}
 		if (strcmp(opcode, "SUBF") == 0) {
 			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
 			fprintf(yyout, "subr %s %s\n", node->tac->data->src2, node->tac->temp);
-		//	printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
-		//	printf("subr %s %s\n", node->tac->data->src2, node->tac->temp);
+			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
+			printf("subr %s %s\n", node->tac->data->src2, node->tac->temp);
 		}
 		if (strcmp(opcode, "MULI") == 0) {
 			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
 			fprintf(yyout, "muli %s %s\n", node->tac->data->src2, node->tac->temp);
-		//	printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
-		//	printf("muli %s %s\n", node->tac->data->src2, node->tac->temp);
+			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
+			printf("muli %s %s\n", node->tac->data->src2, node->tac->temp);
 		}
 		if (strcmp(opcode, "MULF") == 0) {
 			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
 			fprintf(yyout, "mulr %s %s\n", node->tac->data->src2, node->tac->temp);
-		//	printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
-		//	printf("mulr %s %s\n", node->tac->data->src2, node->tac->temp);
+			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
+			printf("mulr %s %s\n", node->tac->data->src2, node->tac->temp);
 		}
 		if (strcmp(opcode, "DIVI") == 0) {
 			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
 			fprintf(yyout, "divi %s %s\n", node->tac->data->src2, node->tac->temp);
-		//	printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
-		//	printf("divi %s %s\n", node->tac->data->src2, node->tac->temp);
+			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
+			printf("divi %s %s\n", node->tac->data->src2, node->tac->temp);
 		}
 		if (strcmp(opcode, "DIVF") == 0) {
 			fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
 			fprintf(yyout, "divr %s %s\n", node->tac->data->src2, node->tac->temp);
-		//	printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
-		//	printf("divr %s %s\n", node->tac->data->src2, node->tac->temp);
+			printf("move %s %s\n", node->tac->data->src1, node->tac->temp);
+			printf("divr %s %s\n", node->tac->data->src2, node->tac->temp);
 		}
 		if (strcmp(opcode, "LEI") == 0) {
 			if (node->right->node_type == VAR_REF) {
 				char * rhs_op = node->right->tac->data->op;
 				if (strcmp(rhs_op, "STOREF") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 				if (strcmp(rhs_op, "STOREI") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-				//	printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 			}
-			//printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
-			//	printf("jle %s\n", node->endlabel);
+				printf("jle %s\n", node->endlabel);
 				fprintf(yyout, "jle %s\n", node->endlabel);
 			}
 			else {
-			//	printf("jle %s\n", node->startlabel);
+				printf("jle %s\n", node->startlabel);
 				fprintf(yyout, "jle %s\n", node->startlabel);
 			}
 
@@ -416,22 +416,22 @@ void generateTiny(Tree * node) {
 				char * rhs_op = node->right->tac->data->op;
 				if (strcmp(rhs_op, "STOREF") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 				if (strcmp(rhs_op, "STOREI") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 			}
 		
-			//printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
-				//printf("jle %s\n", node->endlabel);
+				printf("jle %s\n", node->endlabel);
 				fprintf(yyout, "jle %s\n", node->endlabel);
 			}
 			else {
-				//printf("jle %s\n", node->startlabel);
+				printf("jle %s\n", node->startlabel);
 				fprintf(yyout, "jle %s\n", node->startlabel);
 			}
 
@@ -441,22 +441,22 @@ void generateTiny(Tree * node) {
 				char * rhs_op = node->right->tac->data->op;
 				if (strcmp(rhs_op, "STOREF") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 				if (strcmp(rhs_op, "STOREI") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-				//	printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 			}
 		
-		//	printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
-		//		printf("jlt %s\n", node->endlabel);
+				printf("jlt %s\n", node->endlabel);
 				fprintf(yyout, "jlt %s\n", node->endlabel);
 			}
 			else {
-				//printf("jlt %s\n", node->startlabel);
+				printf("jlt %s\n", node->startlabel);
 				fprintf(yyout, "jlt %s\n", node->startlabel);
 			}
 
@@ -466,22 +466,22 @@ void generateTiny(Tree * node) {
 				char * rhs_op = node->right->tac->data->op;
 				if (strcmp(rhs_op, "STOREF") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 				if (strcmp(rhs_op, "STOREI") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 			}
 		
-			//printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
-				//printf("jlt %s\n", node->endlabel);
+				printf("jlt %s\n", node->endlabel);
 				fprintf(yyout, "jlt %s\n", node->endlabel);
 			}
 			else {
-				//printf("jlt %s\n", node->startlabel);
+				printf("jlt %s\n", node->startlabel);
 				fprintf(yyout, "jlt %s\n", node->startlabel);
 			}
 	
@@ -491,22 +491,22 @@ void generateTiny(Tree * node) {
 				char * rhs_op = node->right->tac->data->op;
 				if (strcmp(rhs_op, "STOREF") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 				if (strcmp(rhs_op, "STOREI") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 			}
 		
-			//printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
-				//printf("jge %s\n", node->endlabel);
+				printf("jge %s\n", node->endlabel);
 				fprintf(yyout, "jge %s\n", node->endlabel);
 			}
 			else {
-				//printf("jge %s\n", node->startlabel);
+				printf("jge %s\n", node->startlabel);
 				fprintf(yyout, "jge %s\n", node->startlabel);
 			}
 	
@@ -516,22 +516,22 @@ void generateTiny(Tree * node) {
 				char * rhs_op = node->right->tac->data->op;
 				if (strcmp(rhs_op, "STOREF") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 				if (strcmp(rhs_op, "STOREI") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-				//	printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 			}
 		
-			//printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
-				//printf("jge %s\n", node->endlabel);
+				printf("jge %s\n", node->endlabel);
 				fprintf(yyout, "jge %s\n", node->endlabel);
 			}
 			else {
-				//printf("jge %s\n", node->startlabel);
+				printf("jge %s\n", node->startlabel);
 				fprintf(yyout, "jge %s\n", node->startlabel);
 			}
 
@@ -541,22 +541,22 @@ void generateTiny(Tree * node) {
 				char * rhs_op = node->right->tac->data->op;
 				if (strcmp(rhs_op, "STOREF") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 				if (strcmp(rhs_op, "STOREI") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 			}
 		
-			//printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
-				//printf("jgt %s\n", node->endlabel);
+				printf("jgt %s\n", node->endlabel);
 				fprintf(yyout, "jgt %s\n", node->endlabel);
 			}
 			else {
-				//printf("jgt %s\n", node->startlabel);
+				printf("jgt %s\n", node->startlabel);
 				fprintf(yyout, "jgt %s\n", node->startlabel);
 			}
 
@@ -566,22 +566,22 @@ void generateTiny(Tree * node) {
 				char * rhs_op = node->right->tac->data->op;
 				if (strcmp(rhs_op, "STOREF") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 				if (strcmp(rhs_op, "STOREI") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 			}
 		
-			//printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
-				//printf("jgt %s\n", node->endlabel);
+				printf("jgt %s\n", node->endlabel);
 				fprintf(yyout, "jgt %s\n", node->endlabel);
 			}
 			else {
-				//printf("jgt %s\n", node->startlabel);
+				printf("jgt %s\n", node->startlabel);
 				fprintf(yyout, "jgt %s\n", node->startlabel);
 			}
 
@@ -591,22 +591,22 @@ void generateTiny(Tree * node) {
 				char * rhs_op = node->right->tac->data->op;
 				if (strcmp(rhs_op, "STOREF") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 				if (strcmp(rhs_op, "STOREI") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 			}
 		
-			//printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
-				//printf("jeq %s\n", node->endlabel);
+				printf("jeq %s\n", node->endlabel);
 				fprintf(yyout, "jeq %s\n", node->endlabel);
 			}
 			else {
-				//printf("jeq %s\n", node->startlabel);
+				printf("jeq %s\n", node->startlabel);
 				fprintf(yyout, "jeq %s\n", node->startlabel);
 			}
 
@@ -616,22 +616,22 @@ void generateTiny(Tree * node) {
 				char * rhs_op = node->right->tac->data->op;
 				if (strcmp(rhs_op, "STOREF") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 				if (strcmp(rhs_op, "STOREI") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 			}
 		
-			//printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
-				//printf("jeq %s\n", node->endlabel);
+				printf("jeq %s\n", node->endlabel);
 				fprintf(yyout, "jeq %s\n", node->endlabel);
 			}
 			else {
-				//printf("jeq %s\n", node->startlabel);
+				printf("jeq %s\n", node->startlabel);
 				fprintf(yyout, "jeq %s\n", node->startlabel);
 			}
 
@@ -641,22 +641,22 @@ void generateTiny(Tree * node) {
 				char * rhs_op = node->right->tac->data->op;
 				if (strcmp(rhs_op, "STOREF") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 				if (strcmp(rhs_op, "STOREI") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 			}
 		
-			//printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpi %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
-				//printf("jne %s\n", node->endlabel);
+				printf("jne %s\n", node->endlabel);
 				fprintf(yyout, "jne %s\n", node->endlabel);
 			}
 			else {
-				//printf("jne %s\n", node->startlabel);
+				printf("jne %s\n", node->startlabel);
 				fprintf(yyout, "jne %s\n", node->startlabel);
 			}
 
@@ -666,22 +666,22 @@ void generateTiny(Tree * node) {
 				char * rhs_op = node->right->tac->data->op;
 				if (strcmp(rhs_op, "STOREF") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 				if (strcmp(rhs_op, "STOREI") == 0){
 					fprintf(yyout, "move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
-					//printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
+					printf("move %s %s\n", node->right->tac->data->src1, node->right->tac->temp);
 				}
 			}
 		
-			//printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
+			printf("cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			fprintf(yyout,"cmpr %s %s\n", node->tac->data->src1, node->tac->data->src2);
 			if (node->endlabel[0] == 'W') {
-				//printf("jne %s\n", node->endlabel);
+				printf("jne %s\n", node->endlabel);
 				fprintf(yyout, "jne %s\n", node->endlabel);
 			}
 			else {
-				//printf("jne %s\n", node->startlabel);
+				printf("jne %s\n", node->startlabel);
 				fprintf(yyout, "jne %s\n", node->startlabel);
 			}
 
@@ -710,15 +710,15 @@ void walkAST(Tree * node) {
 		curr = curr->left->next; 
 		while(curr != NULL) {  
 			if (curr->node_type == ELSE_LIST) {
-				//printf("jmp %s\n", node->endlabel);
+				printf("jmp %s\n", node->endlabel);
 				fprintf(yyout, "jmp %s\n", node->endlabel);
-				//printf("label %s\n", node->startlabel);
+				printf("label %s\n", node->startlabel);
 				fprintf(yyout, "label %s\n", node->startlabel);
 			}
 			walkAST(curr);
 			curr = curr->next; 
 		}
-		//printf("label %s\n", node->endlabel);
+		printf("label %s\n", node->endlabel);
 		fprintf(yyout,"label %s\n", node->endlabel);
 
 	}
@@ -729,23 +729,23 @@ void walkAST(Tree * node) {
 			char * opcode = curr1->tac->data->op;
 			if (strcmp(opcode, "WRITEI") == 0){
 				fprintf(yyout, "sys writei %s\n", curr1->tac->temp);
-				//printf("sys writei %s\n", curr1->tac->temp);
+				printf("sys writei %s\n", curr1->tac->temp);
 			}
 			if (strcmp(opcode, "WRITEF") == 0){
 				fprintf(yyout, "sys writer %s\n", curr1->tac->temp);
-				//printf("sys writer %s\n", curr1->tac->temp);
+				printf("sys writer %s\n", curr1->tac->temp);
 			}
 			if (strcmp(opcode, "WRITES") == 0){
 				fprintf(yyout, "sys writes %s\n", curr1->tac->temp);
-				//printf("sys writes %s\n", curr1->tac->temp);
+				printf("sys writes %s\n", curr1->tac->temp);
 			}
 			if (strcmp(opcode, "READI") == 0){
 				fprintf(yyout, "sys readi %s\n", curr1->tac->temp);
-				//printf("sys readi %s\n", curr1->tac->temp);	
+				printf("sys readi %s\n", curr1->tac->temp);	
 			}
 			if (strcmp(opcode, "READF") == 0){
 				fprintf(yyout, "sys readr %s\n", curr1->tac->temp);
-				//printf("sys readr %s\n", curr1->tac->temp);	
+				printf("sys readr %s\n", curr1->tac->temp);	
 			}
 
 			curr1 = curr1->next;
@@ -753,7 +753,7 @@ void walkAST(Tree * node) {
 	}
 	else if(node->node_type == WHILE_LIST) {		
 		Tree * curr2 = node->left;
-		//printf("label %s\n", node->startlabel);
+		printf("label %s\n", node->startlabel);
 		fprintf(yyout, "label %s\n", node->startlabel);
 		walkAST(curr2); 
 		curr2 = curr2->next;
@@ -761,9 +761,9 @@ void walkAST(Tree * node) {
 			walkAST(curr2); 
 			curr2 = curr2->next;
 		}
-		//printf("jmp %s\n", node->startlabel);
+		printf("jmp %s\n", node->startlabel);
 		fprintf(yyout,"jmp %s\n", node->startlabel);
-		//printf("label %s\n", node->endlabel);
+		printf("label %s\n", node->endlabel);
 		fprintf(yyout, "label %s\n", node->endlabel);
 	}
 	else if(node->node_type == ELSE_LIST) {		
