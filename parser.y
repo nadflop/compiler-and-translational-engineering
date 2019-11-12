@@ -205,6 +205,7 @@ string_decl: 	_STRING { declare = 1; datatype = "STRING"; }
 					ht_insert(ht, symtab[maxind]->key, $3, datatype, $5); 
 					lhs = new_varleaf(ht, symtab[maxind]->key, $3);
 					ast_add_node_to_list(decl_list, lhs);
+					decl_list->varcount = decl_list->varcount + 1;
 					declare = 0; 
 				} 
 				TERMINATOR
@@ -226,6 +227,7 @@ id_list: 	id
 					ht_insert(ht, symtab[maxind]->key, $1, datatype, NULL);
 					lhs = new_varleaf(ht, symtab[maxind]->key, $1);
 					ast_add_node_to_list(decl_list, lhs);
+					decl_list->varcount = decl_list->varcount + 1;
 				}
 				else if(write == 1){
 					lhs = new_varleaf(ht, symtab[maxind]->key, $1);
@@ -259,6 +261,7 @@ id_tail:	COMMA id
 					ht_insert(ht, symtab[maxind]->key, $2, datatype, NULL);
 					lhs = new_varleaf(ht, symtab[maxind]->key, $2);
 					ast_add_node_to_list(decl_list, lhs);
+					decl_list->varcount = decl_list->varcount + 1;
 				}
 				else if(write == 1){
 					lhs = new_varleaf(ht, symtab[maxind]->key, $2); 
@@ -297,6 +300,7 @@ param_decl:	 var_type id
 				ht_insert(ht, symtab[maxind]->key, $2, datatype, NULL); 
 				lhs = new_varleaf(ht, symtab[maxind]->key, $2); 
 				ast_add_node_to_list(param_list, lhs);
+				param_list->varcount = param_list->varcount + 1;
 			} 
 ;
 param_decl_tail:	COMMA param_decl param_decl_tail
@@ -431,7 +435,11 @@ call_expr: 		id
 				{
 					call_list = new_list(CALL_LIST, $1, NULL);
 				}
-				OPENPARENT expr_list CLOSEPARENT
+				OPENPARENT expr_list
+				{
+					
+				}
+				CLOSEPARENT
 ; 
 expr_list: 		expr 
 				{
@@ -444,6 +452,7 @@ expr_list: 		expr
 					}
 
 					ast_add_node_to_list(call_list, inf_head);
+					call_list->varcount = call_list->varcount + 1;
 					inf_head = NULL; 
 				}
 				expr_list_tail 
@@ -460,6 +469,7 @@ expr_list_tail: COMMA expr
 					}
 
 					ast_add_node_to_list(call_list, inf_head);
+					call_list->varcount = call_list->varcount + 1;
 					inf_head = NULL; 
 				}
 				expr_list_tail
@@ -1063,6 +1073,8 @@ void test_print_collection(){
 			eptr = eptr->next; 
 		}
 	}
+
+	printf("\n");
 
 	return;
 }

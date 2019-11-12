@@ -137,7 +137,7 @@ void ast_print(Tree * node){
 	}
 
 	else if(node->node_type == DECL_LIST){
-		printf("DECL_LIST\n");
+		printf("DECL_LIST of %d variables\n", node->varcount);
 		curr = node->left; 
 		while(curr != NULL){
 			ast_print(curr);
@@ -155,7 +155,7 @@ void ast_print(Tree * node){
 	}
 
 	else if(node->node_type == PARAM_LIST){
-		printf("PARAM_LIST\n");
+		printf("PARAM_LIST with %d parameters\n", node->varcount);
 		curr = node->left; 
 		while(curr != NULL){
 			ast_print(curr);
@@ -192,6 +192,13 @@ void ast_print(Tree * node){
 
 	else if(node->node_type == ASSIGN_NODE){
 		printf("ASSIGN NODE for: %s\n", node->left->name); // print lhs of assignment expression for reference 
+		if(node->right->node_type == CALL_LIST){
+			ast_print(node->right);
+		}
+	}
+
+	else if(node->node_type == CALL_LIST){
+		printf("CALL_LIST with %d argument(s)\n", node->varcount); 
 	}
 
 	else if(node->node_type == COMP_NODE){

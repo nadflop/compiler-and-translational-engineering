@@ -69,6 +69,8 @@ typedef struct Tree {
 	char * type;
 	char * literal; /*intliteral or floatliteral*/
 	ht_item * entry; /*pointer to symbtab entry that has the var*/
+	
+	int varcount; // only for CALL_LIST
 
 	struct CodeObject * tac; 
 	const char * startlabel;

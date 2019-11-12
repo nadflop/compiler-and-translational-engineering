@@ -25,7 +25,13 @@ ast: clean
 		gcc -g ast.c
 		./a.out
 
-test: clean compiler
+test1: clean compiler
+		./runme step6/input/step6_test1.micro test1.out
+
+test2: clean compiler
+		./runme step6/input/step6_test2.micro test2.out
+
+test3: clean compiler
 		./runme step6/input/step6_test3.micro test3.out
 
 testcheck: clean compiler
