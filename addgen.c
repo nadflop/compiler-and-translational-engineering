@@ -271,9 +271,28 @@ void generate_code(Tree * root) {
 	if(root == NULL) 
 		return;
 
-	if(root->node_type == ASSIGN_NODE || root->node_type == ARITHM_NODE || root->node_type == COMP_NODE) {
+	if(root->node_type == ARITHM_NODE || root->node_type == COMP_NODE) {
 		generate_code(root->left);
 		generate_code(root->right);
+	}
+	//if it's an assign node and there's a function call
+	else if (root->node_type == ASSIGN_NODE) {
+		generate_code(root->left);
+		if (root->right->node_type == CALL_LIST) {
+			//TODO: CALLER BEFORE THE CALL
+			//push any registers that you want to save using push
+			//push a space on the stack for the return value of the callee
+			//push any arg onto the stack
+			//call the function using jsr
+		}
+		generate_code(root->right);
+		if (root->right->node_type == CALL_LIST) {
+			//TODO: CALLER AFTER THE CALL
+			//pop arguments off the stack
+			//pop the return value of the stack, remembering to store it in an appropriate place
+			//pop any saved registers off the stack
+		}
+
 	}
 	else if (root->node_type == STMT_LIST || root->node_type == IF_STMT_LIST || root->node_type == WHILE_STMT_LIST || root->node_type == WRITE_LIST || root->node_type == READ_LIST || root->node_type == IF_LIST || root->node_type == PROG_NODE || root->node_type == DECL_LIST || root->node_type == PARAM_LIST || root->node_type == FUNC_NODE ) {
 		//since we know they only have a left child
@@ -288,6 +307,14 @@ void generate_code(Tree * root) {
 	}
 	else if (root->node_type == ELSE_LIST) {
 		generate_list(root);
+	}
+	else if (root->node_type == CALL_LIST) {
+		//TODO: CALLEE
+		//allocate space on the stack for all the local variables (using link)
+		//generate code, accessing local variables and arguments to the function relative to the frame pointer
+		//when returning from the function, save the return value in the appropriate slot "above" the frame pointer
+		//deallocate the activation record (using unlink)
+		//return to caller (using ret)
 	}
 	generate_self(root);
 	return;
