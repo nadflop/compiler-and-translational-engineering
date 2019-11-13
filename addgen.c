@@ -30,7 +30,7 @@ CodeObject * new_data() {
 }
 
 void generate_self(Tree * node) {
-//TODO: add cases for DECL_LIST, PARAM_LIST, RETURN_STMT, CALL_LIST
+//TODO: add cases for RETURN_STMT
 //When we see CALL_LIST, the function is active
 //for the PARAM_LIST, think of how to calculate/get the offset and where to store it
 //think where to generate the PUSH and POP code
@@ -54,7 +54,7 @@ void generate_self(Tree * node) {
 
 		node->tac = t;
 	}
-	else if (node->node_type == STMT_LIST || node->node_type == IF_LIST || node->node_type == WHILE_STMT_LIST || node->node_type == IF_STMT_LIST || node->node_type == ELSE_LIST || node->node_type == PROG_NODE){
+	else if (node->node_type == STMT_LIST || node->node_type == IF_LIST || node->node_type == WHILE_STMT_LIST || node->node_type == IF_STMT_LIST || node->node_type == ELSE_LIST || node->node_type == PROG_NODE || node->node_type == FUNC_NODE || node->node_type == PARAM_LIST || node->node_type == DECL_LIST){
 		return;  
 	}
 	else if (node->node_type == WHILE_LIST) {
@@ -82,7 +82,7 @@ void generate_self(Tree * node) {
 						node->right->tac->data->op = (strcmp(node->right->tac->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
 						node->right->tac->temp = strdup(s);
 						node->right->tac->data->src1 = node->right->name;
-						print out the variable store assignment
+						//print out the variable store assignment
 						printf(";%s %s %s\n", node->right->tac->data->op, node->right->name, node->right->tac->temp);
 						fprintf(yyout, ";%s %s %s\n", node->right->tac->data->op, node->right->name, node->right->tac->temp);
 					}
@@ -136,7 +136,7 @@ void generate_self(Tree * node) {
 						node->right->tac->data->op = (strcmp(node->right->tac->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
 						node->right->tac->temp = strdup(s);
 						node->right->tac->data->src1 = node->right->name;
-						print out the variable store assignment
+						//print out the variable store assignment
 						printf(";%s %s %s\n", node->right->tac->data->op, node->right->name, node->right->tac->temp);
 						fprintf(yyout, ";%s %s %s\n", node->right->tac->data->op, node->right->name, node->right->tac->temp);
 					}
@@ -225,19 +225,27 @@ void generate_list(Tree * list) {
 		return;
 	
 	if (list->node_type == PROG_NODE) {
-		//we want to print the IR code here
 		printf(";IR code\n");
 		printf(";PUSH\n");
 		printf(";JSR FUNC_main\n");
 		printf(";HALT\n");
+		fprintf(yyout, ";IR code\n");
+		fprintf(yyout, ";PUSH\n");
+		fprintf(yyout, ";JSR FUNC_main\n");
+		fprintf(yyout, ";HALT\n");
 	}
 
 	if (list->node_type == FUNC_NODE) {
 		printf(";LABEL %s\n", list->name);
 		fprintf(yyout, ";LABEL %s\n", list->name);
-		//think of how to print the link number here
-		printf(";LINK\n");
-		fprintf(yyout, ";LINK\n");
+		if (list->left->next->varcount == 0) {
+			printf(";LINK\n");
+			fprintf(yyout, ";LINK\n");
+		}
+		else {
+			printf(";LINK %d\n", list->left->next->varcount);
+			fprintf(yyout, ";LINK %d\n", list->left->next->varcount);
+		}
 	}
 
 	Tree * curr = list->left;
@@ -285,7 +293,9 @@ void generate_code(Tree * root) {
 			//push any arg onto the stack
 			//call the function using jsr
 		}
+
 		generate_code(root->right);
+
 		if (root->right->node_type == CALL_LIST) {
 			//TODO: CALLER AFTER THE CALL
 			//pop arguments off the stack
@@ -294,7 +304,7 @@ void generate_code(Tree * root) {
 		}
 
 	}
-	else if (root->node_type == STMT_LIST || root->node_type == IF_STMT_LIST || root->node_type == WHILE_STMT_LIST || root->node_type == WRITE_LIST || root->node_type == READ_LIST || root->node_type == IF_LIST || root->node_type == PROG_NODE || root->node_type == DECL_LIST || root->node_type == PARAM_LIST || root->node_type == FUNC_NODE ) {
+	else if (root->node_type == STMT_LIST || root->node_type == IF_STMT_LIST || root->node_type == WHILE_STMT_LIST || root->node_type == WRITE_LIST || root->node_type == READ_LIST || root->node_type == IF_LIST || root->node_type == PROG_NODE || root->node_type == DECL_LIST || root->node_type == PARAM_LIST || root->node_type == FUNC_NODE || root->node_type == CALL_LIST) {
 		//since we know they only have a left child
 		generate_list(root);
 	}
