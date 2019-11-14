@@ -30,14 +30,11 @@ CodeObject * new_data() {
 }
 
 void generate_self(Tree * node) {
-//TODO: add cases for RETURN_STMT
-//When we see CALL_LIST, the function is active
-//for the PARAM_LIST, think of how to calculate/get the offset and where to store it
-//think where to generate the PUSH and POP code
 	CodeObject* t = new_data();
 			
 	if (node->node_type == VAR_REF) {
-		t->temp = node->name;
+		//TODO: change the offset name later
+		t->temp = (strcmp(node->entry->key, "GLOBAL") == 0) ? (node->name) : (node->entry->offset); 		
 		t->result_type = node->type;
 		node->tac = t;
 	}
@@ -54,9 +51,6 @@ void generate_self(Tree * node) {
 
 		node->tac = t;
 	}
-	else if (node->node_type == STMT_LIST || node->node_type == IF_LIST || node->node_type == WHILE_STMT_LIST || node->node_type == IF_STMT_LIST || node->node_type == ELSE_LIST || node->node_type == PROG_NODE || node->node_type == FUNC_NODE || node->node_type == PARAM_LIST || node->node_type == DECL_LIST){
-		return;  
-	}
 	else if (node->node_type == WHILE_LIST) {
 		//check if we have enough info to generate 3ac
 		if(node->left->tac->temp != NULL && node->right->right->tac->temp != NULL) {
@@ -71,6 +65,36 @@ void generate_self(Tree * node) {
 		fprintf(yyout, ";UNLINK\n");
 		fprintf(yyout, ";RET\n");
 	}
+	else if (node->node_type == CALL_LIST) {
+		//TODO: change the offset name later
+		printf(";PUSH\n");
+		printf(";PUSHREGS\n");
+		fprintf(yyout, ";PUSH\n");
+		fprintf(yyout, ";PUSHREGS\n");
+		Tree * curr = node->left;
+		while (curr != NULL) {
+			printf(";PUSH %s\n", curr->entry->offset);
+			fprintf(yyout, ";PUSH %s\n", curr->entry->offset);
+			curr = curr->next;		
+		}
+		printf(";JSR FUNC_%s\n", node->startlabel);
+		fprintf(yyout, ";JSR FUNC_%s\n", node->startlabel);
+		int i;
+		for (i = 0; i < node->varcount; i++) {
+			printf(";POP\n");
+			fprintf(yyout, ";POP\n");
+		}
+		printf(";POP REGS\n");
+		fprintf(yyout, ";POP REGS\n");
+		newTemp(s);
+		t->temp = strdup(s);
+		node->tac = t; 
+		printf(";POP %s\n", t->temp);
+		fprintf(yyout, ";POP %s\n", t->temp);
+	}
+	else if (node->node_type == STMT_LIST || node->node_type == IF_LIST || node->node_type == WHILE_STMT_LIST || node->node_type == IF_STMT_LIST || node->node_type == ELSE_LIST || node->node_type == PROG_NODE || node->node_type == PARAM_LIST || node->node_type == DECL_LIST){
+		return;  
+	}
 	else {
 		/*check if we have enough info to generate 3ac*/
 		if(node->left->tac->temp != NULL && node->right->tac->temp != NULL) {
@@ -81,15 +105,43 @@ void generate_self(Tree * node) {
 						newTemp(s);
 						node->right->tac->data->op = (strcmp(node->right->tac->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
 						node->right->tac->temp = strdup(s);
-						node->right->tac->data->src1 = node->right->name;
+						//TODO: change the offset name later
+						//node->right->tac->data->src1 = node->right->name;
+						node->right->tac->data->src1 = (strcmp(node->right->entry->key, "GLOBAL") == 0) ? (node->right->name) : (node->right->entry->offset);						
 						//print out the variable store assignment
-						printf(";%s %s %s\n", node->right->tac->data->op, node->right->name, node->right->tac->temp);
-						fprintf(yyout, ";%s %s %s\n", node->right->tac->data->op, node->right->name, node->right->tac->temp);
+						printf(";%s %s %s\n", node->right->tac->data->op, node->right->tac->data->src1, node->right->tac->temp);
+						fprintf(yyout, ";%s %s %s\n", node->right->tac->data->op, node->right->tac->data->src1, node->right->tac->temp);
 					}
 					
 					t->data->src1 = node->right->tac->temp;
 					t->data->src2 = NULL;
 					t->temp = node->left->tac->temp;
+					t->result_type = node->left->type;
+					node->tac = t;
+					fprintf(yyout, ";%s %s %s\n", t->data->op, t->data->src1, t->temp);
+					printf(";%s %s %s\n", t->data->op, t->data->src1, t->temp);
+
+					break;
+				
+				case RETURN_STMT: 
+					//for now, we can only return a variable
+					//TODO: check if it's necessary to store the return value variable into a temp var before pushing to stack
+					//if yes, then uncomment this portion of code	
+					//store the result into a temporary and push the temporary onto the stack
+					/*newTemp(s);
+					node->left->tac->data->op = (strcmp(node->left->tac->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
+					node->left->tac->temp = strdup(s);
+					//TODO: change the offset name later
+					node->left->tac->data->src1 = (strcmp(node->left->entry->key, "GLOBAL") == 0) ? (node->left->name) : (node->left->entry->offset);
+					//print out the variable store assignment for the result
+					printf(";%s %s %s\n", node->left->tac->data->op, node->left->tac->data->src1, node->left->tac->temp);
+					fprintf(yyout, ";%s %s %s\n", node->left->tac->data->op, node->left->tac->data->src1, node->left->tac->temp);*/					
+					
+					t->data->op = (strcmp(node->left->tac->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
+					t->data->src1 = node->left->tac->temp; //<-- here, the temp val is the offset of the var
+					t->data->src2 = NULL;
+					//TODO: change the offset name later
+					t->temp = node->entry->offset;
 					t->result_type = node->left->type;
 					node->tac = t;
 					fprintf(yyout, ";%s %s %s\n", t->data->op, t->data->src1, t->temp);
@@ -135,10 +187,12 @@ void generate_self(Tree * node) {
 						newTemp(s);
 						node->right->tac->data->op = (strcmp(node->right->tac->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
 						node->right->tac->temp = strdup(s);
-						node->right->tac->data->src1 = node->right->name;
+						//TODO: change the offset name later
+						//node->right->tac->data->src1 = node->right->name;
+						node->right->tac->data->src1 = (strcmp(node->right->entry->key, "GLOBAL") == 0) ? (node->right->name) : (node->right->entry->offset);	
 						//print out the variable store assignment
-						printf(";%s %s %s\n", node->right->tac->data->op, node->right->name, node->right->tac->temp);
-						fprintf(yyout, ";%s %s %s\n", node->right->tac->data->op, node->right->name, node->right->tac->temp);
+						printf(";%s %s %s\n", node->right->tac->data->op, node->right->tac->data->src1, node->right->tac->temp);
+						fprintf(yyout, ";%s %s %s\n", node->right->tac->data->op, node->right->tac->data->src1, node->right->tac->temp);
 					}
 					t->data->src2 = node->right->tac->temp;
 					/*determine result type*/
@@ -206,8 +260,8 @@ void generate_self(Tree * node) {
 							curr1->tac->data->op = "READI";
 						else if (strcmp(curr1->tac->result_type,"FLOAT") == 0)
 							curr1->tac->data->op = "READF";
-						fprintf(yyout, ";%s %s\n", curr1->tac->data->op, curr1->name);
-						printf(";%s %s\n", curr1->tac->data->op, curr1->name);
+						fprintf(yyout, ";%s %s\n", curr1->tac->data->op, curr1->tac->temp);
+						printf(";%s %s\n", curr1->tac->data->op, curr1->tac->temp);
 						curr1 = curr1->next;
 					}
 					break;
@@ -227,10 +281,12 @@ void generate_list(Tree * list) {
 	if (list->node_type == PROG_NODE) {
 		printf(";IR code\n");
 		printf(";PUSH\n");
+		printf(";PUSHREGS\n");
 		printf(";JSR FUNC_main\n");
 		printf(";HALT\n");
 		fprintf(yyout, ";IR code\n");
 		fprintf(yyout, ";PUSH\n");
+		fprintf(yyout, ";PUSHREGS\n");
 		fprintf(yyout, ";JSR FUNC_main\n");
 		fprintf(yyout, ";HALT\n");
 	}
@@ -273,38 +329,15 @@ void generate_list(Tree * list) {
 	}
 }
 
-//TODO: Add cases for CALL LIST AND RETURN STMT
-//when we see CALL_LIST, that's when the function is activated
 void generate_code(Tree * root) {	
 	if(root == NULL) 
 		return;
 
-	if(root->node_type == ARITHM_NODE || root->node_type == COMP_NODE) {
+	if(root->node_type == ARITHM_NODE || root->node_type == COMP_NODE || root->node_type == ASSIGN_NODE) {
 		generate_code(root->left);
 		generate_code(root->right);
 	}
-	//if it's an assign node and there's a function call
-	else if (root->node_type == ASSIGN_NODE) {
-		generate_code(root->left);
-		if (root->right->node_type == CALL_LIST) {
-			//TODO: CALLER BEFORE THE CALL
-			//push any registers that you want to save using push
-			//push a space on the stack for the return value of the callee
-			//push any arg onto the stack
-			//call the function using jsr
-		}
-
-		generate_code(root->right);
-
-		if (root->right->node_type == CALL_LIST) {
-			//TODO: CALLER AFTER THE CALL
-			//pop arguments off the stack
-			//pop the return value of the stack, remembering to store it in an appropriate place
-			//pop any saved registers off the stack
-		}
-
-	}
-	else if (root->node_type == STMT_LIST || root->node_type == IF_STMT_LIST || root->node_type == WHILE_STMT_LIST || root->node_type == WRITE_LIST || root->node_type == READ_LIST || root->node_type == IF_LIST || root->node_type == PROG_NODE || root->node_type == DECL_LIST || root->node_type == PARAM_LIST || root->node_type == FUNC_NODE || root->node_type == CALL_LIST) {
+	else if (root->node_type == STMT_LIST || root->node_type == IF_STMT_LIST || root->node_type == WHILE_STMT_LIST || root->node_type == WRITE_LIST || root->node_type == READ_LIST || root->node_type == IF_LIST || root->node_type == PROG_NODE || root->node_type == DECL_LIST || root->node_type == PARAM_LIST || root->node_type == FUNC_NODE || root->node_type == CALL_LIST || root->node_type == RETURN_STMT) {
 		//since we know they only have a left child
 		generate_list(root);
 	}
@@ -317,14 +350,6 @@ void generate_code(Tree * root) {
 	}
 	else if (root->node_type == ELSE_LIST) {
 		generate_list(root);
-	}
-	else if (root->node_type == CALL_LIST) {
-		//TODO: CALLEE
-		//allocate space on the stack for all the local variables (using link)
-		//generate code, accessing local variables and arguments to the function relative to the frame pointer
-		//when returning from the function, save the return value in the appropriate slot "above" the frame pointer
-		//deallocate the activation record (using unlink)
-		//return to caller (using ret)
 	}
 	generate_self(root);
 	return;
@@ -343,6 +368,11 @@ void deleteCode(CodeObject * cur_item, NodeType n_type) {
 	free(cur_item);
 }
 
+//TODO: Do cases for PROG_NODE, DECL_LIST, PARAM_LIST, RETURN_STMT, CALL_LIST
+//Add opcode case for JSR which is still jsr in Tiny
+//push and pop the actual reg val, from r0-r3, instead of pushregs
+//LINK in IR = link in Tiny
+//UNLINK in IR = unlnk in Tiny
 void generateTiny(Tree * node) {
 
 	if (node->node_type == VAR_REF){
@@ -762,7 +792,9 @@ void generateTiny(Tree * node) {
 void walkAST(Tree * node) {
 	if (node == NULL)
 		return;
-	if(node->node_type == STMT_LIST || node->node_type == IF_STMT_LIST || node->node_type == WHILE_STMT_LIST) {
+	if (node->node_type == PROG_NODE) {
+	}
+	else if(node->node_type == STMT_LIST || node->node_type == IF_STMT_LIST || node->node_type == WHILE_STMT_LIST) {
 		Tree * curr = node;
 		if (curr->left != NULL) {
 			walkAST(curr->left);
