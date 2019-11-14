@@ -230,6 +230,7 @@ id_list: 	id
 					lhs = new_varleaf(ht, symtab[maxind]->key, $1);
 					ast_add_node_to_list(decl_list, lhs);
 					decl_list->varcount = decl_list->varcount + 1;
+					lhs->entry->offset = -(decl_list->varcount);
 				}
 				else if(write == 1){
 					lhs = new_varleaf(ht, symtab[maxind]->key, $1);
@@ -264,6 +265,7 @@ id_tail:	COMMA id
 					lhs = new_varleaf(ht, symtab[maxind]->key, $2);
 					ast_add_node_to_list(decl_list, lhs);
 					decl_list->varcount = decl_list->varcount + 1;
+					lhs->entry->offset = -(decl_list->varcount);
 				}
 				else if(write == 1){
 					lhs = new_varleaf(ht, symtab[maxind]->key, $2); 
@@ -318,13 +320,23 @@ func_decl: _FUNC any_type id
 				ht_insert(ht, $3, NULL, NULL, NULL); 
 				updateArray($3);
 				
-				snprintf(buf_FUNC, sizeof buf_FUNC, "LABEL FUNC_%s", $3); 
+				snprintf(buf_FUNC, sizeof buf_FUNC, "FUNC_%s", $3); 
 				func_node = new_list(FUNC_NODE, strdup(buf_FUNC), NULL);
 				ast_add_node_to_list(prog_node, func_node);
 				param_list = new_list(PARAM_LIST, NULL, NULL);
 				ast_add_node_to_list(func_node, param_list); 
 			}
-			OPENPARENT param_decl_list CLOSEPARENT _BEGIN 
+			OPENPARENT param_decl_list CLOSEPARENT 
+			{
+				lhs = param_list->left;
+				i = param_list->varcount;
+				while(i > 0){
+					lhs->entry->offset = i + 1;	// add 1 to account for return address slot
+					i--;
+					lhs = lhs->next;	// moce to the next argument
+				}
+			}
+			_BEGIN 
 			{
 				decl_list = new_list(DECL_LIST, NULL, NULL); 
 				ast_add_node_to_list(func_node, decl_list); 
@@ -439,14 +451,16 @@ call_expr: 		id
 				}
 				OPENPARENT expr_list CLOSEPARENT
 				{
+					/*
 					// set offsets for AR
 					lhs = call_list->left;
 					i = call_list->varcount;
 					while(i > 0){
-						lhs->offset = i + 1;	// add 1 to account for return address slot
+						lhs->entry->offset = i + 1;	// add 1 to account for return address slot
 						i--;
 						lhs = lhs->next;	// moce to the next argument
 					}
+					*/
 				}
 ; 
 expr_list: 		expr 
@@ -1077,7 +1091,7 @@ void test_print_collection(){
 		printf("\nScope: %s === ", symtab[i]->key); 
 		eptr = symtab[i]; 
 		while(eptr != NULL){
-			printf("%s ", eptr->name); 
+			printf("%s[%d]  ", eptr->name, eptr->offset); 
 			eptr = eptr->next; 
 		}
 	}

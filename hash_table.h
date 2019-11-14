@@ -9,6 +9,9 @@ typedef struct ht_item {
 	char * name;
 	char * type;
 	char * strval;
+
+	int offset;
+
 	struct ht_item * next;
 }ht_item;
 

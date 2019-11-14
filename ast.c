@@ -206,10 +206,10 @@ void ast_print(Tree * node){
 		curr = node->left; 
 		while(curr != NULL){
 			if(curr->node_type == ARITHM_NODE){
-				printf("EXPRESSION [%d]\n", curr->offset);
+				printf("EXPRESSION [%d]\n", curr->entry->offset);
 			}
 			else if(curr->node_type == VAR_REF){
-				printf("%s [%d]\n", curr->name, curr->offset);
+				printf("%s [%d]\n", curr->name, curr->entry->offset);
 			}
 			curr = curr->next; 
 		}
