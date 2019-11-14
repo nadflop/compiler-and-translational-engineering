@@ -194,6 +194,10 @@ program: 	_PROG id _BEGIN
 			{
 				printf("\nPrinting AST Tree..\n");
 				ast_print(prog_node);
+				printf("printing the IR Code..\n\n");
+				generate_code(prog_node);
+				printf("\n\nprinting the Tiny Code..\n\n");
+				walkAST(prog_node);
 			}
 ;
 id: IDENTIFIER

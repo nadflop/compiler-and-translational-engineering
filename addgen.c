@@ -33,8 +33,7 @@ void generate_self(Tree * node) {
 	CodeObject* t = new_data();
 			
 	if (node->node_type == VAR_REF) {
-		//TODO: change the offset name later
-		t->temp = (strcmp(node->entry->key, "GLOBAL") == 0) ? (node->name) : (node->entry->offset); 		
+		t->temp = (strcmp(node->entry->key, "GLOBAL") == 0) ? (node->name) : (node->entry->str_offset); 		
 		t->result_type = node->type;
 		node->tac = t;
 	}
@@ -45,11 +44,10 @@ void generate_self(Tree * node) {
 		t->data->op = (strcmp(t->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
 		t->data->src1 = node->literal; 
 		t->data->src2 = NULL; 
-		
-		fprintf(yyout, ";%s %s %s\n", t->data->op, t->data->src1, t->temp);
-		printf(";%s %s %s\n", t->data->op, t->data->src1, t->temp);
+		node->tac = t;	
+		fprintf(yyout, ";%s %s %s\n", t->data->op, t->data->src1, node->tac->temp);
+		printf(";%s %s %s\n", t->data->op, t->data->src1, node->tac->temp);
 
-		node->tac = t;
 	}
 	else if (node->node_type == WHILE_LIST) {
 		//check if we have enough info to generate 3ac
@@ -59,22 +57,43 @@ void generate_self(Tree * node) {
 			return;
 		}
 	}
-	else if (node->node_type == FUNC_NODE) {
+	else if (node->node_type == RETURN_STMT) {
+		if (node->left->node_type == VAR_REF) {
+			newTemp(s);
+			node->left->tac->data->op = (strcmp(node->left->tac->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
+			node->left->tac->temp = strdup(s);
+			node->left->tac->data->src1 = (strcmp(node->left->entry->key, "GLOBAL") == 0) ? (node->left->name) : (node->left->entry->str_offset); 
+			fprintf(yyout, ";%s %s %s\n", node->left->tac->data->op, node->left->tac->data->src1, node->left->tac->temp);
+			printf(";%s %s %s\n", node->left->tac->data->op, node->left->tac->data->src1, node->left->tac->temp);
+		}
+		t->data->op = (strcmp(node->left->tac->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
+		t->data->src1 = node->left->tac->temp; //<-- here, the temp val is the offset of the var
+		t->data->src2 = NULL;
+		t->temp = node->str_offset;
+		t->result_type = node->left->type;
+		node->tac = t;
+		fprintf(yyout, ";%s %s %s\n", t->data->op, t->data->src1, t->temp);
+		printf(";%s %s %s\n", t->data->op, t->data->src1, t->temp);
 		printf(";UNLINK\n");
 		printf(";RET\n");
 		fprintf(yyout, ";UNLINK\n");
 		fprintf(yyout, ";RET\n");
 	}
 	else if (node->node_type == CALL_LIST) {
-		//TODO: change the offset name later
 		printf(";PUSH\n");
 		printf(";PUSHREGS\n");
 		fprintf(yyout, ";PUSH\n");
 		fprintf(yyout, ";PUSHREGS\n");
 		Tree * curr = node->left;
 		while (curr != NULL) {
-			printf(";PUSH %s\n", curr->entry->offset);
-			fprintf(yyout, ";PUSH %s\n", curr->entry->offset);
+			if (curr->node_type == VAR_REF) {
+				printf(";PUSH %s\n", curr->entry->str_offset);
+				fprintf(yyout, ";PUSH %s\n", curr->entry->str_offset);
+			}
+			else {
+				printf(";PUSH %s\n", curr->tac->temp);
+				fprintf(yyout, ";PUSH %s\n", curr->tac->temp);
+			}
 			curr = curr->next;		
 		}
 		printf(";JSR FUNC_%s\n", node->startlabel);
@@ -84,15 +103,15 @@ void generate_self(Tree * node) {
 			printf(";POP\n");
 			fprintf(yyout, ";POP\n");
 		}
-		printf(";POP REGS\n");
-		fprintf(yyout, ";POP REGS\n");
+		printf(";POPREGS\n");
+		fprintf(yyout, ";POPREGS\n");
 		newTemp(s);
 		t->temp = strdup(s);
 		node->tac = t; 
-		printf(";POP %s\n", t->temp);
-		fprintf(yyout, ";POP %s\n", t->temp);
+		printf(";POP %s\n", node->tac->temp);
+		fprintf(yyout, ";POP %s\n", node->tac->temp);
 	}
-	else if (node->node_type == STMT_LIST || node->node_type == IF_LIST || node->node_type == WHILE_STMT_LIST || node->node_type == IF_STMT_LIST || node->node_type == ELSE_LIST || node->node_type == PROG_NODE || node->node_type == PARAM_LIST || node->node_type == DECL_LIST){
+	else if (node->node_type == STMT_LIST || node->node_type == IF_LIST || node->node_type == WHILE_STMT_LIST || node->node_type == IF_STMT_LIST || node->node_type == ELSE_LIST || node->node_type == PROG_NODE || node->node_type == PARAM_LIST || node->node_type == DECL_LIST || node->node_type == FUNC_NODE){
 		return;  
 	}
 	else {
@@ -105,9 +124,7 @@ void generate_self(Tree * node) {
 						newTemp(s);
 						node->right->tac->data->op = (strcmp(node->right->tac->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
 						node->right->tac->temp = strdup(s);
-						//TODO: change the offset name later
-						//node->right->tac->data->src1 = node->right->name;
-						node->right->tac->data->src1 = (strcmp(node->right->entry->key, "GLOBAL") == 0) ? (node->right->name) : (node->right->entry->offset);						
+						node->right->tac->data->src1 = (strcmp(node->right->entry->key, "GLOBAL") == 0) ? (node->right->name) : (node->right->entry->str_offset);						
 						//print out the variable store assignment
 						printf(";%s %s %s\n", node->right->tac->data->op, node->right->tac->data->src1, node->right->tac->temp);
 						fprintf(yyout, ";%s %s %s\n", node->right->tac->data->op, node->right->tac->data->src1, node->right->tac->temp);
@@ -123,32 +140,6 @@ void generate_self(Tree * node) {
 
 					break;
 				
-				case RETURN_STMT: 
-					//for now, we can only return a variable
-					//TODO: check if it's necessary to store the return value variable into a temp var before pushing to stack
-					//if yes, then uncomment this portion of code	
-					//store the result into a temporary and push the temporary onto the stack
-					/*newTemp(s);
-					node->left->tac->data->op = (strcmp(node->left->tac->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
-					node->left->tac->temp = strdup(s);
-					//TODO: change the offset name later
-					node->left->tac->data->src1 = (strcmp(node->left->entry->key, "GLOBAL") == 0) ? (node->left->name) : (node->left->entry->offset);
-					//print out the variable store assignment for the result
-					printf(";%s %s %s\n", node->left->tac->data->op, node->left->tac->data->src1, node->left->tac->temp);
-					fprintf(yyout, ";%s %s %s\n", node->left->tac->data->op, node->left->tac->data->src1, node->left->tac->temp);*/					
-					
-					t->data->op = (strcmp(node->left->tac->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
-					t->data->src1 = node->left->tac->temp; //<-- here, the temp val is the offset of the var
-					t->data->src2 = NULL;
-					//TODO: change the offset name later
-					t->temp = node->entry->offset;
-					t->result_type = node->left->type;
-					node->tac = t;
-					fprintf(yyout, ";%s %s %s\n", t->data->op, t->data->src1, t->temp);
-					printf(";%s %s %s\n", t->data->op, t->data->src1, t->temp);
-
-					break;
-
 				case ARITHM_NODE:
 					newTemp(s);
 					t->temp = strdup(s);
@@ -180,16 +171,14 @@ void generate_self(Tree * node) {
 					break;
 
 				case COMP_NODE:
-					newTemp(s);
-					t->temp = strdup(s);
+					//newTemp(s);
+					//t->temp = strdup(s);
 					t->data->src1 = node->left->tac->temp;
 					if (node->right->node_type == VAR_REF) {
 						newTemp(s);
 						node->right->tac->data->op = (strcmp(node->right->tac->result_type,"INT") == 0) ? ("STOREI") : ("STOREF");
 						node->right->tac->temp = strdup(s);
-						//TODO: change the offset name later
-						//node->right->tac->data->src1 = node->right->name;
-						node->right->tac->data->src1 = (strcmp(node->right->entry->key, "GLOBAL") == 0) ? (node->right->name) : (node->right->entry->offset);	
+						node->right->tac->data->src1 = (strcmp(node->right->entry->key, "GLOBAL") == 0) ? (node->right->name) : (node->right->entry->str_offset);	
 						//print out the variable store assignment
 						printf(";%s %s %s\n", node->right->tac->data->op, node->right->tac->data->src1, node->right->tac->temp);
 						fprintf(yyout, ";%s %s %s\n", node->right->tac->data->op, node->right->tac->data->src1, node->right->tac->temp);
@@ -292,8 +281,8 @@ void generate_list(Tree * list) {
 	}
 
 	if (list->node_type == FUNC_NODE) {
-		printf(";LABEL %s\n", list->name);
-		fprintf(yyout, ";LABEL %s\n", list->name);
+		printf(";LABEL %s\n", list->startlabel);
+		fprintf(yyout, ";LABEL %s\n", list->startlabel);
 		if (list->left->next->varcount == 0) {
 			printf(";LINK\n");
 			fprintf(yyout, ";LINK\n");
@@ -368,21 +357,28 @@ void deleteCode(CodeObject * cur_item, NodeType n_type) {
 	free(cur_item);
 }
 
-//TODO: Do cases for PROG_NODE, DECL_LIST, PARAM_LIST, RETURN_STMT, CALL_LIST
-//Add opcode case for JSR which is still jsr in Tiny
-//push and pop the actual reg val, from r0-r3, instead of pushregs
-//LINK in IR = link in Tiny
-//UNLINK in IR = unlnk in Tiny
 void generateTiny(Tree * node) {
-
 	if (node->node_type == VAR_REF){
 		return;
 	}
-	else if(node->node_type == WRITE_LIST || node->node_type == READ_LIST || node->node_type == STMT_LIST || node->node_type == IF_LIST || node->node_type == ELSE_LIST || node->node_type == WHILE_LIST || node->node_type == IF_STMT_LIST || node->node_type == WHILE_STMT_LIST){
+	else if(node->node_type == WRITE_LIST || node->node_type == READ_LIST || node->node_type == STMT_LIST || node->node_type == IF_LIST || node->node_type == ELSE_LIST || node->node_type == WHILE_LIST || node->node_type == IF_STMT_LIST || node->node_type == WHILE_STMT_LIST || node->node_type == DECL_LIST || node->node_type == PARAM_LIST || node->node_type == PROG_NODE || node->node_type == FUNC_NODE || node->node_type == CALL_LIST){
 		return;
 	}
+	else if (node->node_type == RETURN_STMT) {
+		if (node->left->node_type == VAR_REF) {
+			fprintf(yyout, "move %s %s\n", node->left->tac->data->src1, node->left->tac->temp);
+		}
+		fprintf(yyout, "move %s %s\n", node->tac->data->src1, node->tac->temp);
+		fprintf(yyout,"unlnk\n");
+		fprintf(yyout, "ret\n");
+		if (node->node_type == VAR_REF) {
+			printf("move %s %s\n", node->left->tac->data->src1, node->left->tac->temp);
+		}
+		printf("move %s %s\n", node->tac->data->src1, node->tac->temp);	
+		printf("unlnk\n");
+		printf("ret\n");
+	}
 	else {
-		//printf("inside the opcode condition\n");
 		char * opcode = node->tac->data->op;
 		if (strcmp(opcode, "STOREF") == 0){
 			if (node->right != NULL) {
@@ -790,11 +786,46 @@ void generateTiny(Tree * node) {
 }
 
 void walkAST(Tree * node) {
+	//printf("on top of walkAST, the curr node is %d\n", node->node_type);
 	if (node == NULL)
 		return;
 	if (node->node_type == PROG_NODE) {
+		Tree * decl = node->left->left;
+		while (decl != NULL) {
+			if (strcmp(decl->type, "STRING") == 0 ) {
+				printf("str %s %s\n", decl->name, decl->entry->strval);
+				fprintf(yyout, "str %s %s\n", decl->name, decl->entry->strval);
+			}
+			else {
+				printf("var %s\n", decl->name);
+				fprintf(yyout, "var %s\n", decl->name);
+			}
+			decl = decl->next;
+		}
+		printf("push\n");
+		printf("push r0\n");
+		printf("push r1\n");
+		printf("push r2\n");
+		printf("push r3\n");
+		printf("jsr FUNC_main\n");
+		printf("sys halt\n");
+		fprintf(yyout,"push\n");
+		fprintf(yyout,"push r0\n");
+		fprintf(yyout,"push r1\n");
+		fprintf(yyout,"push r2\n");
+		fprintf(yyout,"push r3\n");
+		fprintf(yyout,"jsr FUNC_main\n");
+		fprintf(yyout,"sys halt\n");
+		decl = node->left->next; //skip the decl list since we already traversed through it
+		//printf("the current node is %d\n", decl->node_type);
+		while (decl != NULL) {
+			walkAST(decl);
+			decl = decl->next;
+			//printf("the current node is %d\n", decl->node_type);
+		}
+		//printf("why are we outta here?\n");
 	}
-	else if(node->node_type == STMT_LIST || node->node_type == IF_STMT_LIST || node->node_type == WHILE_STMT_LIST) {
+	else if(node->node_type == STMT_LIST || node->node_type == IF_STMT_LIST || node->node_type == WHILE_STMT_LIST || node->node_type == DECL_LIST || node->node_type == PARAM_LIST || node->node_type == RETURN_STMT) {
 		Tree * curr = node;
 		if (curr->left != NULL) {
 			walkAST(curr->left);
@@ -805,62 +836,83 @@ void walkAST(Tree * node) {
 			}
 		}
 	}
+	else if(node->node_type == FUNC_NODE) {
+		printf("label %s\n", node->startlabel);
+		fprintf(yyout,"label %s\n", node->startlabel);
+		if (node->left->next->varcount == 0) {
+			printf("link\n");
+			fprintf(yyout,"link\n");
+		}
+		else {
+			printf("link %d\n", node->left->next->varcount);
+			fprintf(yyout, "link %d\n", node->left->next->varcount);
+		}
+		Tree * curr0 = node;
+		if (curr0->left != NULL) {
+			walkAST(curr0->left);
+			curr0 = curr0->left->next; 
+			while(curr0 != NULL) {  
+				walkAST(curr0); 
+				curr0 = curr0->next; 
+			}
+		}
+	}
 	else if(node->node_type == IF_LIST) {
-		Tree * curr = node;
-		walkAST(curr->left);
-		curr = curr->left->next; 
-		while(curr != NULL) {  
-			if (curr->node_type == ELSE_LIST) {
+		Tree * curr1 = node;
+		walkAST(curr1->left);
+		curr1 = curr1->left->next; 
+		while(curr1 != NULL) {  
+			if (curr1->node_type == ELSE_LIST) {
 				printf("jmp %s\n", node->endlabel);
 				fprintf(yyout, "jmp %s\n", node->endlabel);
 				printf("label %s\n", node->startlabel);
 				fprintf(yyout, "label %s\n", node->startlabel);
 			}
-			walkAST(curr);
-			curr = curr->next; 
+			walkAST(curr1);
+			curr1 = curr1->next; 
 		}
 		printf("label %s\n", node->endlabel);
 		fprintf(yyout,"label %s\n", node->endlabel);
 
 	}
 	else if(node->node_type == WRITE_LIST || node->node_type == READ_LIST) {
-		Tree * curr1 = node->left;
-		while(curr1 != NULL) {
+		Tree * curr2 = node->left;
+		while(curr2 != NULL) {
 
-			char * opcode = curr1->tac->data->op;
+			char * opcode = curr2->tac->data->op;
 			if (strcmp(opcode, "WRITEI") == 0){
-				fprintf(yyout, "sys writei %s\n", curr1->tac->temp);
-				printf("sys writei %s\n", curr1->tac->temp);
+				fprintf(yyout, "sys writei %s\n", curr2->tac->temp);
+				printf("sys writei %s\n", curr2->tac->temp);
 			}
 			if (strcmp(opcode, "WRITEF") == 0){
-				fprintf(yyout, "sys writer %s\n", curr1->tac->temp);
-				printf("sys writer %s\n", curr1->tac->temp);
+				fprintf(yyout, "sys writer %s\n", curr2->tac->temp);
+				printf("sys writer %s\n", curr2->tac->temp);
 			}
 			if (strcmp(opcode, "WRITES") == 0){
-				fprintf(yyout, "sys writes %s\n", curr1->tac->temp);
-				printf("sys writes %s\n", curr1->tac->temp);
+				fprintf(yyout, "sys writes %s\n", curr2->tac->temp);
+				printf("sys writes %s\n", curr2->tac->temp);
 			}
 			if (strcmp(opcode, "READI") == 0){
-				fprintf(yyout, "sys readi %s\n", curr1->tac->temp);
-				printf("sys readi %s\n", curr1->tac->temp);	
+				fprintf(yyout, "sys readi %s\n", curr2->tac->temp);
+				printf("sys readi %s\n", curr2->tac->temp);	
 			}
 			if (strcmp(opcode, "READF") == 0){
-				fprintf(yyout, "sys readr %s\n", curr1->tac->temp);
-				printf("sys readr %s\n", curr1->tac->temp);	
+				fprintf(yyout, "sys readr %s\n", curr2->tac->temp);
+				printf("sys readr %s\n", curr2->tac->temp);	
 			}
 
-			curr1 = curr1->next;
+			curr2 = curr2->next;
 		}
 	}
 	else if(node->node_type == WHILE_LIST) {		
-		Tree * curr2 = node->left;
+		Tree * curr3 = node->left;
 		printf("label %s\n", node->startlabel);
 		fprintf(yyout, "label %s\n", node->startlabel);
-		walkAST(curr2); 
-		curr2 = curr2->next;
-		while(curr2 != NULL) { 
-			walkAST(curr2); 
-			curr2 = curr2->next;
+		walkAST(curr3); 
+		curr3 = curr3->next;
+		while(curr3 != NULL) { 
+			walkAST(curr3); 
+			curr3 = curr3->next;
 		}
 		printf("jmp %s\n", node->startlabel);
 		fprintf(yyout,"jmp %s\n", node->startlabel);
@@ -868,31 +920,72 @@ void walkAST(Tree * node) {
 		fprintf(yyout, "label %s\n", node->endlabel);
 	}
 	else if(node->node_type == ELSE_LIST) {		
-		Tree * curr3 = node;
-		//printf("jmp %s\n",node->endlabel);
-		//fprintf(yyout, "jmp %s\n", node->endlabel);
-		//printf("label %s\n", node->startlabel);
-		//fprintf(yyout, "label %s\n", node->startlabel);
-		if (curr3->left != NULL) {
-			walkAST(curr3->left);
-			//printf("here!\n");
+		Tree * curr4 = node;
+		if (curr4->left != NULL) {
+			walkAST(curr4->left);
 		}
-		curr3 = curr3->left->next; 
-		while(curr3 != NULL) {  
-			walkAST(curr3); 
-			curr3 = curr3->next; 
+		curr4 = curr4->left->next; 
+		while(curr4 != NULL) {  
+			walkAST(curr4); 
+			curr4 = curr4->next; 
 		}
-		//printf("label %s\n", node->endlabel);
-		//fprintf(yyout, "label %s\n", node->endlabel);
 		
 		return;
 	}
+	else if(node->node_type == CALL_LIST) {
+		Tree * curr5 = node->left;
+		if (curr5->node_type != VAR_REF && curr5->node_type != LIT_VAL) {
+			walkAST(curr5); 
+		}
+		printf("push\n");
+		printf("push r0\n");
+		printf("push r1\n");
+		printf("push r2\n");
+		printf("push r3\n");
+		fprintf(yyout,"push\n");
+		fprintf(yyout,"push r0\n");
+		fprintf(yyout,"push r1\n");
+		fprintf(yyout,"push r2\n");
+		fprintf(yyout,"push r3\n");
+		while (curr5 != NULL) {
+			if (curr5->node_type == VAR_REF) {
+				//printf("i am here\n");
+				printf("push %s\n", curr5->entry->str_offset);
+				fprintf(yyout, "push %s\n", curr5->entry->str_offset);
+			}
+			else {
+				printf("push %s\n", curr5->tac->temp);
+				fprintf(yyout,"push %s\n", curr5->tac->temp);
+			}
+			curr5 = curr5->next;
+		}
+		printf("jsr FUNC_%s\n", node->startlabel);
+		fprintf(yyout,"jsr FUNC_%s\n", node->startlabel);
+		int j;
+		for (j = 0; j < node->varcount; j++) {
+			printf("pop\n");
+			fprintf(yyout, "pop\n");
+		}
+		printf("pop r3\n");
+		printf("pop r2\n");
+		printf("pop r1\n");
+		printf("pop r0\n");
+		printf("pop %s\n", node->tac->temp);
+		fprintf(yyout, "pop r3\n");
+		fprintf(yyout, "pop r2\n");
+		fprintf(yyout, "pop r1\n");
+		fprintf(yyout, "pop r0\n");
+		fprintf(yyout, "pop %s\n", node->tac->temp);
+
+		return;
+	}
+
 	//ONLY IF ITS A COMPNODE OR OPNODE
 	else if(node->node_type != VAR_REF && node->node_type != LIT_VAL) {
 		walkAST(node->left);
 		walkAST(node->right);
 	}
-	//printf("generating tiny code\n");
+	
 	generateTiny(node);
 }
 
