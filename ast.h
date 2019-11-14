@@ -73,6 +73,8 @@ typedef struct Tree {
 	int varcount; // number of variables in any list (call, decl, param, etc.)
 
 	int offset; 	// the offset for AR/stack purposes (calculated from CALLEE's frame pointer)
+	char * str_offset;
+
 	int address; 	// for function call (CALL_LIST)'s return address
 
 	struct CodeObject * tac; 

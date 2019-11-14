@@ -29,6 +29,8 @@ void yyerror(const char *s);
 
 // Integrating Symbol Table
 ht_hash_table * ht; // hashtable pointer
+ht_item * symboltable;
+ht_item * entry;
 
 ht_item * symtab[50];
 int maxind = -1; 
@@ -44,6 +46,7 @@ char buf[100];
 // IR Rep
 void printExprTree(Tree * root); 
 
+/*
 // SL = Statement List
 Tree * Stmt_List[50]; 
 int SLmaxind = -1; // initialize index
@@ -54,6 +57,7 @@ void printSL(void);
 ht_item * idL[50]; 
 int ILmaxind = -1; 
 void updateIL(ht_item * id); 
+*/
 
 //store comparator operator
 char * cp;
@@ -117,7 +121,8 @@ char buf_FUNC[30];
 char buf_WHILE_START[20];
 char buf_WHILE_END[20];
 char buf_ELSE[20]; 
-char buf_END_IF_ELSE[20]; 
+char buf_END_IF_ELSE[20];
+char buf_OFFSET[20]; 
 
 %}
 // Bison Definitions
@@ -231,6 +236,9 @@ id_list: 	id
 					ast_add_node_to_list(decl_list, lhs);
 					decl_list->varcount = decl_list->varcount + 1;
 					lhs->entry->offset = -(decl_list->varcount);
+
+					snprintf(buf_OFFSET, sizeof buf_OFFSET, "$%d", lhs->entry->offset);
+					lhs->entry->str_offset = strdup(buf_OFFSET);
 				}
 				else if(write == 1){
 					lhs = new_varleaf(ht, symtab[maxind]->key, $1);
@@ -266,6 +274,9 @@ id_tail:	COMMA id
 					ast_add_node_to_list(decl_list, lhs);
 					decl_list->varcount = decl_list->varcount + 1;
 					lhs->entry->offset = -(decl_list->varcount);
+
+					snprintf(buf_OFFSET, sizeof buf_OFFSET, "$%d", lhs->entry->offset);
+					lhs->entry->str_offset = strdup(buf_OFFSET);
 				}
 				else if(write == 1){
 					lhs = new_varleaf(ht, symtab[maxind]->key, $2); 
@@ -332,6 +343,10 @@ func_decl: _FUNC any_type id
 				i = param_list->varcount;
 				while(i > 0){
 					lhs->entry->offset = i + 1;	// add 1 to account for return address slot
+					
+					snprintf(buf_OFFSET, sizeof buf_OFFSET, "$%d", lhs->entry->offset);
+					lhs->entry->str_offset = strdup(buf_OFFSET);
+
 					i--;
 					lhs = lhs->next;	// moce to the next argument
 				}
@@ -411,7 +426,12 @@ write_stmt: 	_WRITE { write_list = new_list(WRITE_LIST, NULL, NULL); ast_add_nod
 ; 
 return_stmt: 	_RETURN expr 
 				{
-					ret_stmt = new_list(RETURN_STMT, NULL, NULL);	
+					ret_stmt = new_list(RETURN_STMT, NULL, NULL);
+					ret_stmt->offset = 1 + param_list->varcount + regcount + 1;
+
+					snprintf(buf_OFFSET, sizeof buf_OFFSET, "$%d", ret_stmt->offset);
+					ret_stmt->str_offset = strdup(buf_OFFSET);
+
 
 					if (op_head != NULL) {	
 						oplist_extract(100); // 100 > 50 tells oplist_extract to extract every opnode until end of oplist. 
@@ -450,18 +470,6 @@ call_expr: 		id
 					call_list = new_list(CALL_LIST, $1, NULL);
 				}
 				OPENPARENT expr_list CLOSEPARENT
-				{
-					/*
-					// set offsets for AR
-					lhs = call_list->left;
-					i = call_list->varcount;
-					while(i > 0){
-						lhs->entry->offset = i + 1;	// add 1 to account for return address slot
-						i--;
-						lhs = lhs->next;	// moce to the next argument
-					}
-					*/
-				}
 ; 
 expr_list: 		expr 
 				{

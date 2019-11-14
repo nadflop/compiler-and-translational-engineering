@@ -11,6 +11,7 @@ typedef struct ht_item {
 	char * strval;
 
 	int offset;
+	char * str_offset;
 
 	struct ht_item * next;
 }ht_item;

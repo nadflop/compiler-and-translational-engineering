@@ -206,7 +206,10 @@ void ast_print(Tree * node){
 		curr = node->left; 
 		while(curr != NULL){
 			if(curr->node_type == ARITHM_NODE){
-				printf("EXPRESSION [%d]\n", curr->entry->offset);
+				printf("EXPRESSION\n");
+			}
+			else if(curr->node_type == LIT_VAL){
+				printf("LITERAL: %s\n", curr->literal);
 			}
 			else if(curr->node_type == VAR_REF){
 				printf("%s [%d]\n", curr->name, curr->entry->offset);
@@ -272,7 +275,7 @@ void ast_print(Tree * node){
 	}
 
 	else if (node->node_type == RETURN_STMT){
-		printf("RETURN_STMT\n");
+		printf("RETURN_STMT to offset [%d]\n", node->offset);
 		if(node->left->node_type == ARITHM_NODE){
 			printf("RETURN EXPRESSION\n");
 		}
