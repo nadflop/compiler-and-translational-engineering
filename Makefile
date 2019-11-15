@@ -38,21 +38,21 @@ test2: clean compiler
 test3: clean compiler
 		./runme step6/input/step6_test3.micro test3.out
 
+tiny1: test1
+		./tiny step6/output/step6_test1.out < step6/input/step6_test1.input
+		./tiny test1.out < step6/input/step6_test1.input
+
+tiny2: test2
+		./tiny step6/output/step6_test2.out < step6/input/step6_test2.input
+		./tiny test2.out < step6/input/step6_test2.input
+
+tiny3: test3
+		./tiny step6/output/step6_test3.out < step6/input/step6_test3.input
+		./tiny test3.out < step6/input/step6_test3.input
+
 testcheck: clean compiler
 		$(VALGRIND) ./runme step6/input/step6_test2.micro step5_test2.out
 
-
-testall: clean compiler
-		./runme step4/input/test_combination.micro test_combination.out
-		./runme step4/input/test_complex.micro test_complex.out
-		./runme step4/input/test_expr.micro test_expr.out
-		./runme step4/input/test_mult.micro test_mult.out
-
-testallcheck: clean compiler
-		$(VALGRIND) ./runme step4/input/test_combination.micro test_combination.out
-		$(VALGRIND) ./runme step4/input/test_complex.micro test_combination.out
-		$(VALGRIND) ./runme step4/input/test_expr.micro test_combination.out
-		$(VALGRIND) ./runme step4/input/test_mult.micro test_combination.out
 	
 clean: 
 		/bin/rm -f *.gcda *.gcno gmon.out *gcov
