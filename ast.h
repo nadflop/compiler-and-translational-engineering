@@ -81,6 +81,15 @@ typedef struct Tree {
 	const char * startlabel;
 	const char * endlabel;
 
+	// CFG stuffs
+	struct Tree * succ;
+	struct Tree * succ_T;
+	struct Tree * succ_F 
+
+	struct Tree * pred_head; 
+	struct Tree * pred_tail; 
+	struct Tree * pred_next;
+
 }Tree;
 
 Tree * new_node(NodeType node_type, Tree * left, Tree * right);
