@@ -29,14 +29,18 @@ stackcheck:
 		gcc actrec.c
 		$(VALGRIND) ./a.out
 
+test: clean compiler
+		./runme test1.c test1.out
+
 test1: clean compiler
-		./runme step6/input/step6_test1.micro test1.out
+		./runme step7/step7_test1.micro test1.out
 
 test2: clean compiler
-		./runme step6/input/step6_test2.micro test2.out
+		./runme step7/step7_test2.micro test2.out
 
 test3: clean compiler
-		./runme step6/input/step6_test3.micro test3.out
+		./runme step7/step7_test3.micro test3.out
+
 test12: clean compiler
 		./runme step7/step7_test12.micro test12.out
 

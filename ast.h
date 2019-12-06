@@ -84,7 +84,7 @@ typedef struct Tree {
 	// CFG stuffs
 	struct Tree * succ;
 	struct Tree * succ_T;
-	struct Tree * succ_F 
+	struct Tree * succ_F; 
 
 	struct Tree * pred_head; 
 	struct Tree * pred_tail; 
