@@ -37,6 +37,8 @@ test2: clean compiler
 
 test3: clean compiler
 		./runme step6/input/step6_test3.micro test3.out
+test12: clean compiler
+		./runme step7/step7_test12.micro test12.out
 
 tiny1: test1
 		./tiny step6/output/step6_test1.out < step6/input/step6_test1.input
