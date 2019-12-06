@@ -192,11 +192,11 @@ program: 	_PROG id _BEGIN
 			} 
 			pgm_body _END 
 			{
-				//printf("\nPrinting AST Tree..\n");
-				//ast_print(prog_node);
-				//printf("printing the IR Code..\n\n");
+				printf("\nPrinting AST Tree..\n");
+				ast_print(prog_node);
+				printf("printing the IR Code..\n\n");
 				generate_code(prog_node);
-				//printf("\n\nprinting the Tiny Code..\n\n");
+				printf("\n\nprinting the Tiny Code..\n\n");
 				walkAST(prog_node);
 			}
 ;
