@@ -320,7 +320,7 @@ void generate_list(Tree * list) {
 		printf(";UNLINK\n");
 		printf(";RET\n");
 		fprintf(yyout, ";UNLINK\n");
-		fprintf(yyout, "RET\n");
+		fprintf(yyout, ";RET\n");
 	}
 }
 
