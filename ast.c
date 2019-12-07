@@ -8,9 +8,6 @@
 
 extern int yylineno;
 
-Tree * parent_head;
-Tree * parent_tail; 
-
 /*basic ast node that can be either assign, write, return stmt*/
 Tree * new_node(NodeType node_type, Tree * left, Tree * right) {
 	Tree * t = malloc(sizeof(Tree));
@@ -358,7 +355,58 @@ void deleteTree (Tree * node) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CFG
 
+Tree * succ_head; 
+Tree * succ_tail;
+Tree * temp;
+
+void cfg_push_succ(Tree * successor){
+	
+	printf("PUSH\n");
+
+	// check if stack has anything
+	if(succ_head == NULL){
+		succ_head = successor; 
+		succ_tail = successor;
+		return; 
+	}
+
+	if(successor == NULL){
+		return;
+	}
+	
+	// at this point, succ_head is already pointing to something
+	successor->succ = succ_head; 
+	succ_head = successor; 
+
+}
+
+Tree * cfg_pop_succ(void){
+	
+	printf("POP\n");
+
+	if(succ_head == NULL){
+		return succ_head;
+	}
+
+	// succ_head is pointing to something
+	Tree * successor; 
+	successor = succ_head; 
+
+	succ_head = succ_head->succ; 
+	if(succ_head == NULL){
+		succ_tail = NULL; 
+	}
+
+	successor->succ = NULL;
+
+	return successor; 
+}
+
 void cfg_update_node_pred(Tree * node, Tree * pred){
+	if(node == NULL){
+		return; 
+	}
+
 	// check if node has any pred
 	if(node->pred_head == NULL){
 		node->pred_head = pred; 
@@ -372,7 +420,6 @@ void cfg_update_node_pred(Tree * node, Tree * pred){
 }
 
 void ast_build_cfg(Tree * node){
-	
 	Tree * curr;
 
 	if(node->node_type == PROG_NODE){
@@ -383,34 +430,74 @@ void ast_build_cfg(Tree * node){
 		}
 	}
 	else if(node->node_type == FUNC_NODE){
+		printf("\nFUNCTION: %s\n", node->startlabel);
 		node->succ = node->right->left; // first statement in stmt_list
 		ast_build_cfg(node->right);		// go to stmt_list
 	}
-	else if(node->node_type == STMT_LIST || node->node_type == IF_STMT_LIST){
+	else if(node->node_type == STMT_LIST || node->node_type == IF_STMT_LIST || node->node_type == WHILE_STMT_LIST){
 		curr = node->left; 	// first statement in stmt_list
 		while(curr != NULL){
+			printf("Type: %d\n", curr->node_type);
+			curr->succ = curr->next; // can be NULL or non-NULL
+
+			// need to update as predecessor if there's a next statement after node.
+			if(curr->next != NULL){ 
+				cfg_update_node_pred(curr->succ, curr);
+			}
 
 			if(curr->node_type == IF_LIST){
-				curr->succ_T = curr->left->next->left; 	// first statement in if_stmt_list
-				cfg_update_node_pred(curr->succ_T, curr);	// update if_list to be if_stmt_list's predecessor				
-				curr->succ_F = curr->right->left->left; // first statement under else_list's stmt_list
-				cfg_update_node_pred(curr->succ_F, curr); 	// update if_list to be else_list's stmt_list predecessor
+				// push if_list's successor to stack
+				
+				cfg_push_succ(curr->succ); // can be NULL or non-NULL
 
-				ast_build_cfg(curr->left->next);	// if_stmt_list
-				ast_build_cfg(curr->right->left); 	// stmt_list under else_list
+				curr->succ_T = curr->left->next->left;		// first statement in if_stmt_list
+				if(curr->succ_T == NULL){
+					curr->succ_T = curr->succ; 
+				}
+				else{
+					cfg_update_node_pred(curr->succ_T, curr);	// update if_list to be if_stmt_list's predecessor	
+					ast_build_cfg(curr->left->next);	// if_stmt_list
+					if(curr->left->next->right->node_type != RETURN_STMT){
+						curr->left->next->right->succ = succ_head;
+						cfg_update_node_pred(succ_head, curr->left->next->right);
+					}
+				}
+
+				curr->succ_F = curr->right->left->left;		// first statement under else_list's stmt_list
+				if(curr->succ_F == NULL){
+					curr->succ_F = curr->succ;
+				}
+				else{
+					cfg_update_node_pred(curr->succ_F, curr); 	// update if_list to be else_list's stmt_list predecessor
+					ast_build_cfg(curr->right->left); 	// stmt_list under else_list
+					if(curr->right->left->right->node_type != RETURN_STMT){
+						curr->right->left->right->succ = succ_head; 
+						cfg_update_node_pred(succ_head, curr->right->left->right);
+					}
+				}
+				
+				temp = cfg_pop_succ();
 			}
 			else if(curr->node_type == WHILE_LIST){
-				curr->succ_T = curr->left->next;	// while_stmt_list
-				curr->succ_F = curr->next; 			// next stmt after while_list
+				curr->succ_T = curr->right->left;	// first statement in while_stmt_list
+				if(curr->succ_T == NULL){
+					curr->succ_T = curr; 
+				}
+				else{
+					cfg_update_node_pred(curr->succ_T, curr);
+					ast_build_cfg(curr->right);
+					curr->right->right->succ = curr; 
+					cfg_update_node_pred(curr, curr->right->right);
+				}
+				curr->succ_F = curr->next; 
 			}
 
-			curr->succ = curr->next; 
-			cfg_update_node_pred(curr->succ, curr); 
-			curr = curr->next; 
+			curr = curr->next;
 		}
-		// at this point, curr reached the end of stmt_list
 		
 	}
+
+	return; 
 }
 
 void ast_cfg_print(Tree * node){
@@ -428,7 +515,7 @@ void ast_cfg_print(Tree * node){
 		}
 	}	
 	else if(node->node_type == FUNC_NODE){
-		printf("START: %s\n", node->startlabel);
+		printf("\nSTART: %s\n", node->startlabel);
 		ast_cfg_print(node->succ);
 		printf("END\n"); 
 	}
@@ -458,10 +545,23 @@ void ast_cfg_print(Tree * node){
 	}
 	else if(node->node_type == IF_LIST){
 		printf("IF_LIST!\n");
+		//printf("succ_T's\n");
+		//ast_cfg_print(node->succ_T);
+		//printf("succ_F's\n");
+		//ast_cfg_print(node->succ_F);
+		//printf("succ's\n");
 		ast_cfg_print(node->succ);
 	}
 	else if(node->node_type == WHILE_LIST){
-		printf("WHILE_LIST!\n");  
+		printf("WHILE_LIST!\n"); 
+		//printf("succ_T's\n");
+		//ast_cfg_print(node->succ_T); // should be a loop!
+		//printf("%d \n", node->succ_T->node_type);
+		//printf("pred_tail:\n"); 
+		//printf("%d \n", node->pred_tail->node_type);
+		//printf("succ_F's\n"); 
+		//printf("%d \n", node->succ_F->node_type);
+		//printf("succ: \n");
 		ast_cfg_print(node->succ);
 	}
 	else if(node->node_type == RETURN_STMT){
