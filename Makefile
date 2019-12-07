@@ -44,6 +44,12 @@ test3: clean compiler
 test12: clean compiler
 		./runme step7/step7_test12.micro test12.out
 
+testall: 
+		for value in {1..21} ; do \
+			echo Testing test$$value ; \
+			./runme step7/step7_test$$value.micro test$$value.out ; \
+		done
+
 tiny1: test1
 		./tiny step6/output/step6_test1.out < step6/input/step6_test1.input
 		./tiny test1.out < step6/input/step6_test1.input
