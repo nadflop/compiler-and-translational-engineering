@@ -545,23 +545,23 @@ void ast_cfg_print(Tree * node){
 	}
 	else if(node->node_type == IF_LIST){
 		printf("IF_LIST!\n");
-		//printf("succ_T's\n");
-		//ast_cfg_print(node->succ_T);
-		//printf("succ_F's\n");
-		//ast_cfg_print(node->succ_F);
-		//printf("succ's\n");
+		printf("succ_T's\n");
+		ast_cfg_print(node->succ_T);
+		printf("succ_F's\n");
+		ast_cfg_print(node->succ_F);
+		printf("succ's\n");
 		ast_cfg_print(node->succ);
 	}
 	else if(node->node_type == WHILE_LIST){
 		printf("WHILE_LIST!\n"); 
-		//printf("succ_T's\n");
+		printf("succ_T's\n");
 		//ast_cfg_print(node->succ_T); // should be a loop!
-		//printf("%d \n", node->succ_T->node_type);
-		//printf("pred_tail:\n"); 
-		//printf("%d \n", node->pred_tail->node_type);
-		//printf("succ_F's\n"); 
-		//printf("%d \n", node->succ_F->node_type);
-		//printf("succ: \n");
+		printf("%d \n", node->succ_T->node_type);
+		printf("pred_tail:\n"); 
+		printf("%d \n", node->pred_tail->node_type);
+		printf("succ_F's\n"); 
+		printf("%d \n", node->succ_F->node_type);
+		printf("succ: \n");
 		ast_cfg_print(node->succ);
 	}
 	else if(node->node_type == RETURN_STMT){

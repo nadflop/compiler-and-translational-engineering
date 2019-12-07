@@ -44,7 +44,7 @@ test3: clean compiler
 test12: clean compiler
 		./runme step7/step7_test12.micro test12.out
 
-testall: 
+testall: clean compiler
 		for value in {1..21} ; do \
 			echo Testing test$$value ; \
 			./runme step7/step7_test$$value.micro test$$value.out ; \
