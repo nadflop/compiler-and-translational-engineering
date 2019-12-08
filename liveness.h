@@ -16,7 +16,7 @@ typedef struct node {
 
 //need a linked list set for gen, kill, in and out
 
-node createNode(char * val);
+node * createNode(char * val);
 void insertNode(node * head, char * val);
 void printList(node * head);
 int count(node * head);

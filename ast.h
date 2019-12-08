@@ -86,9 +86,25 @@ typedef struct Tree {
 	struct Tree * succ_T;
 	struct Tree * succ_F; 
 
-	struct Tree * pred_head; 
-	struct Tree * pred_tail; 
+	struct Tree * pred_head;
 	struct Tree * pred_next;
+	struct Tree * pred_tail; 
+
+	struct Tree * gen_head; // use
+	struct Tree * gen_next;
+	struct Tree * gen_tail; 
+
+	struct Tree * kill_head; // def
+	struct Tree * kill_next;
+	struct Tree * kill_tail; 
+
+	struct Tree * in_head; // in set
+	struct Tree * in_next;
+	struct Tree * in_tail;
+
+	struct Tree * out_head; // out set
+	struct Tree * out_next;
+	struct Tree * out_tail; 
 
 }Tree;
 

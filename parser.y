@@ -7,6 +7,7 @@
 #include "addgen.c"
 #include "hash_table.c"
 #include "ast.c"
+#include "liveness.c"
 
 #define regcount 4
 
@@ -201,6 +202,8 @@ program: 	_PROG id _BEGIN
 				printf("\n\n\nCFG------\n\n");
 				ast_build_cfg(prog_node);
 				ast_cfg_print(prog_node);
+				printf("\n\nTraversing CFG to create GEN/KILL\n");
+				traverse_cfg(prog_node);
 			}
 ;
 id: IDENTIFIER
