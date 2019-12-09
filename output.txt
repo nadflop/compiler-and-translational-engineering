@@ -1,0 +1,8048 @@
+Commit ID tagged for submission: 0ad62d5c0ea5e47e2b36cf8f1361d86f827635d4
+Submission graded at: 2019-12-09 09:02:18
+
+/bin/rm -f *.gcda *.gcno gmon.out *gcov
+/bin/rm -f *.o
+/bin/rm -f *.out
+/bin/rm -f lex.yy.c
+/bin/rm -f parser.tab.h parser.tab.c
+bison -d parser.y
+flex scanner.l
+gcc parser.tab.c lex.yy.c -lfl
+tiny4Regs.c: In member function ‘float operand::rval()’:
+tiny4Regs.c:262:3: warning: control reaches end of non-void function [-Wreturn-type]
+   }
+   ^
+tiny4Regs.c: In member function ‘int operand::ival()’:
+tiny4Regs.c:255:3: warning: control reaches end of non-void function [-Wreturn-type]
+   }
+   ^
+tiny4Regs.c: In member function ‘std::__cxx11::string operand::sval()’:
+tiny4Regs.c:266:3: warning: control reaches end of non-void function [-Wreturn-type]
+   }
+   ^
+tiny200Regs.c: In member function ‘float operand::rval()’:
+tiny200Regs.c:262:3: warning: control reaches end of non-void function [-Wreturn-type]
+   }
+   ^
+tiny200Regs.c: In member function ‘int operand::ival()’:
+tiny200Regs.c:255:3: warning: control reaches end of non-void function [-Wreturn-type]
+   }
+   ^
+tiny200Regs.c: In member function ‘std::__cxx11::string operand::sval()’:
+tiny200Regs.c:266:3: warning: control reaches end of non-void function [-Wreturn-type]
+   }
+   ^
+
+Printing AST Tree..
+PROGRAM: p
+DECL_LIST of 4 variables
+VAR_REF: outputStart
+VAR_REF: a
+VAR_REF: b
+VAR_REF: c
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+READ_LIST: a b c 
+ASSIGN NODE for: c
+ASSIGN NODE for: b
+ASSIGN NODE for: a
+WRITE_LIST: c 
+WRITE_LIST: b 
+WRITE_LIST: a 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;READI a
+;READI b
+;READI c
+;MULI a b r0
+;ADDI c r0 r1
+;MULI a b r2
+;ADDI r2 c r3
+;DIVI r3 a r4
+;ADDI r1 r4 r5
+;STOREI 20 r6
+;ADDI r5 r6 r7
+;STOREI r7 c
+;MULI b b r8
+;ADDI r8 a r9
+;STOREI r9 b
+;MULI b a r10
+;DIVI r10 a r11
+;STOREI r11 a
+;WRITEI c
+;WRITEI b
+;WRITEI a
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var a
+var b
+var c
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+sys readi a
+sys readi b
+sys readi c
+move a r0
+muli b r0
+move c r1
+addi r0 r1
+move a r2
+muli b r2
+move r2 r3
+addi c r3
+move r3 r4
+divi a r4
+move r1 r5
+addi r4 r5
+move 20 r6
+move r5 r7
+addi r6 r7
+move r7 c
+move b r8
+muli b r8
+move r8 r9
+addi a r9
+move r9 b
+move b r10
+muli a r10
+move r10 r11
+divi a r11
+move r11 a
+sys writei c
+sys writei b
+sys writei a
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: test
+DECL_LIST of 10 variables
+VAR_REF: outputStart
+VAR_REF: a
+VAR_REF: b
+VAR_REF: c
+VAR_REF: x
+VAR_REF: y
+VAR_REF: z
+VAR_REF: h
+VAR_REF: j
+VAR_REF: k
+FUNC_printout
+PARAM_LIST with 3 parameters
+VAR_REF: a
+VAR_REF: b
+VAR_REF: c
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: a 
+WRITE_LIST: b 
+WRITE_LIST: c 
+RETURN_STMT to offset [9]
+RETURN LITERAL: 0
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+READ_LIST: a b c 
+ASSIGN NODE for: j
+IF_LIST
+COMP_NODE: 5
+IF_STMT_LIST
+ASSIGN NODE for: h
+ELSE_LIST
+STMT_LIST
+WHILE_LIST
+COMP_NODE: 3
+WHILE_STMT_LIST
+ASSIGN NODE for: a
+ASSIGN NODE for: j
+ENDWHILE
+ENDIF
+ASSIGN NODE for: c
+CALL_LIST with 3 arguments at line 26
+a [-2]
+b [-3]
+j [-9]
+RETURN_STMT to offset [6]
+RETURN EXPRESSION
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_printout
+;LINK
+;WRITEI $4
+;WRITEI $3
+;WRITEI $2
+;STOREI 0 r0
+;STOREI r0 $9
+;UNLINK
+;RET
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;READI a
+;READI b
+;READI c
+;STOREI 0 r1
+;STOREI r1 j
+;STOREI b r2
+;NEI a r2 ELSE_1
+;STOREI 0 r3
+;STOREI r3 h
+;JUMP END_IF_ELSE2
+;LABEL ELSE_1
+;LABEL WHILE_START_3
+;STOREI 10 r4
+;GTI j r4 WHILE_END_4
+;STOREI j r5
+;STOREI r5 a
+;STOREI 1 r6
+;ADDI j r6 r7
+;STOREI r7 j
+;JUMP WHILE_START_3
+;LABEL END_IF_ELSE2
+;PUSH
+;PUSHREGS
+;PUSH $-2
+;PUSH $-3
+;PUSH $-9
+;JSR FUNC_printout
+;POP
+;POP
+;POP
+;POPREGS
+;POP r8
+;STOREI r8 c
+;ADDI a b r9
+;STOREI r9 $6
+;UNLINK
+;RET
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var a
+var b
+var c
+var x
+var y
+var z
+var h
+var j
+var k
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_printout
+link
+sys writei $4
+sys writei $3
+sys writei $2
+move 0 r0
+move r0 $9
+unlnk
+ret
+label FUNC_main
+link
+sys writes outputStart
+sys readi a
+sys readi b
+sys readi c
+move 0 r1
+move r1 j
+move b r2
+cmpi a r2
+jne ELSE_1
+move 0 r3
+move r3 h
+jmp END_IF_ELSE2
+label ELSE_1
+label WHILE_START_3
+move 10 r4
+cmpi j r4
+jgt WHILE_END_4
+move j r5
+move r5 a
+move 1 r6
+move j r7
+addi r6 r7
+move r7 j
+jmp WHILE_START_3
+label WHILE_END_4
+label END_IF_ELSE2
+push
+push r0
+push r1
+push r2
+push r3
+push $-2
+push $-3
+push $-9
+jsr FUNC_printout
+pop r3
+pop r2
+pop r1
+pop r0
+pop r8
+move r8 c
+move a r9
+addi b r9
+move r9 $6
+unlnk
+ret
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: fibonacci2
+DECL_LIST of 4 variables
+VAR_REF: outputStart
+VAR_REF: input
+VAR_REF: space
+VAR_REF: eol
+FUNC_F
+PARAM_LIST with 1 parameters
+VAR_REF: n
+DECL_LIST of 2 variables
+VAR_REF: ret1
+VAR_REF: ret2
+STMT_LIST
+IF_LIST
+COMP_NODE: 0
+IF_STMT_LIST
+ASSIGN NODE for: ret1
+CALL_LIST with 1 arguments at line 13
+EXPRESSION
+ASSIGN NODE for: ret2
+CALL_LIST with 1 arguments at line 14
+EXPRESSION
+RETURN_STMT to offset [7]
+RETURN EXPRESSION
+ELSE_LIST
+STMT_LIST
+IF_LIST
+COMP_NODE: 5
+IF_STMT_LIST
+RETURN_STMT to offset [7]
+RETURN LITERAL: 0
+ELSE_LIST
+STMT_LIST
+IF_LIST
+COMP_NODE: 5
+IF_STMT_LIST
+RETURN_STMT to offset [7]
+RETURN LITERAL: 1
+ELSE_LIST
+STMT_LIST
+RETURN_STMT to offset [7]
+RETURN LITERAL: 1
+ENDIF
+ENDIF
+ENDIF
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 3 variables
+VAR_REF: i
+VAR_REF: final
+VAR_REF: result
+STMT_LIST
+WRITE_LIST: outputStart 
+WRITE_LIST: input 
+READ_LIST: final 
+ASSIGN NODE for: i
+WHILE_LIST
+COMP_NODE: 4
+WHILE_STMT_LIST
+ASSIGN NODE for: result
+CALL_LIST with 1 arguments at line 38
+i [-1]
+WRITE_LIST: i space 
+WRITE_LIST: result eol 
+ASSIGN NODE for: i
+ENDWHILE
+RETURN_STMT to offset [6]
+RETURN LITERAL: 0
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_F
+;LINK 2
+;STOREI 2 r0
+;LEI $2 r0 ELSE_1
+;STOREI 1 r1
+;SUBI $2 r1 r2
+;PUSH
+;PUSHREGS
+;PUSH r2
+;JSR FUNC_F
+;POP
+;POPREGS
+;POP r3
+;STOREI r3 $-1
+;STOREI 2 r4
+;SUBI $2 r4 r5
+;PUSH
+;PUSHREGS
+;PUSH r5
+;JSR FUNC_F
+;POP
+;POPREGS
+;POP r6
+;STOREI r6 $-2
+;ADDI $-1 $-2 r7
+;STOREI r7 $7
+;UNLINK
+;RET
+;JUMP END_IF_ELSE2
+;LABEL ELSE_1
+;STOREI 0 r8
+;NEI $2 r8 ELSE_3
+;STOREI 0 r9
+;STOREI r9 $7
+;UNLINK
+;RET
+;JUMP END_IF_ELSE4
+;LABEL ELSE_3
+;STOREI 1 r10
+;NEI $2 r10 ELSE_5
+;STOREI 1 r11
+;STOREI r11 $7
+;UNLINK
+;RET
+;JUMP END_IF_ELSE6
+;LABEL ELSE_5
+;STOREI 1 r12
+;STOREI r12 $7
+;UNLINK
+;RET
+;LABEL END_IF_ELSE6
+;LABEL END_IF_ELSE4
+;LABEL END_IF_ELSE2
+;LABEL FUNC_main
+;LINK 3
+;WRITES outputStart
+;WRITES input
+;READI $-2
+;STOREI 0 r13
+;STOREI r13 $-1
+;LABEL WHILE_START_7
+;STOREI $-2 r14
+;EQI $-1 r14 WHILE_END_8
+;PUSH
+;PUSHREGS
+;PUSH $-1
+;JSR FUNC_F
+;POP
+;POPREGS
+;POP r15
+;STOREI r15 $-3
+;WRITEI $-1
+;WRITES space
+;WRITEI $-3
+;WRITES eol
+;STOREI 1 r16
+;ADDI $-1 r16 r17
+;STOREI r17 $-1
+;JUMP WHILE_START_7
+;STOREI 0 r18
+;STOREI r18 $6
+;UNLINK
+;RET
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+str input "Please input an integer number: "
+str space " "
+str eol "\n"
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_F
+link 2
+move 2 r0
+cmpi $2 r0
+jle ELSE_1
+move 1 r1
+move $2 r2
+subi r1 r2
+push
+push r0
+push r1
+push r2
+push r3
+push r2
+jsr FUNC_F
+pop r3
+pop r2
+pop r1
+pop r0
+pop r3
+move r3 $-1
+move 2 r4
+move $2 r5
+subi r4 r5
+push
+push r0
+push r1
+push r2
+push r3
+push r5
+jsr FUNC_F
+pop r3
+pop r2
+pop r1
+pop r0
+pop r6
+move r6 $-2
+move $-1 r7
+addi $-2 r7
+move r7 $7
+unlnk
+ret
+jmp END_IF_ELSE2
+label ELSE_1
+move 0 r8
+cmpi $2 r8
+jne ELSE_3
+move 0 r9
+move r9 $7
+unlnk
+ret
+jmp END_IF_ELSE4
+label ELSE_3
+move 1 r10
+cmpi $2 r10
+jne ELSE_5
+move 1 r11
+move r11 $7
+unlnk
+ret
+jmp END_IF_ELSE6
+label ELSE_5
+move 1 r12
+move r12 $7
+unlnk
+ret
+label END_IF_ELSE6
+label END_IF_ELSE4
+label END_IF_ELSE2
+label FUNC_main
+link 3
+sys writes outputStart
+sys writes input
+sys readi $-2
+move 0 r13
+move r13 $-1
+label WHILE_START_7
+move $-2 r14
+cmpi $-1 r14
+jeq WHILE_END_8
+push
+push r0
+push r1
+push r2
+push r3
+push $-1
+jsr FUNC_F
+pop r3
+pop r2
+pop r1
+pop r0
+pop r15
+move r15 $-3
+sys writei $-1
+sys writes space
+sys writei $-3
+sys writes eol
+move 1 r16
+move $-1 r17
+addi r16 r17
+move r17 $-1
+jmp WHILE_START_7
+label WHILE_END_8
+move 0 r18
+move r18 $6
+unlnk
+ret
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: expr
+DECL_LIST of 10 variables
+VAR_REF: outputStart
+VAR_REF: a
+VAR_REF: b
+VAR_REF: c
+VAR_REF: d
+VAR_REF: x
+VAR_REF: y
+VAR_REF: z
+VAR_REF: t
+VAR_REF: newline
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+READ_LIST: a b c d x y z 
+WRITE_LIST: a newline 
+WRITE_LIST: b newline 
+WRITE_LIST: c newline 
+WRITE_LIST: d newline 
+ASSIGN NODE for: a
+WRITE_LIST: a newline 
+ASSIGN NODE for: b
+WRITE_LIST: b newline 
+ASSIGN NODE for: c
+WRITE_LIST: c newline 
+ASSIGN NODE for: d
+WRITE_LIST: d newline 
+ASSIGN NODE for: a
+WRITE_LIST: a newline 
+ASSIGN NODE for: a
+WRITE_LIST: a newline 
+ASSIGN NODE for: b
+WRITE_LIST: b newline 
+ASSIGN NODE for: c
+WRITE_LIST: c newline 
+WRITE_LIST: x newline 
+WRITE_LIST: z newline 
+WRITE_LIST: y newline 
+ASSIGN NODE for: x
+ASSIGN NODE for: y
+WRITE_LIST: x newline 
+WRITE_LIST: y newline 
+ASSIGN NODE for: t
+WRITE_LIST: t newline 
+ASSIGN NODE for: t
+WRITE_LIST: t newline 
+ASSIGN NODE for: t
+WRITE_LIST: t newline 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;READI a
+;READI b
+;READI c
+;READI d
+;READF x
+;READF y
+;READF z
+;WRITEI a
+;WRITES newline
+;WRITEI b
+;WRITES newline
+;WRITEI c
+;WRITES newline
+;WRITEI d
+;WRITES newline
+;ADDI a b r0
+;STOREI r0 a
+;WRITEI a
+;WRITES newline
+;MULI a c r1
+;STOREI r1 b
+;WRITEI b
+;WRITES newline
+;STOREI 0 r2
+;SUBI r2 a r3
+;ADDI r3 b r4
+;STOREI r4 c
+;WRITEI c
+;WRITES newline
+;STOREI 0 r5
+;SUBI r5 d r6
+;STOREI r6 d
+;WRITEI d
+;WRITES newline
+;ADDI a b r7
+;ADDI d c r8
+;MULI r7 r8 r9
+;ADDI c d r10
+;ADDI b r10 r11
+;ADDI a r11 r12
+;DIVI r12 a r13
+;SUBI r9 r13 r14
+;STOREI r14 a
+;WRITEI a
+;WRITES newline
+;STOREI 10 r15
+;ADDI a r15 r16
+;STOREI r16 a
+;WRITEI a
+;WRITES newline
+;STOREI 10 r17
+;ADDI a r17 r18
+;ADDI b r18 r19
+;STOREI r19 b
+;WRITEI b
+;WRITES newline
+;STOREI 0 r20
+;STOREI 10 r21
+;SUBI r20 r21 r22
+;STOREI r22 c
+;WRITEI c
+;WRITES newline
+;WRITEF x
+;WRITES newline
+;WRITEF z
+;WRITES newline
+;WRITEF y
+;WRITES newline
+;STOREF 2.0 r23
+;DIVF z r23 r24
+;STOREF r24 x
+;DIVF z y r25
+;STOREF r25 y
+;WRITEF x
+;WRITES newline
+;WRITEF y
+;WRITES newline
+;ADDF y z r26
+;ADDF x r26 r27
+;DIVF r27 z r28
+;STOREF r28 t
+;WRITEF t
+;WRITES newline
+;MULF t t r29
+;STOREF r29 t
+;WRITEF t
+;WRITES newline
+;STOREF 2.0 r30
+;DIVF t r30 r31
+;ADDF t r31 r32
+;ADDF z r32 r33
+;ADDF t r33 r34
+;STOREF 4.0 r35
+;DIVF z r35 r36
+;ADDF r34 r36 r37
+;STOREF 5.0 r38
+;DIVF z r38 r39
+;ADDF r37 r39 r40
+;STOREF 6.0 r41
+;DIVF z r41 r42
+;ADDF r40 r42 r43
+;STOREF 7.0 r44
+;DIVF z r44 r45
+;ADDF r43 r45 r46
+;STOREF r46 t
+;WRITEF t
+;WRITES newline
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var a
+var b
+var c
+var d
+var x
+var y
+var z
+var t
+str newline "\n"
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+sys readi a
+sys readi b
+sys readi c
+sys readi d
+sys readr x
+sys readr y
+sys readr z
+sys writei a
+sys writes newline
+sys writei b
+sys writes newline
+sys writei c
+sys writes newline
+sys writei d
+sys writes newline
+move a r0
+addi b r0
+move r0 a
+sys writei a
+sys writes newline
+move a r1
+muli c r1
+move r1 b
+sys writei b
+sys writes newline
+move 0 r2
+move r2 r3
+subi a r3
+move r3 r4
+addi b r4
+move r4 c
+sys writei c
+sys writes newline
+move 0 r5
+move r5 r6
+subi d r6
+move r6 d
+sys writei d
+sys writes newline
+move a r7
+addi b r7
+move d r8
+addi c r8
+move r7 r9
+muli r8 r9
+move c r10
+addi d r10
+move b r11
+addi r10 r11
+move a r12
+addi r11 r12
+move r12 r13
+divi a r13
+move r9 r14
+subi r13 r14
+move r14 a
+sys writei a
+sys writes newline
+move 10 r15
+move a r16
+addi r15 r16
+move r16 a
+sys writei a
+sys writes newline
+move 10 r17
+move a r18
+addi r17 r18
+move b r19
+addi r18 r19
+move r19 b
+sys writei b
+sys writes newline
+move 0 r20
+move 10 r21
+move r20 r22
+subi r21 r22
+move r22 c
+sys writei c
+sys writes newline
+sys writer x
+sys writes newline
+sys writer z
+sys writes newline
+sys writer y
+sys writes newline
+move 2.0 r23
+move z r24
+divr r23 r24
+move r24 x
+move z r25
+divr y r25
+move r25 y
+sys writer x
+sys writes newline
+sys writer y
+sys writes newline
+move y r26
+addr z r26
+move x r27
+addr r26 r27
+move r27 r28
+divr z r28
+move r28 t
+sys writer t
+sys writes newline
+move t r29
+mulr t r29
+move r29 t
+sys writer t
+sys writes newline
+move 2.0 r30
+move t r31
+divr r30 r31
+move t r32
+addr r31 r32
+move z r33
+addr r32 r33
+move t r34
+addr r33 r34
+move 4.0 r35
+move z r36
+divr r35 r36
+move r34 r37
+addr r36 r37
+move 5.0 r38
+move z r39
+divr r38 r39
+move r37 r40
+addr r39 r40
+move 6.0 r41
+move z r42
+divr r41 r42
+move r40 r43
+addr r42 r43
+move 7.0 r44
+move z r45
+divr r44 r45
+move r43 r46
+addr r45 r46
+move r46 t
+sys writer t
+sys writes newline
+unlnk
+ret
+make_failure:  None
+sim_failure:  0
+Testing..... step8_test19.micro
+Key output:
+ Start of tinyOutput
+698983568356
+
+Student output:
+ error on line 44 : illegal operand
+error on line 58 : illegal operand type
+error on line 60 : illegal operand type
+error on line 62 : both  operands are memory refs
+error on line 63 : illegal operand type
+error on line 64 : both  operands are memory refs
+error on line 65 : both  operands are memory refs
+error on line 66 : illegal operand type
+error on line 67 : both  operands are memory refs
+error on line 68 : illegal operand type
+error on line 69 : both  operands are memory refs
+error on line 70 : both  operands are memory refs
+error on line 71 : illegal operand type
+error on line 72 : both  operands are memory refs
+error on line 73 : illegal operand type
+error on line 74 : both  operands are memory refs
+error on line 57 identifier r4 not defined
+error on line 58 identifier r4 not defined
+error on line 59 identifier r5 not defined
+error on line 60 identifier r4 not defined
+error on line 60 identifier r5 not defined
+error on line 61 identifier r6 not defined
+error on line 62 identifier r5 not defined
+error on line 62 identifier r7 not defined
+error on line 63 identifier r6 not defined
+error on line 63 identifier r7 not defined
+error on line 64 identifier r7 not defined
+error on line 65 identifier r8 not defined
+error on line 66 identifier r8 not defined
+error on line 67 identifier r8 not defined
+error on line 67 identifier r9 not defined
+error on line 68 identifier r9 not defined
+error on line 69 identifier r9 not defined
+error on line 70 identifier r10 not defined
+error on line 71 identifier r10 not defined
+error on line 72 identifier r10 not defined
+error on line 72 identifier r11 not defined
+error on line 73 identifier r11 not defined
+error on line 74 identifier r11 not defined
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test13.micro
+Key output:
+ Start of tinyOutput
+109011
+
+Student output:
+ error on line 75 : illegal operand
+error on line 84 : illegal operand
+error on line 100 : illegal operand type
+error on line 102 : both  operands are memory refs
+error on line 103 : both  operands are memory refs
+error on line 105 : both  operands are memory refs
+error on line 106 : illegal operand type
+error on line 107 : both  operands are memory refs
+error on line 128 : both  operands are memory refs
+error on line 129 : both  operands are memory refs
+error on line 130 : illegal operand type
+error on line 131 : both  operands are memory refs
+error on line 99 identifier r4 not defined
+error on line 100 identifier r4 not defined
+error on line 102 identifier r5 not defined
+error on line 103 identifier r5 not defined
+error on line 104 identifier r6 not defined
+error on line 105 identifier r7 not defined
+error on line 106 identifier r6 not defined
+error on line 106 identifier r7 not defined
+error on line 107 identifier r7 not defined
+error on line 127 identifier r8 not defined
+error on line 128 identifier r8 not defined
+error on line 129 identifier r9 not defined
+error on line 130 identifier r9 not defined
+error on line 131 identifier r9 not defined
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test2.micro
+Key output:
+ Start of tinyOutput
+Please input an integer number: 0 0
+1 1
+2 1
+3 2
+4 3
+5 5
+6 8
+7 13
+8 21
+9 34
+10 55
+11 89
+12 144
+13 233
+14 377
+15 610
+16 987
+17 1597
+18 2584
+19 4181
+
+
+Student output:
+ error on line 125 : both  operands are memory refs
+error on line 126 : illegal operand type
+error on line 140 : both  operands are memory refs
+error on line 141 : both  operands are memory refs
+error on line 142 : illegal operand type
+error on line 143 : both  operands are memory refs
+error on line 149 : illegal operand type
+error on line 152 : both  operands are memory refs
+error on line 158 : illegal operand type
+error on line 161 : both  operands are memory refs
+error on line 167 : both  operands are memory refs
+error on line 179 : both  operands are memory refs
+error on line 181 : both  operands are memory refs
+error on line 182 : illegal operand type
+error on line 197 : both  operands are memory refs
+error on line 203 : both  operands are memory refs
+error on line 204 : illegal operand type
+error on line 205 : both  operands are memory refs
+error on line 209 : both  operands are memory refs
+error on line 124 identifier r4 not defined
+error on line 125 identifier r5 not defined
+error on line 126 identifier r4 not defined
+error on line 126 identifier r5 not defined
+error on line 132 identifier r5 not defined
+error on line 139 identifier r6 not defined
+error on line 140 identifier r6 not defined
+error on line 141 identifier r7 not defined
+error on line 142 identifier r7 not defined
+error on line 143 identifier r7 not defined
+error on line 148 identifier r8 not defined
+error on line 149 identifier r8 not defined
+error on line 151 identifier r9 not defined
+error on line 152 identifier r9 not defined
+error on line 157 identifier r10 not defined
+error on line 158 identifier r10 not defined
+error on line 160 identifier r11 not defined
+error on line 161 identifier r11 not defined
+error on line 166 identifier r12 not defined
+error on line 167 identifier r12 not defined
+error on line 178 identifier r13 not defined
+error on line 179 identifier r13 not defined
+error on line 181 identifier r14 not defined
+error on line 182 identifier r14 not defined
+error on line 196 identifier r15 not defined
+error on line 197 identifier r15 not defined
+error on line 202 identifier r16 not defined
+error on line 203 identifier r17 not defined
+error on line 204 identifier r16 not defined
+error on line 204 identifier r17 not defined
+error on line 205 identifier r17 not defined
+error on line 208 identifier r18 not defined
+error on line 209 identifier r18 not defined
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test21.micro
+Key output:
+ Start of tinyOutput
+80
+6
+51
+73
+86
+4386
+4300
+-73
+18903043
+18903053
+18907449
+-10
+37.6029
+17.9694
+62.102
+8.98472
+0.289354
+1.5161
+2.29857
+37.3641
+
+
+Student output:
+ error on line 136 : illegal operand
+error on line 167 : illegal operand type
+error on line 168 : both  operands are memory refs
+error on line 172 : both  operands are memory refs
+error on line 173 : illegal operand type
+error on line 174 : both  operands are memory refs
+error on line 177 : both  operands are memory refs
+error on line 178 : illegal operand type
+error on line 179 : both  operands are memory refs
+error on line 180 : illegal operand type
+error on line 181 : both  operands are memory refs
+error on line 182 : illegal operand type
+error on line 183 : both  operands are memory refs
+error on line 184 : illegal operand type
+error on line 185 : both  operands are memory refs
+error on line 186 : illegal operand type
+error on line 187 : both  operands are memory refs
+error on line 188 : illegal operand type
+error on line 189 : both  operands are memory refs
+error on line 190 : illegal operand type
+error on line 191 : both  operands are memory refs
+error on line 192 : illegal operand type
+error on line 193 : both  operands are memory refs
+error on line 197 : both  operands are memory refs
+error on line 198 : illegal operand type
+error on line 199 : both  operands are memory refs
+error on line 203 : both  operands are memory refs
+error on line 204 : illegal operand type
+error on line 205 : both  operands are memory refs
+error on line 206 : illegal operand type
+error on line 207 : both  operands are memory refs
+error on line 212 : both  operands are memory refs
+error on line 213 : illegal operand type
+error on line 214 : both  operands are memory refs
+error on line 224 : both  operands are memory refs
+error on line 225 : illegal operand type
+error on line 226 : both  operands are memory refs
+error on line 227 : both  operands are memory refs
+error on line 228 : illegal operand type
+error on line 229 : both  operands are memory refs
+error on line 234 : both  operands are memory refs
+error on line 235 : illegal operand type
+error on line 236 : both  operands are memory refs
+error on line 237 : illegal operand type
+error on line 238 : both  operands are memory refs
+error on line 239 : illegal operand type
+error on line 240 : both  operands are memory refs
+error on line 243 : both  operands are memory refs
+error on line 244 : illegal operand type
+error on line 245 : both  operands are memory refs
+error on line 249 : both  operands are memory refs
+error on line 250 : illegal operand type
+error on line 251 : both  operands are memory refs
+error on line 252 : illegal operand type
+error on line 253 : both  operands are memory refs
+error on line 254 : illegal operand type
+error on line 255 : both  operands are memory refs
+error on line 256 : illegal operand type
+error on line 258 : both  operands are memory refs
+error on line 259 : illegal operand type
+error on line 260 : both  operands are memory refs
+error on line 261 : illegal operand type
+error on line 263 : both  operands are memory refs
+error on line 264 : illegal operand type
+error on line 265 : both  operands are memory refs
+error on line 266 : illegal operand type
+error on line 268 : both  operands are memory refs
+error on line 269 : illegal operand type
+error on line 270 : both  operands are memory refs
+error on line 271 : illegal operand type
+error on line 273 : both  operands are memory refs
+error on line 274 : illegal operand type
+error on line 275 : both  operands are memory refs
+error on line 276 : illegal operand type
+error on line 277 : both  operands are memory refs
+error on line 166 identifier r4 not defined
+error on line 167 identifier r4 not defined
+error on line 168 identifier r4 not defined
+error on line 171 identifier r5 not defined
+error on line 172 identifier r5 not defined
+error on line 172 identifier r6 not defined
+error on line 173 identifier r6 not defined
+error on line 174 identifier r6 not defined
+error on line 177 identifier r7 not defined
+error on line 178 identifier r7 not defined
+error on line 179 identifier r8 not defined
+error on line 180 identifier r8 not defined
+error on line 181 identifier r7 not defined
+error on line 181 identifier r9 not defined
+error on line 182 identifier r8 not defined
+error on line 182 identifier r9 not defined
+error on line 183 identifier r10 not defined
+error on line 184 identifier r10 not defined
+error on line 185 identifier r11 not defined
+error on line 186 identifier r10 not defined
+error on line 186 identifier r11 not defined
+error on line 187 identifier r12 not defined
+error on line 188 identifier r11 not defined
+error on line 188 identifier r12 not defined
+error on line 189 identifier r12 not defined
+error on line 189 identifier r13 not defined
+error on line 190 identifier r13 not defined
+error on line 191 identifier r9 not defined
+error on line 191 identifier r14 not defined
+error on line 192 identifier r13 not defined
+error on line 192 identifier r14 not defined
+error on line 193 identifier r14 not defined
+error on line 196 identifier r15 not defined
+error on line 197 identifier r16 not defined
+error on line 198 identifier r15 not defined
+error on line 198 identifier r16 not defined
+error on line 199 identifier r16 not defined
+error on line 202 identifier r17 not defined
+error on line 203 identifier r18 not defined
+error on line 204 identifier r17 not defined
+error on line 204 identifier r18 not defined
+error on line 205 identifier r19 not defined
+error on line 206 identifier r18 not defined
+error on line 206 identifier r19 not defined
+error on line 207 identifier r19 not defined
+error on line 210 identifier r20 not defined
+error on line 211 identifier r21 not defined
+error on line 212 identifier r20 not defined
+error on line 212 identifier r22 not defined
+error on line 213 identifier r21 not defined
+error on line 213 identifier r22 not defined
+error on line 214 identifier r22 not defined
+error on line 223 identifier r23 not defined
+error on line 224 identifier r24 not defined
+error on line 225 identifier r23 not defined
+error on line 225 identifier r24 not defined
+error on line 226 identifier r24 not defined
+error on line 227 identifier r25 not defined
+error on line 228 identifier r25 not defined
+error on line 229 identifier r25 not defined
+error on line 234 identifier r26 not defined
+error on line 235 identifier r26 not defined
+error on line 236 identifier r27 not defined
+error on line 237 identifier r26 not defined
+error on line 237 identifier r27 not defined
+error on line 238 identifier r27 not defined
+error on line 238 identifier r28 not defined
+error on line 239 identifier r28 not defined
+error on line 240 identifier r28 not defined
+error on line 243 identifier r29 not defined
+error on line 244 identifier r29 not defined
+error on line 245 identifier r29 not defined
+error on line 248 identifier r30 not defined
+error on line 249 identifier r31 not defined
+error on line 250 identifier r30 not defined
+error on line 250 identifier r31 not defined
+error on line 251 identifier r32 not defined
+error on line 252 identifier r31 not defined
+error on line 252 identifier r32 not defined
+error on line 253 identifier r33 not defined
+error on line 254 identifier r32 not defined
+error on line 254 identifier r33 not defined
+error on line 255 identifier r34 not defined
+error on line 256 identifier r33 not defined
+error on line 256 identifier r34 not defined
+error on line 257 identifier r35 not defined
+error on line 258 identifier r36 not defined
+error on line 259 identifier r35 not defined
+error on line 259 identifier r36 not defined
+error on line 260 identifier r34 not defined
+error on line 260 identifier r37 not defined
+error on line 261 identifier r36 not defined
+error on line 261 identifier r37 not defined
+error on line 262 identifier r38 not defined
+error on line 263 identifier r39 not defined
+error on line 264 identifier r38 not defined
+error on line 264 identifier r39 not defined
+error on line 265 identifier r37 not defined
+error on line 265 identifier r40 not defined
+error on line 266 identifier r39 not defined
+error on line 266 identifier r40 not defined
+error on line 267 identifier r41 not defined
+error on line 268 identifier r42 not defined
+error on line 269 identifier r41 not defined
+error on line 269 identifier r42 not defined
+error on line 270 identifier r40 not defined
+error on line 270 identifier r43 not defined
+error on line 271 identifier r42 not defined
+error on line 271 identifier r43 not defined
+error on line 272 identifier r44 not defined
+error on line 273 identifier r45 not defined
+error on line 274 identifier r44 not defined
+error on line 274 identifier r45 not defined
+error on line 275 identifier r43 not defined
+error on line 275 identifier r46 not defined
+error on line 276 identifier r45 not defined
+error on line 276 identifier r46 not defined
+error on line 277 identifier r46 not defined
+
+Printing AST Tree..
+PROGRAM: factorial
+DECL_LIST of 9 variables
+VAR_REF: outputStart
+VAR_REF: intro
+VAR_REF: first
+VAR_REF: second
+VAR_REF: third
+VAR_REF: eol
+VAR_REF: star
+VAR_REF: plus
+VAR_REF: equal
+FUNC_add
+PARAM_LIST with 2 parameters
+VAR_REF: a
+VAR_REF: b
+DECL_LIST of 1 variables
+VAR_REF: result
+STMT_LIST
+ASSIGN NODE for: result
+RETURN_STMT to offset [8]
+VAR_REF: result
+FUNC_multiply
+PARAM_LIST with 2 parameters
+VAR_REF: a
+VAR_REF: b
+DECL_LIST of 1 variables
+VAR_REF: result
+STMT_LIST
+ASSIGN NODE for: result
+RETURN_STMT to offset [8]
+VAR_REF: result
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 5 variables
+VAR_REF: a
+VAR_REF: b
+VAR_REF: c
+VAR_REF: addresult
+VAR_REF: multiplyresult
+STMT_LIST
+WRITE_LIST: outputStart 
+WRITE_LIST: intro first 
+READ_LIST: a 
+WRITE_LIST: second 
+READ_LIST: b 
+WRITE_LIST: third 
+READ_LIST: c 
+ASSIGN NODE for: multiplyresult
+CALL_LIST with 2 arguments at line 38
+a [-1]
+b [-2]
+ASSIGN NODE for: addresult
+CALL_LIST with 2 arguments at line 39
+multiplyresult [-5]
+c [-3]
+WRITE_LIST: a star b plus c equal addresult eol 
+RETURN_STMT to offset [6]
+RETURN LITERAL: 0
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_add
+;LINK 1
+;ADDF $3 $2 r0
+;STOREF r0 $-1
+;STOREF $-1 r1
+;STOREF r1 $8
+;UNLINK
+;RET
+;LABEL FUNC_multiply
+;LINK 1
+;MULF $3 $2 r2
+;STOREF r2 $-1
+;STOREF $-1 r3
+;STOREF r3 $8
+;UNLINK
+;RET
+;LABEL FUNC_main
+;LINK 5
+;WRITES outputStart
+;WRITES intro
+;WRITES first
+;READF $-1
+;WRITES second
+;READF $-2
+;WRITES third
+;READF $-3
+;PUSH
+;PUSHREGS
+;PUSH $-1
+;PUSH $-2
+;JSR FUNC_multiply
+;POP
+;POP
+;POPREGS
+;POP r4
+;STOREF r4 $-5
+;PUSH
+;PUSHREGS
+;PUSH $-5
+;PUSH $-3
+;JSR FUNC_add
+;POP
+;POP
+;POPREGS
+;POP r5
+;STOREF r5 $-4
+;WRITEF $-1
+;WRITES star
+;WRITEF $-2
+;WRITES plus
+;WRITEF $-3
+;WRITES equal
+;WRITEF $-4
+;WRITES eol
+;STOREI 0 r6
+;STOREI r6 $6
+;UNLINK
+;RET
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+str intro "You will be asked for three float numbers\n"
+str first "Please enter the first float number: "
+str second "Please enter the second float number: "
+str third "Please enter the third float number: "
+str eol "\n"
+str star "*"
+str plus "+"
+str equal "="
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_add
+link 1
+move $3 r0
+addr $2 r0
+move r0 $-1
+move $-1 r1
+move r1 $8
+unlnk
+ret
+label FUNC_multiply
+link 1
+move $3 r2
+mulr $2 r2
+move r2 $-1
+move $-1 r3
+move r3 $8
+unlnk
+ret
+label FUNC_main
+link 5
+sys writes outputStart
+sys writes intro
+sys writes first
+sys readr $-1
+sys writes second
+sys readr $-2
+sys writes third
+sys readr $-3
+push
+push r0
+push r1
+push r2
+push r3
+push $-1
+push $-2
+jsr FUNC_multiply
+pop r3
+pop r2
+pop r1
+pop r0
+pop r4
+move r4 $-5
+push
+push r0
+push r1
+push r2
+push r3
+push $-5
+push $-3
+jsr FUNC_add
+pop r3
+pop r2
+pop r1
+pop r0
+pop r5
+move r5 $-4
+sys writer $-1
+sys writes star
+sys writer $-2
+sys writes plus
+sys writer $-3
+sys writes equal
+sys writer $-4
+sys writes eol
+move 0 r6
+move r6 $6
+unlnk
+ret
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: factorial2
+DECL_LIST of 3 variables
+VAR_REF: outputStart
+VAR_REF: input
+VAR_REF: eol
+FUNC_factorial
+PARAM_LIST with 1 parameters
+VAR_REF: a
+DECL_LIST of 2 variables
+VAR_REF: ret
+VAR_REF: tret
+STMT_LIST
+IF_LIST
+COMP_NODE: 5
+IF_STMT_LIST
+RETURN_STMT to offset [7]
+RETURN LITERAL: 1
+ELSE_LIST
+STMT_LIST
+ASSIGN NODE for: tret
+CALL_LIST with 1 arguments at line 14
+EXPRESSION
+ASSIGN NODE for: ret
+ENDIF
+RETURN_STMT to offset [7]
+VAR_REF: ret
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 2 variables
+VAR_REF: num
+VAR_REF: result
+STMT_LIST
+WRITE_LIST: outputStart 
+WRITE_LIST: input 
+READ_LIST: num 
+IF_LIST
+COMP_NODE: 5
+IF_STMT_LIST
+ASSIGN NODE for: result
+ELSE_LIST
+STMT_LIST
+IF_LIST
+COMP_NODE: 0
+IF_STMT_LIST
+ASSIGN NODE for: result
+CALL_LIST with 1 arguments at line 32
+num [-1]
+ELSE_LIST
+STMT_LIST
+ASSIGN NODE for: result
+ENDIF
+ENDIF
+WRITE_LIST: result eol 
+RETURN_STMT to offset [6]
+RETURN LITERAL: 0
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_factorial
+;LINK 2
+;STOREI 1 r0
+;NEI $2 r0 ELSE_1
+;STOREI 1 r1
+;STOREI r1 $7
+;UNLINK
+;RET
+;JUMP END_IF_ELSE2
+;LABEL ELSE_1
+;STOREI 1 r2
+;SUBI $2 r2 r3
+;PUSH
+;PUSHREGS
+;PUSH r3
+;JSR FUNC_factorial
+;POP
+;POPREGS
+;POP r4
+;STOREI r4 $-2
+;MULI $-2 $2 r5
+;STOREI r5 $-1
+;LABEL END_IF_ELSE2
+;STOREI $-1 r6
+;STOREI r6 $7
+;UNLINK
+;RET
+;LABEL FUNC_main
+;LINK 2
+;WRITES outputStart
+;WRITES input
+;READI $-1
+;STOREI 1 r7
+;NEI $-1 r7 ELSE_3
+;STOREI 1 r8
+;STOREI r8 $-2
+;JUMP END_IF_ELSE4
+;LABEL ELSE_3
+;STOREI 1 r9
+;LEI $-1 r9 ELSE_5
+;PUSH
+;PUSHREGS
+;PUSH $-1
+;JSR FUNC_factorial
+;POP
+;POPREGS
+;POP r10
+;STOREI r10 $-2
+;JUMP END_IF_ELSE6
+;LABEL ELSE_5
+;STOREI 0 r11
+;STOREI r11 $-2
+;LABEL END_IF_ELSE6
+;LABEL END_IF_ELSE4
+;WRITEI $-2
+;WRITES eol
+;STOREI 0 r12
+;STOREI r12 $6
+;UNLINK
+;RET
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+str input "Please enter an integer number: "
+str eol "\n"
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_factorial
+link 2
+move 1 r0
+cmpi $2 r0
+jne ELSE_1
+move 1 r1
+move r1 $7
+unlnk
+ret
+jmp END_IF_ELSE2
+label ELSE_1
+move 1 r2
+move $2 r3
+subi r2 r3
+push
+push r0
+push r1
+push r2
+push r3
+push r3
+jsr FUNC_factorial
+pop r3
+pop r2
+pop r1
+pop r0
+pop r4
+move r4 $-2
+move $-2 r5
+muli $2 r5
+move r5 $-1
+label END_IF_ELSE2
+move $-1 r6
+move r6 $7
+unlnk
+ret
+label FUNC_main
+link 2
+sys writes outputStart
+sys writes input
+sys readi $-1
+move 1 r7
+cmpi $-1 r7
+jne ELSE_3
+move 1 r8
+move r8 $-2
+jmp END_IF_ELSE4
+label ELSE_3
+move 1 r9
+cmpi $-1 r9
+jle ELSE_5
+push
+push r0
+push r1
+push r2
+push r3
+push $-1
+jsr FUNC_factorial
+pop r3
+pop r2
+pop r1
+pop r0
+pop r10
+move r10 $-2
+jmp END_IF_ELSE6
+label ELSE_5
+move 0 r11
+move r11 $-2
+label END_IF_ELSE6
+label END_IF_ELSE4
+sys writei $-2
+sys writes eol
+move 0 r12
+move r12 $6
+unlnk
+ret
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: expr
+DECL_LIST of 7 variables
+VAR_REF: outputStart
+VAR_REF: a
+VAR_REF: b
+VAR_REF: c
+VAR_REF: d
+VAR_REF: e
+VAR_REF: newline
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+ASSIGN NODE for: a
+ASSIGN NODE for: b
+READ_LIST: c d 
+ASSIGN NODE for: e
+ASSIGN NODE for: a
+WRITE_LIST: a newline c newline d newline e newline 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;STOREI 1 r0
+;STOREI r0 a
+;STOREI 2 r1
+;STOREI r1 b
+;READI c
+;READI d
+;MULI a c r2
+;MULI b d r3
+;ADDI r2 r3 r4
+;STOREI r4 e
+;MULI c d r5
+;MULI b r5 r6
+;MULI a r6 r7
+;STOREI r7 a
+;WRITEI a
+;WRITES newline
+;WRITEI c
+;WRITES newline
+;WRITEI d
+;WRITES newline
+;WRITEI e
+;WRITES newline
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var a
+var b
+var c
+var d
+var e
+str newline "\n"
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+move 1 r0
+move r0 a
+move 2 r1
+move r1 b
+sys readi c
+sys readi d
+move a r2
+muli c r2
+move b r3
+muli d r3
+move r2 r4
+addi r3 r4
+move r4 e
+move c r5
+muli d r5
+move b r6
+muli r5 r6
+move a r7
+muli r6 r7
+move r7 a
+sys writei a
+sys writes newline
+sys writei c
+sys writes newline
+sys writei d
+sys writes newline
+sys writei e
+sys writes newline
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: nested
+DECL_LIST of 6 variables
+VAR_REF: outputStart
+VAR_REF: dummy
+VAR_REF: i
+VAR_REF: j
+VAR_REF: k
+VAR_REF: result
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+ASSIGN NODE for: i
+ASSIGN NODE for: j
+ASSIGN NODE for: k
+ASSIGN NODE for: result
+WHILE_LIST
+COMP_NODE: 3
+WHILE_STMT_LIST
+WHILE_LIST
+COMP_NODE: 3
+WHILE_STMT_LIST
+WHILE_LIST
+COMP_NODE: 2
+WHILE_STMT_LIST
+ASSIGN NODE for: result
+ASSIGN NODE for: k
+ENDWHILE
+ASSIGN NODE for: j
+ENDWHILE
+ASSIGN NODE for: i
+ENDWHILE
+WRITE_LIST: result 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;STOREI 0 r0
+;STOREI r0 i
+;STOREI 0 r1
+;STOREI r1 j
+;STOREI 0 r2
+;STOREI r2 k
+;STOREI 0 r3
+;STOREI r3 result
+;LABEL WHILE_START_1
+;STOREI 99 r4
+;GTI i r4 WHILE_END_2
+;LABEL WHILE_START_3
+;STOREI 99 r5
+;GTI j r5 WHILE_END_4
+;LABEL WHILE_START_5
+;STOREI 100 r6
+;GEI k r6 WHILE_END_6
+;STOREI 1 r7
+;ADDI result r7 r8
+;STOREI r8 result
+;STOREI 1 r9
+;ADDI k r9 r10
+;STOREI r10 k
+;JUMP WHILE_START_5
+;STOREI 1 r11
+;ADDI j r11 r12
+;STOREI r12 j
+;JUMP WHILE_START_3
+;STOREI 1 r13
+;ADDI i r13 r14
+;STOREI r14 i
+;JUMP WHILE_START_1
+;WRITEI result
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+str dummy "abcde"
+var i
+var j
+var k
+var result
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+move 0 r0
+move r0 i
+move 0 r1
+move r1 j
+move 0 r2
+move r2 k
+move 0 r3
+move r3 result
+label WHILE_START_1
+move 99 r4
+cmpi i r4
+jgt WHILE_END_2
+label WHILE_START_3
+move 99 r5
+cmpi j r5
+jgt WHILE_END_4
+label WHILE_START_5
+move 100 r6
+cmpi k r6
+jge WHILE_END_6
+move 1 r7
+move result r8
+addi r7 r8
+move r8 result
+move 1 r9
+move k r10
+addi r9 r10
+move r10 k
+jmp WHILE_START_5
+label WHILE_END_6
+move 1 r11
+move j r12
+addi r11 r12
+move r12 j
+jmp WHILE_START_3
+label WHILE_END_4
+move 1 r13
+move i r14
+addi r13 r14
+move r14 i
+jmp WHILE_START_1
+label WHILE_END_2
+sys writei result
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: test
+DECL_LIST of 15 variables
+VAR_REF: outputStart
+VAR_REF: test
+VAR_REF: a
+VAR_REF: b
+VAR_REF: c
+VAR_REF: g
+VAR_REF: h
+VAR_REF: i
+VAR_REF: j
+VAR_REF: k
+VAR_REF: l
+VAR_REF: p
+VAR_REF: o
+VAR_REF: u
+VAR_REF: y
+FUNC_main
+PARAM_LIST with 1 parameters
+VAR_REF: a
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+ASSIGN NODE for: i
+ASSIGN NODE for: j
+ASSIGN NODE for: b
+WHILE_LIST
+COMP_NODE: 3
+WHILE_STMT_LIST
+ASSIGN NODE for: a
+WHILE_LIST
+COMP_NODE: 3
+WHILE_STMT_LIST
+ASSIGN NODE for: a
+ENDWHILE
+ASSIGN NODE for: b
+ENDWHILE
+WRITE_LIST: a 
+RETURN_STMT to offset [7]
+RETURN EXPRESSION
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;STOREI 10 r0
+;STOREI r0 i
+;STOREI 10 r1
+;STOREI r1 j
+;STOREI 1 r2
+;STOREI r2 b
+;LABEL WHILE_START_1
+;STOREI 1 r3
+;SUBI i r3 r4
+;GTI b r4 WHILE_END_2
+;STOREI 1 r5
+;STOREI r5 a
+;LABEL WHILE_START_3
+;STOREI 1 r6
+;SUBI j r6 r7
+;GTI a r7 WHILE_END_4
+;STOREI 1 r8
+;ADDI a r8 r9
+;STOREI r9 a
+;JUMP WHILE_START_3
+;STOREI 1 r10
+;ADDI b r10 r11
+;STOREI r11 b
+;JUMP WHILE_START_1
+;WRITEI a
+;ADDI a b r12
+;STOREI r12 $7
+;UNLINK
+;RET
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+str test "test"
+var a
+var b
+var c
+var g
+var h
+var i
+var j
+var k
+var l
+var p
+var o
+var u
+var y
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+move 10 r0
+move r0 i
+move 10 r1
+move r1 j
+move 1 r2
+move r2 b
+label WHILE_START_1
+move 1 r3
+move i r4
+subi r3 r4
+cmpi b r4
+jgt WHILE_END_2
+move 1 r5
+move r5 a
+label WHILE_START_3
+move 1 r6
+move j r7
+subi r6 r7
+cmpi a r7
+jgt WHILE_END_4
+move 1 r8
+move a r9
+addi r8 r9
+move r9 a
+jmp WHILE_START_3
+label WHILE_END_4
+move 1 r10
+move b r11
+addi r10 r11
+move r11 b
+jmp WHILE_START_1
+label WHILE_END_2
+sys writei a
+move a r12
+addi b r12
+move r12 $7
+unlnk
+ret
+unlnk
+ret
+./runme: line 7: 31088 Segmentation fault      (core dumped) ./a.out $1 $2
+
+Printing AST Tree..
+PROGRAM: test
+DECL_LIST of 7 variables
+VAR_REF: outputStart
+VAR_REF: i
+VAR_REF: j
+VAR_REF: newapprox
+VAR_REF: approx
+VAR_REF: num
+VAR_REF: eol
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+READ_LIST: num 
+ASSIGN NODE for: j
+ASSIGN NODE for: approx
+ASSIGN NODE for: i
+WHILE_LIST
+COMP_NODE: 4
+WHILE_STMT_LIST
+ASSIGN NODE for: newapprox
+ASSIGN NODE for: approx
+ASSIGN NODE for: i
+ENDWHILE
+WRITE_LIST: approx eol 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;READF num
+;STOREI 1 r0
+;STOREI r0 j
+;STOREF num r1
+;STOREF r1 approx
+;STOREI 100 r2
+;STOREI r2 i
+;LABEL WHILE_START_1
+;STOREI 0 r3
+;EQI i r3 WHILE_END_2
+;STOREF 0.5 r4
+;DIVF num approx r5
+;ADDF approx r5 r6
+;MULF r4 r6 r7
+;STOREF r7 newapprox
+;STOREF newapprox r8
+;STOREF r8 approx
+;STOREI 1 r9
+;SUBI i r9 r10
+;STOREI r10 i
+;JUMP WHILE_START_1
+;WRITEF approx
+;WRITES eol
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var i
+var j
+var newapprox
+var approx
+var num
+str eol "\n"
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+sys readr num
+move 1 r0
+move r0 j
+move num r1
+move r1 approx
+move 100 r2
+move r2 i
+label WHILE_START_1
+move 0 r3
+cmpi i r3
+jeq WHILE_END_2
+move 0.5 r4
+move num r5
+divr approx r5
+move approx r6
+addr r5 r6
+move r4 r7
+mulr r6 r7
+move r7 newapprox
+move newapprox r8
+move r8 approx
+move 1 r9
+move i r10
+subi r9 r10
+move r10 i
+jmp WHILE_START_1
+label WHILE_END_2
+sys writer approx
+sys writes eol
+unlnk
+ret
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test3.micro
+Key output:
+ Start of tinyOutput
+You will be asked for three float numbers
+Please enter the first float number: Please enter the second float number: Please enter the third float number: 4.70708*89.7496+53.3753=475.834
+
+
+Student output:
+ error on line 125 : both  operands are memory refs
+error on line 141 : both  operands are memory refs
+error on line 151 : both  operands are memory refs
+error on line 124 identifier r4 not defined
+error on line 125 identifier r4 not defined
+error on line 140 identifier r5 not defined
+error on line 141 identifier r5 not defined
+error on line 150 identifier r6 not defined
+error on line 151 identifier r6 not defined
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test1.micro
+Key output:
+ Start of tinyOutput
+Please enter an integer number: 120
+
+
+Student output:
+ error on line 105 : both  operands are memory refs
+error on line 106 : both  operands are memory refs
+error on line 107 : illegal operand type
+error on line 108 : both  operands are memory refs
+error on line 110 : both  operands are memory refs
+error on line 111 : both  operands are memory refs
+error on line 120 : illegal operand type
+error on line 123 : both  operands are memory refs
+error on line 127 : illegal operand type
+error on line 142 : both  operands are memory refs
+error on line 146 : both  operands are memory refs
+error on line 152 : both  operands are memory refs
+error on line 104 identifier r4 not defined
+error on line 105 identifier r4 not defined
+error on line 106 identifier r5 not defined
+error on line 107 identifier r5 not defined
+error on line 108 identifier r5 not defined
+error on line 110 identifier r6 not defined
+error on line 111 identifier r6 not defined
+error on line 119 identifier r7 not defined
+error on line 120 identifier r7 not defined
+error on line 122 identifier r8 not defined
+error on line 123 identifier r8 not defined
+error on line 126 identifier r9 not defined
+error on line 127 identifier r9 not defined
+error on line 141 identifier r10 not defined
+error on line 142 identifier r10 not defined
+error on line 145 identifier r11 not defined
+error on line 146 identifier r11 not defined
+error on line 151 identifier r12 not defined
+error on line 152 identifier r12 not defined
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test12.micro
+Key output:
+ Start of tinyOutput
+750
+5
+75
+155
+
+
+Student output:
+ error on line 48 : illegal operand
+error on line 61 : illegal operand type
+error on line 62 : both  operands are memory refs
+error on line 63 : both  operands are memory refs
+error on line 64 : illegal operand type
+error on line 65 : both  operands are memory refs
+error on line 66 : illegal operand type
+error on line 67 : both  operands are memory refs
+error on line 68 : illegal operand type
+error on line 69 : both  operands are memory refs
+error on line 60 identifier r4 not defined
+error on line 61 identifier r4 not defined
+error on line 62 identifier r4 not defined
+error on line 63 identifier r5 not defined
+error on line 64 identifier r5 not defined
+error on line 65 identifier r6 not defined
+error on line 66 identifier r5 not defined
+error on line 66 identifier r6 not defined
+error on line 67 identifier r7 not defined
+error on line 68 identifier r6 not defined
+error on line 68 identifier r7 not defined
+error on line 69 identifier r7 not defined
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test5.micro
+Key output:
+ Start of tinyOutput
+100
+
+Student output:
+ error on line 58 : illegal operand
+error on line 70 : illegal operand type
+error on line 74 : illegal operand type
+error on line 78 : illegal operand type
+error on line 81 : both  operands are memory refs
+error on line 82 : illegal operand type
+error on line 83 : both  operands are memory refs
+error on line 85 : both  operands are memory refs
+error on line 86 : illegal operand type
+error on line 87 : both  operands are memory refs
+error on line 91 : both  operands are memory refs
+error on line 92 : illegal operand type
+error on line 93 : both  operands are memory refs
+error on line 97 : both  operands are memory refs
+error on line 98 : illegal operand type
+error on line 99 : both  operands are memory refs
+error on line 69 identifier r4 not defined
+error on line 70 identifier r4 not defined
+error on line 73 identifier r5 not defined
+error on line 74 identifier r5 not defined
+error on line 77 identifier r6 not defined
+error on line 78 identifier r6 not defined
+error on line 80 identifier r7 not defined
+error on line 81 identifier r8 not defined
+error on line 82 identifier r7 not defined
+error on line 82 identifier r8 not defined
+error on line 83 identifier r8 not defined
+error on line 84 identifier r9 not defined
+error on line 85 identifier r10 not defined
+error on line 86 identifier r9 not defined
+error on line 86 identifier r10 not defined
+error on line 87 identifier r10 not defined
+error on line 90 identifier r11 not defined
+error on line 91 identifier r12 not defined
+error on line 92 identifier r11 not defined
+error on line 92 identifier r12 not defined
+error on line 93 identifier r12 not defined
+error on line 96 identifier r13 not defined
+error on line 97 identifier r14 not defined
+error on line 98 identifier r13 not defined
+error on line 98 identifier r14 not defined
+error on line 99 identifier r14 not defined
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test16.micro
+Key output:
+ Start of tinyOutput
+10
+
+Student output:
+ error on line 63 : illegal operand
+error on line 73 : both  operands are memory refs
+error on line 74 : illegal operand type
+error on line 75 : illegal operand type
+error on line 78 : both  operands are memory refs
+error on line 81 : both  operands are memory refs
+error on line 82 : illegal operand type
+error on line 83 : illegal operand type
+error on line 86 : both  operands are memory refs
+error on line 87 : illegal operand type
+error on line 88 : both  operands are memory refs
+error on line 92 : both  operands are memory refs
+error on line 93 : illegal operand type
+error on line 94 : both  operands are memory refs
+error on line 98 : both  operands are memory refs
+error on line 99 : illegal operand type
+error on line 100 : both  operands are memory refs
+error on line 73 identifier r4 not defined
+error on line 74 identifier r4 not defined
+error on line 75 identifier r4 not defined
+error on line 77 identifier r5 not defined
+error on line 78 identifier r5 not defined
+error on line 80 identifier r6 not defined
+error on line 81 identifier r7 not defined
+error on line 82 identifier r6 not defined
+error on line 82 identifier r7 not defined
+error on line 83 identifier r7 not defined
+error on line 85 identifier r8 not defined
+error on line 86 identifier r9 not defined
+error on line 87 identifier r8 not defined
+error on line 87 identifier r9 not defined
+error on line 88 identifier r9 not defined
+error on line 91 identifier r10 not defined
+error on line 92 identifier r11 not defined
+error on line 93 identifier r10 not defined
+error on line 93 identifier r11 not defined
+error on line 94 identifier r11 not defined
+error on line 98 identifier r12 not defined
+error on line 99 identifier r12 not defined
+error on line 100 identifier r12 not defined
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test14.micro
+Key output:
+ Start of tinyOutput
+75
+
+Student output:
+ 
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test10.micro
+Key output:
+ Start of tinyOutput
+9.65244
+
+
+Student output:
+ error on line 49 : illegal operand
+error on line 63 : both  operands are memory refs
+error on line 64 : illegal operand type
+error on line 65 : both  operands are memory refs
+error on line 66 : illegal operand type
+error on line 67 : both  operands are memory refs
+error on line 68 : illegal operand type
+error on line 69 : both  operands are memory refs
+error on line 70 : both  operands are memory refs
+error on line 71 : both  operands are memory refs
+error on line 73 : both  operands are memory refs
+error on line 74 : illegal operand type
+error on line 75 : both  operands are memory refs
+error on line 62 identifier r4 not defined
+error on line 63 identifier r5 not defined
+error on line 64 identifier r5 not defined
+error on line 65 identifier r6 not defined
+error on line 66 identifier r5 not defined
+error on line 66 identifier r6 not defined
+error on line 67 identifier r4 not defined
+error on line 67 identifier r7 not defined
+error on line 68 identifier r6 not defined
+error on line 68 identifier r7 not defined
+error on line 69 identifier r7 not defined
+error on line 70 identifier r8 not defined
+error on line 71 identifier r8 not defined
+error on line 72 identifier r9 not defined
+error on line 73 identifier r10 not defined
+error on line 74 identifier r9 not defined
+error on line 74 identifier r10 not defined
+error on line 75 identifier r10 not defined
+
+Printing AST Tree..
+PROGRAM: test
+DECL_LIST of 10 variables
+VAR_REF: outputStart
+VAR_REF: count
+VAR_REF: enough
+VAR_REF: newapprox
+VAR_REF: approx
+VAR_REF: num
+VAR_REF: tolerance
+VAR_REF: diff
+VAR_REF: eol
+VAR_REF: space
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+ASSIGN NODE for: tolerance
+READ_LIST: num 
+ASSIGN NODE for: approx
+ASSIGN NODE for: count
+ASSIGN NODE for: diff
+ASSIGN NODE for: enough
+WHILE_LIST
+COMP_NODE: 4
+WHILE_STMT_LIST
+ASSIGN NODE for: count
+ASSIGN NODE for: newapprox
+ASSIGN NODE for: diff
+IF_LIST
+COMP_NODE: 0
+IF_STMT_LIST
+IF_LIST
+COMP_NODE: 2
+IF_STMT_LIST
+ASSIGN NODE for: enough
+ELSE_LIST
+STMT_LIST
+ENDIF
+ELSE_LIST
+STMT_LIST
+IF_LIST
+COMP_NODE: 0
+IF_STMT_LIST
+ASSIGN NODE for: enough
+ELSE_LIST
+STMT_LIST
+ENDIF
+ENDIF
+ASSIGN NODE for: approx
+ENDWHILE
+WRITE_LIST: approx space 
+WRITE_LIST: count eol 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;STOREF 0.0001 r0
+;STOREF r0 tolerance
+;READF num
+;STOREF num r1
+;STOREF r1 approx
+;STOREI 0 r2
+;STOREI r2 count
+;STOREF 0.0 r3
+;STOREF r3 diff
+;STOREI 0 r4
+;STOREI r4 enough
+;LABEL WHILE_START_1
+;STOREI 1 r5
+;EQI enough r5 WHILE_END_2
+;STOREI 1 r6
+;ADDI count r6 r7
+;STOREI r7 count
+;STOREF 0.5 r8
+;DIVF num approx r9
+;ADDF approx r9 r10
+;MULF r8 r10 r11
+;STOREF r11 newapprox
+;SUBF approx newapprox r12
+;STOREF r12 diff
+;STOREF 0.0 r13
+;LEF diff r13 ELSE_3
+;STOREF tolerance r14
+;GEF diff r14 ELSE_5
+;STOREI 1 r15
+;STOREI r15 enough
+;JUMP END_IF_ELSE6
+;LABEL ELSE_5
+;LABEL END_IF_ELSE6
+;JUMP END_IF_ELSE4
+;LABEL ELSE_3
+;STOREF 0.0 r16
+;SUBF r16 tolerance r17
+;LEF diff r17 ELSE_7
+;STOREI 1 r18
+;STOREI r18 enough
+;JUMP END_IF_ELSE8
+;LABEL ELSE_7
+;LABEL END_IF_ELSE8
+;LABEL END_IF_ELSE4
+;STOREF newapprox r19
+;STOREF r19 approx
+;JUMP WHILE_START_1
+;WRITEF approx
+;WRITES space
+;WRITEI count
+;WRITES eol
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var count
+var enough
+var newapprox
+var approx
+var num
+var tolerance
+var diff
+str eol "\n"
+str space " "
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+move 0.0001 r0
+move r0 tolerance
+sys readr num
+move num r1
+move r1 approx
+move 0 r2
+move r2 count
+move 0.0 r3
+move r3 diff
+move 0 r4
+move r4 enough
+label WHILE_START_1
+move 1 r5
+cmpi enough r5
+jeq WHILE_END_2
+move 1 r6
+move count r7
+addi r6 r7
+move r7 count
+move 0.5 r8
+move num r9
+divr approx r9
+move approx r10
+addr r9 r10
+move r8 r11
+mulr r10 r11
+move r11 newapprox
+move approx r12
+subr newapprox r12
+move r12 diff
+move 0.0 r13
+cmpr diff r13
+jle ELSE_3
+move tolerance r14
+cmpr diff r14
+jge ELSE_5
+move 1 r15
+move r15 enough
+jmp END_IF_ELSE6
+label ELSE_5
+label END_IF_ELSE6
+jmp END_IF_ELSE4
+label ELSE_3
+move 0.0 r16
+move r16 r17
+subr tolerance r17
+cmpr diff r17
+jle ELSE_7
+move 1 r18
+move r18 enough
+jmp END_IF_ELSE8
+label ELSE_7
+label END_IF_ELSE8
+label END_IF_ELSE4
+move newapprox r19
+move r19 approx
+jmp WHILE_START_1
+label WHILE_END_2
+sys writer approx
+sys writes space
+sys writei count
+sys writes eol
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: test
+DECL_LIST of 4 variables
+VAR_REF: outputStart
+VAR_REF: i
+VAR_REF: a
+VAR_REF: num
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+ASSIGN NODE for: num
+ASSIGN NODE for: i
+ASSIGN NODE for: a
+IF_LIST
+COMP_NODE: 2
+IF_STMT_LIST
+ASSIGN NODE for: num
+IF_LIST
+COMP_NODE: 2
+IF_STMT_LIST
+ASSIGN NODE for: num
+ELSE_LIST
+STMT_LIST
+ENDIF
+ELSE_LIST
+STMT_LIST
+IF_LIST
+COMP_NODE: 1
+IF_STMT_LIST
+ASSIGN NODE for: num
+ELSE_LIST
+STMT_LIST
+ENDIF
+ENDIF
+WRITE_LIST: num 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;STOREI 7 r0
+;STOREI r0 num
+;STOREI 2 r1
+;STOREI r1 i
+;STOREI 42 r2
+;STOREI r2 a
+;STOREI 5 r3
+;GEI i r3 ELSE_1
+;ADDI num a r4
+;STOREI r4 num
+;STOREI 3 r5
+;GEI i r5 ELSE_3
+;ADDI num a r6
+;STOREI r6 num
+;JUMP END_IF_ELSE4
+;LABEL ELSE_3
+;LABEL END_IF_ELSE4
+;JUMP END_IF_ELSE2
+;LABEL ELSE_1
+;STOREI 5 r7
+;LTI i r7 ELSE_5
+;SUBI num a r8
+;STOREI r8 num
+;JUMP END_IF_ELSE6
+;LABEL ELSE_5
+;LABEL END_IF_ELSE6
+;LABEL END_IF_ELSE2
+;WRITEI num
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var i
+var a
+var num
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+move 7 r0
+move r0 num
+move 2 r1
+move r1 i
+move 42 r2
+move r2 a
+move 5 r3
+cmpi i r3
+jge ELSE_1
+move num r4
+addi a r4
+move r4 num
+move 3 r5
+cmpi i r5
+jge ELSE_3
+move num r6
+addi a r6
+move r6 num
+jmp END_IF_ELSE4
+label ELSE_3
+label END_IF_ELSE4
+jmp END_IF_ELSE2
+label ELSE_1
+move 5 r7
+cmpi i r7
+jlt ELSE_5
+move num r8
+subi a r8
+move r8 num
+jmp END_IF_ELSE6
+label ELSE_5
+label END_IF_ELSE6
+label END_IF_ELSE2
+sys writei num
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: test
+DECL_LIST of 10 variables
+VAR_REF: outputStart
+VAR_REF: i
+VAR_REF: a
+VAR_REF: b
+VAR_REF: c
+VAR_REF: x
+VAR_REF: y
+VAR_REF: z
+VAR_REF: h
+VAR_REF: s1
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var i
+var a
+var b
+var c
+var x
+var y
+var z
+var h
+str s1 "string"
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: loop
+DECL_LIST of 9 variables
+VAR_REF: outputStart
+VAR_REF: guess
+VAR_REF: correct
+VAR_REF: wrong
+VAR_REF: out1
+VAR_REF: out2
+VAR_REF: i
+VAR_REF: j
+VAR_REF: k
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+ASSIGN NODE for: i
+ASSIGN NODE for: j
+ASSIGN NODE for: k
+WHILE_LIST
+COMP_NODE: 4
+WHILE_STMT_LIST
+WRITE_LIST: guess 
+READ_LIST: j 
+IF_LIST
+COMP_NODE: 5
+IF_STMT_LIST
+WRITE_LIST: correct 
+ELSE_LIST
+STMT_LIST
+WRITE_LIST: wrong 
+ENDIF
+ASSIGN NODE for: k
+ENDWHILE
+WRITE_LIST: out1 k out2 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;STOREI 17 r0
+;STOREI r0 i
+;STOREI 0 r1
+;STOREI r1 j
+;STOREI 0 r2
+;STOREI r2 k
+;LABEL WHILE_START_1
+;STOREI j r3
+;EQI i r3 WHILE_END_2
+;WRITES guess
+;READI j
+;STOREI j r4
+;NEI i r4 ELSE_3
+;WRITES correct
+;JUMP END_IF_ELSE4
+;LABEL ELSE_3
+;WRITES wrong
+;LABEL END_IF_ELSE4
+;STOREI 1 r5
+;ADDI k r5 r6
+;STOREI r6 k
+;JUMP WHILE_START_1
+;WRITES out1
+;WRITEI k
+;WRITES out2
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+str guess "Guess a number: "
+str correct "Correct!\n"
+str wrong "Wrong!\n"
+str out1 "It took you "
+str out2 " guesses"
+var i
+var j
+var k
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+move 17 r0
+move r0 i
+move 0 r1
+move r1 j
+move 0 r2
+move r2 k
+label WHILE_START_1
+move j r3
+cmpi i r3
+jeq WHILE_END_2
+sys writes guess
+sys readi j
+move j r4
+cmpi i r4
+jne ELSE_3
+sys writes correct
+jmp END_IF_ELSE4
+label ELSE_3
+sys writes wrong
+label END_IF_ELSE4
+move 1 r5
+move k r6
+addi r5 r6
+move r6 k
+jmp WHILE_START_1
+label WHILE_END_2
+sys writes out1
+sys writei k
+sys writes out2
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: sqrt
+DECL_LIST of 9 variables
+VAR_REF: outputStart
+VAR_REF: dummy
+VAR_REF: n
+VAR_REF: x1
+VAR_REF: x2
+VAR_REF: fx
+VAR_REF: dfx
+VAR_REF: error
+VAR_REF: i
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+ASSIGN NODE for: error
+READ_LIST: x1 n 
+ASSIGN NODE for: fx
+ASSIGN NODE for: dfx
+ASSIGN NODE for: x2
+ASSIGN NODE for: i
+WHILE_LIST
+COMP_NODE: 2
+WHILE_STMT_LIST
+ASSIGN NODE for: x1
+ASSIGN NODE for: fx
+ASSIGN NODE for: dfx
+ASSIGN NODE for: x2
+ASSIGN NODE for: i
+ENDWHILE
+WHILE_LIST
+COMP_NODE: 0
+WHILE_STMT_LIST
+ASSIGN NODE for: x1
+ASSIGN NODE for: fx
+ASSIGN NODE for: dfx
+ASSIGN NODE for: x2
+ENDWHILE
+WRITE_LIST: x2 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;STOREF 0.001 r0
+;STOREF r0 error
+;READF x1
+;READF n
+;MULF x1 x1 r1
+;SUBF r1 n r2
+;STOREF r2 fx
+;STOREF 2.0 r3
+;MULF r3 x1 r4
+;STOREF r4 dfx
+;DIVF fx dfx r5
+;SUBF x1 r5 r6
+;STOREF r6 x2
+;STOREI 0 r7
+;STOREI r7 i
+;LABEL WHILE_START_1
+;STOREI 2 r8
+;GEI i r8 WHILE_END_2
+;STOREF x2 r9
+;STOREF r9 x1
+;MULF x1 x1 r10
+;SUBF r10 n r11
+;STOREF r11 fx
+;STOREF 2.0 r12
+;MULF r12 x1 r13
+;STOREF r13 dfx
+;DIVF fx dfx r14
+;SUBF x1 r14 r15
+;STOREF r15 x2
+;STOREI 1 r16
+;ADDI i r16 r17
+;STOREI r17 i
+;JUMP WHILE_START_1
+;LABEL WHILE_START_3
+;SUBF x1 x2 r18
+;STOREF error r19
+;LEF r18 r19 WHILE_END_4
+;STOREF x2 r20
+;STOREF r20 x1
+;MULF x1 x1 r21
+;SUBF r21 n r22
+;STOREF r22 fx
+;STOREF 2.0 r23
+;MULF r23 x1 r24
+;STOREF r24 dfx
+;DIVF fx dfx r25
+;SUBF x1 r25 r26
+;STOREF r26 x2
+;JUMP WHILE_START_3
+;WRITEF x2
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+str dummy "abcde"
+var n
+var x1
+var x2
+var fx
+var dfx
+var error
+var i
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+move 0.001 r0
+move r0 error
+sys readr x1
+sys readr n
+move x1 r1
+mulr x1 r1
+move r1 r2
+subr n r2
+move r2 fx
+move 2.0 r3
+move r3 r4
+mulr x1 r4
+move r4 dfx
+move fx r5
+divr dfx r5
+move x1 r6
+subr r5 r6
+move r6 x2
+move 0 r7
+move r7 i
+label WHILE_START_1
+move 2 r8
+cmpi i r8
+jge WHILE_END_2
+move x2 r9
+move r9 x1
+move x1 r10
+mulr x1 r10
+move r10 r11
+subr n r11
+move r11 fx
+move 2.0 r12
+move r12 r13
+mulr x1 r13
+move r13 dfx
+move fx r14
+divr dfx r14
+move x1 r15
+subr r14 r15
+move r15 x2
+move 1 r16
+move i r17
+addi r16 r17
+move r17 i
+jmp WHILE_START_1
+label WHILE_END_2
+label WHILE_START_3
+move x1 r18
+subr x2 r18
+move error r19
+cmpr r18 r19
+jle WHILE_END_4
+move x2 r20
+move r20 x1
+move x1 r21
+mulr x1 r21
+move r21 r22
+subr n r22
+move r22 fx
+move 2.0 r23
+move r23 r24
+mulr x1 r24
+move r24 dfx
+move fx r25
+divr dfx r25
+move x1 r26
+subr r25 r26
+move r26 x2
+jmp WHILE_START_3
+label WHILE_END_4
+sys writer x2
+unlnk
+ret
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test9.micro
+Key output:
+ Start of tinyOutput
+6.8479 7
+
+
+Student output:
+ error on line 80 : illegal operand
+error on line 92 : both  operands are memory refs
+error on line 95 : illegal operand type
+error on line 98 : both  operands are memory refs
+error on line 99 : illegal operand type
+error on line 100 : both  operands are memory refs
+error on line 102 : both  operands are memory refs
+error on line 103 : illegal operand type
+error on line 104 : both  operands are memory refs
+error on line 105 : illegal operand type
+error on line 106 : both  operands are memory refs
+error on line 107 : illegal operand type
+error on line 108 : both  operands are memory refs
+error on line 109 : both  operands are memory refs
+error on line 110 : illegal operand type
+error on line 111 : both  operands are memory refs
+error on line 113 : illegal operand type
+error on line 115 : both  operands are memory refs
+error on line 116 : illegal operand type
+error on line 119 : both  operands are memory refs
+error on line 126 : both  operands are memory refs
+error on line 127 : illegal operand type
+error on line 128 : illegal operand type
+error on line 131 : both  operands are memory refs
+error on line 136 : both  operands are memory refs
+error on line 137 : both  operands are memory refs
+error on line 91 identifier r4 not defined
+error on line 92 identifier r4 not defined
+error on line 94 identifier r5 not defined
+error on line 95 identifier r5 not defined
+error on line 97 identifier r6 not defined
+error on line 98 identifier r7 not defined
+error on line 99 identifier r6 not defined
+error on line 99 identifier r7 not defined
+error on line 100 identifier r7 not defined
+error on line 101 identifier r8 not defined
+error on line 102 identifier r9 not defined
+error on line 103 identifier r9 not defined
+error on line 104 identifier r10 not defined
+error on line 105 identifier r9 not defined
+error on line 105 identifier r10 not defined
+error on line 106 identifier r8 not defined
+error on line 106 identifier r11 not defined
+error on line 107 identifier r10 not defined
+error on line 107 identifier r11 not defined
+error on line 108 identifier r11 not defined
+error on line 109 identifier r12 not defined
+error on line 110 identifier r12 not defined
+error on line 111 identifier r12 not defined
+error on line 112 identifier r13 not defined
+error on line 113 identifier r13 not defined
+error on line 115 identifier r14 not defined
+error on line 116 identifier r14 not defined
+error on line 118 identifier r15 not defined
+error on line 119 identifier r15 not defined
+error on line 125 identifier r16 not defined
+error on line 126 identifier r16 not defined
+error on line 126 identifier r17 not defined
+error on line 127 identifier r17 not defined
+error on line 128 identifier r17 not defined
+error on line 130 identifier r18 not defined
+error on line 131 identifier r18 not defined
+error on line 136 identifier r19 not defined
+error on line 137 identifier r19 not defined
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test11.micro
+Key output:
+ Start of tinyOutput
+91
+
+Student output:
+ error on line 51 : illegal operand
+error on line 62 : both  operands are memory refs
+error on line 63 : illegal operand type
+error on line 64 : both  operands are memory refs
+error on line 66 : illegal operand type
+error on line 68 : both  operands are memory refs
+error on line 69 : illegal operand type
+error on line 70 : both  operands are memory refs
+error on line 77 : illegal operand type
+error on line 79 : both  operands are memory refs
+error on line 80 : illegal operand type
+error on line 81 : both  operands are memory refs
+error on line 62 identifier r4 not defined
+error on line 63 identifier r4 not defined
+error on line 64 identifier r4 not defined
+error on line 65 identifier r5 not defined
+error on line 66 identifier r5 not defined
+error on line 68 identifier r6 not defined
+error on line 69 identifier r6 not defined
+error on line 70 identifier r6 not defined
+error on line 76 identifier r7 not defined
+error on line 77 identifier r7 not defined
+error on line 79 identifier r8 not defined
+error on line 80 identifier r8 not defined
+error on line 81 identifier r8 not defined
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test15.micro
+Key output:
+ Start of tinyOutput
+
+
+Student output:
+ error on line 29 : illegal operand
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test4.micro
+Key output:
+ Start of tinyOutput
+Guess a number: Correct!
+It took you 1 guesses
+
+Student output:
+ error on line 53 : illegal operand
+error on line 67 : both  operands are memory refs
+error on line 68 : illegal operand type
+error on line 76 : both  operands are memory refs
+error on line 77 : illegal operand type
+error on line 78 : both  operands are memory refs
+error on line 67 identifier r4 not defined
+error on line 68 identifier r4 not defined
+error on line 75 identifier r5 not defined
+error on line 76 identifier r6 not defined
+error on line 77 identifier r5 not defined
+error on line 77 identifier r6 not defined
+error on line 78 identifier r6 not defined
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test6.micro
+Key output:
+ Start of tinyOutput
+9.21633
+
+Student output:
+ error on line 78 : illegal operand
+error on line 91 : illegal operand type
+error on line 92 : both  operands are memory refs
+error on line 93 : both  operands are memory refs
+error on line 94 : illegal operand type
+error on line 95 : both  operands are memory refs
+error on line 96 : illegal operand type
+error on line 97 : both  operands are memory refs
+error on line 99 : both  operands are memory refs
+error on line 102 : illegal operand type
+error on line 104 : both  operands are memory refs
+error on line 105 : both  operands are memory refs
+error on line 106 : both  operands are memory refs
+error on line 107 : illegal operand type
+error on line 108 : both  operands are memory refs
+error on line 109 : illegal operand type
+error on line 110 : both  operands are memory refs
+error on line 112 : both  operands are memory refs
+error on line 113 : illegal operand type
+error on line 114 : both  operands are memory refs
+error on line 115 : both  operands are memory refs
+error on line 116 : illegal operand type
+error on line 117 : both  operands are memory refs
+error on line 118 : illegal operand type
+error on line 119 : both  operands are memory refs
+error on line 121 : both  operands are memory refs
+error on line 122 : illegal operand type
+error on line 123 : both  operands are memory refs
+error on line 127 : both  operands are memory refs
+error on line 128 : illegal operand type
+error on line 129 : both  operands are memory refs
+error on line 130 : illegal operand type
+error on line 132 : both  operands are memory refs
+error on line 133 : both  operands are memory refs
+error on line 134 : both  operands are memory refs
+error on line 135 : illegal operand type
+error on line 136 : both  operands are memory refs
+error on line 137 : illegal operand type
+error on line 138 : both  operands are memory refs
+error on line 140 : both  operands are memory refs
+error on line 141 : illegal operand type
+error on line 142 : both  operands are memory refs
+error on line 143 : both  operands are memory refs
+error on line 144 : illegal operand type
+error on line 145 : both  operands are memory refs
+error on line 146 : illegal operand type
+error on line 147 : both  operands are memory refs
+error on line 90 identifier r4 not defined
+error on line 91 identifier r4 not defined
+error on line 92 identifier r4 not defined
+error on line 93 identifier r5 not defined
+error on line 94 identifier r5 not defined
+error on line 95 identifier r6 not defined
+error on line 96 identifier r5 not defined
+error on line 96 identifier r6 not defined
+error on line 97 identifier r6 not defined
+error on line 98 identifier r7 not defined
+error on line 99 identifier r7 not defined
+error on line 101 identifier r8 not defined
+error on line 102 identifier r8 not defined
+error on line 104 identifier r9 not defined
+error on line 105 identifier r9 not defined
+error on line 106 identifier r10 not defined
+error on line 107 identifier r10 not defined
+error on line 108 identifier r10 not defined
+error on line 108 identifier r11 not defined
+error on line 109 identifier r11 not defined
+error on line 110 identifier r11 not defined
+error on line 111 identifier r12 not defined
+error on line 112 identifier r12 not defined
+error on line 112 identifier r13 not defined
+error on line 113 identifier r13 not defined
+error on line 114 identifier r13 not defined
+error on line 115 identifier r14 not defined
+error on line 116 identifier r14 not defined
+error on line 117 identifier r15 not defined
+error on line 118 identifier r14 not defined
+error on line 118 identifier r15 not defined
+error on line 119 identifier r15 not defined
+error on line 120 identifier r16 not defined
+error on line 121 identifier r17 not defined
+error on line 122 identifier r16 not defined
+error on line 122 identifier r17 not defined
+error on line 123 identifier r17 not defined
+error on line 127 identifier r18 not defined
+error on line 128 identifier r18 not defined
+error on line 129 identifier r19 not defined
+error on line 130 identifier r18 not defined
+error on line 130 identifier r19 not defined
+error on line 132 identifier r20 not defined
+error on line 133 identifier r20 not defined
+error on line 134 identifier r21 not defined
+error on line 135 identifier r21 not defined
+error on line 136 identifier r21 not defined
+error on line 136 identifier r22 not defined
+error on line 137 identifier r22 not defined
+error on line 138 identifier r22 not defined
+error on line 139 identifier r23 not defined
+error on line 140 identifier r23 not defined
+error on line 140 identifier r24 not defined
+error on line 141 identifier r24 not defined
+error on line 142 identifier r24 not defined
+error on line 143 identifier r25 not defined
+error on line 144 identifier r25 not defined
+error on line 145 identifier r26 not defined
+error on line 146 identifier r25 not defined
+error on line 146 identifier r26 not defined
+error on line 147 identifier r26 not defined
+
+Printing AST Tree..
+PROGRAM: step4
+DECL_LIST of 5 variables
+VAR_REF: outputStart
+VAR_REF: a
+VAR_REF: b
+VAR_REF: i
+VAR_REF: p
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+ASSIGN NODE for: i
+ASSIGN NODE for: a
+ASSIGN NODE for: b
+WHILE_LIST
+COMP_NODE: 4
+WHILE_STMT_LIST
+READ_LIST: p 
+IF_LIST
+COMP_NODE: 0
+IF_STMT_LIST
+ASSIGN NODE for: a
+ELSE_LIST
+STMT_LIST
+ASSIGN NODE for: b
+ENDIF
+ASSIGN NODE for: i
+ENDWHILE
+WRITE_LIST: a 
+WRITE_LIST: b 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;STOREI 0 r0
+;STOREI r0 i
+;STOREI 0 r1
+;STOREI r1 a
+;STOREI 0 r2
+;STOREI r2 b
+;LABEL WHILE_START_1
+;STOREI 10 r3
+;EQI i r3 WHILE_END_2
+;READI p
+;STOREI 10 r4
+;LEI p r4 ELSE_3
+;STOREI 1 r5
+;ADDI a r5 r6
+;STOREI r6 a
+;JUMP END_IF_ELSE4
+;LABEL ELSE_3
+;STOREI 1 r7
+;ADDI b r7 r8
+;STOREI r8 b
+;LABEL END_IF_ELSE4
+;STOREI 1 r9
+;ADDI i r9 r10
+;STOREI r10 i
+;JUMP WHILE_START_1
+;WRITEI a
+;WRITEI b
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var a
+var b
+var i
+var p
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+move 0 r0
+move r0 i
+move 0 r1
+move r1 a
+move 0 r2
+move r2 b
+label WHILE_START_1
+move 10 r3
+cmpi i r3
+jeq WHILE_END_2
+sys readi p
+move 10 r4
+cmpi p r4
+jle ELSE_3
+move 1 r5
+move a r6
+addi r5 r6
+move r6 a
+jmp END_IF_ELSE4
+label ELSE_3
+move 1 r7
+move b r8
+addi r7 r8
+move r8 b
+label END_IF_ELSE4
+move 1 r9
+move i r10
+addi r9 r10
+move r10 i
+jmp WHILE_START_1
+label WHILE_END_2
+sys writei a
+sys writei b
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: sqrt
+DECL_LIST of 9 variables
+VAR_REF: outputStart
+VAR_REF: dummy
+VAR_REF: x1
+VAR_REF: x2
+VAR_REF: fx
+VAR_REF: dfx
+VAR_REF: error
+VAR_REF: i
+VAR_REF: n
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+ASSIGN NODE for: error
+READ_LIST: x1 
+ASSIGN NODE for: fx
+ASSIGN NODE for: dfx
+ASSIGN NODE for: x2
+ASSIGN NODE for: x1
+ASSIGN NODE for: fx
+ASSIGN NODE for: dfx
+ASSIGN NODE for: x2
+WHILE_LIST
+COMP_NODE: 1
+WHILE_STMT_LIST
+ASSIGN NODE for: x1
+ASSIGN NODE for: fx
+ASSIGN NODE for: dfx
+ASSIGN NODE for: x2
+ENDWHILE
+WRITE_LIST: x2 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;STOREF 0.001 r0
+;STOREF r0 error
+;READF x1
+;MULF x1 x1 r1
+;SUBF r1 n r2
+;STOREF r2 fx
+;STOREF 2.0 r3
+;MULF r3 x1 r4
+;STOREF r4 dfx
+;DIVF fx dfx r5
+;SUBF x1 r5 r6
+;STOREF r6 x2
+;STOREF x2 r7
+;STOREF r7 x1
+;MULF x1 x1 r8
+;SUBF r8 n r9
+;STOREF r9 fx
+;STOREF 2.0 r10
+;MULF r10 x1 r11
+;STOREF r11 dfx
+;DIVF fx dfx r12
+;SUBF x1 r12 r13
+;STOREF r13 x2
+;LABEL WHILE_START_1
+;SUBF x1 x2 r14
+;STOREF error r15
+;LTF r14 r15 WHILE_END_2
+;STOREF x2 r16
+;STOREF r16 x1
+;MULF x1 x1 r17
+;SUBF r17 n r18
+;STOREF r18 fx
+;STOREF 2.0 r19
+;MULF r19 x1 r20
+;STOREF r20 dfx
+;DIVF fx dfx r21
+;SUBF x1 r21 r22
+;STOREF r22 x2
+;JUMP WHILE_START_1
+;WRITEF x2
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+str dummy "abcde"
+var x1
+var x2
+var fx
+var dfx
+var error
+var i
+var n
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+move 0.001 r0
+move r0 error
+sys readr x1
+move x1 r1
+mulr x1 r1
+move r1 r2
+subr n r2
+move r2 fx
+move 2.0 r3
+move r3 r4
+mulr x1 r4
+move r4 dfx
+move fx r5
+divr dfx r5
+move x1 r6
+subr r5 r6
+move r6 x2
+move x2 r7
+move r7 x1
+move x1 r8
+mulr x1 r8
+move r8 r9
+subr n r9
+move r9 fx
+move 2.0 r10
+move r10 r11
+mulr x1 r11
+move r11 dfx
+move fx r12
+divr dfx r12
+move x1 r13
+subr r12 r13
+move r13 x2
+label WHILE_START_1
+move x1 r14
+subr x2 r14
+move error r15
+cmpr r14 r15
+jlt WHILE_END_2
+move x2 r16
+move r16 x1
+move x1 r17
+mulr x1 r17
+move r17 r18
+subr n r18
+move r18 fx
+move 2.0 r19
+move r19 r20
+mulr x1 r20
+move r20 dfx
+move fx r21
+divr dfx r21
+move x1 r22
+subr r21 r22
+move r22 x2
+jmp WHILE_START_1
+label WHILE_END_2
+sys writer x2
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: p
+DECL_LIST of 7 variables
+VAR_REF: outputStart
+VAR_REF: a
+VAR_REF: b
+VAR_REF: k
+VAR_REF: g
+VAR_REF: p
+VAR_REF: u
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+READ_LIST: a b 
+WHILE_LIST
+COMP_NODE: 3
+WHILE_STMT_LIST
+IF_LIST
+COMP_NODE: 5
+IF_STMT_LIST
+ASSIGN NODE for: g
+WRITE_LIST: g 
+ELSE_LIST
+STMT_LIST
+IF_LIST
+COMP_NODE: 5
+IF_STMT_LIST
+ASSIGN NODE for: p
+WRITE_LIST: p 
+ELSE_LIST
+STMT_LIST
+IF_LIST
+COMP_NODE: 5
+IF_STMT_LIST
+ASSIGN NODE for: k
+WRITE_LIST: k 
+ELSE_LIST
+STMT_LIST
+IF_LIST
+COMP_NODE: 5
+IF_STMT_LIST
+ASSIGN NODE for: u
+WRITE_LIST: u 
+ELSE_LIST
+STMT_LIST
+ENDIF
+ENDIF
+ENDIF
+ENDIF
+ASSIGN NODE for: b
+ASSIGN NODE for: a
+ENDWHILE
+WRITE_LIST: a b 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;READI a
+;READI b
+;LABEL WHILE_START_1
+;STOREI 120 r0
+;GTI a r0 WHILE_END_2
+;STOREI 1 r1
+;NEI b r1 ELSE_3
+;STOREI 1 r2
+;MULI r2 a r3
+;STOREI r3 g
+;WRITEI g
+;JUMP END_IF_ELSE4
+;LABEL ELSE_3
+;STOREI 2 r4
+;NEI b r4 ELSE_5
+;STOREI 2 r5
+;MULI r5 a r6
+;STOREI r6 p
+;WRITEI p
+;JUMP END_IF_ELSE6
+;LABEL ELSE_5
+;STOREI 3 r7
+;NEI b r7 ELSE_7
+;STOREI 3 r8
+;MULI r8 a r9
+;STOREI r9 k
+;WRITEI k
+;JUMP END_IF_ELSE8
+;LABEL ELSE_7
+;STOREI 4 r10
+;NEI b r10 ELSE_9
+;STOREI 4 r11
+;MULI r11 a r12
+;STOREI r12 u
+;WRITEI u
+;JUMP END_IF_ELSE10
+;LABEL ELSE_9
+;LABEL END_IF_ELSE10
+;LABEL END_IF_ELSE8
+;LABEL END_IF_ELSE6
+;LABEL END_IF_ELSE4
+;STOREI 1 r13
+;ADDI b r13 r14
+;STOREI r14 b
+;STOREI 2 r15
+;ADDI a r15 r16
+;STOREI r16 a
+;JUMP WHILE_START_1
+;WRITEI a
+;WRITEI b
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var a
+var b
+var k
+var g
+var p
+var u
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+sys readi a
+sys readi b
+label WHILE_START_1
+move 120 r0
+cmpi a r0
+jgt WHILE_END_2
+move 1 r1
+cmpi b r1
+jne ELSE_3
+move 1 r2
+move r2 r3
+muli a r3
+move r3 g
+sys writei g
+jmp END_IF_ELSE4
+label ELSE_3
+move 2 r4
+cmpi b r4
+jne ELSE_5
+move 2 r5
+move r5 r6
+muli a r6
+move r6 p
+sys writei p
+jmp END_IF_ELSE6
+label ELSE_5
+move 3 r7
+cmpi b r7
+jne ELSE_7
+move 3 r8
+move r8 r9
+muli a r9
+move r9 k
+sys writei k
+jmp END_IF_ELSE8
+label ELSE_7
+move 4 r10
+cmpi b r10
+jne ELSE_9
+move 4 r11
+move r11 r12
+muli a r12
+move r12 u
+sys writei u
+jmp END_IF_ELSE10
+label ELSE_9
+label END_IF_ELSE10
+label END_IF_ELSE8
+label END_IF_ELSE6
+label END_IF_ELSE4
+move 1 r13
+move b r14
+addi r13 r14
+move r14 b
+move 2 r15
+move a r16
+addi r15 r16
+move r16 a
+jmp WHILE_START_1
+label WHILE_END_2
+sys writei a
+sys writei b
+unlnk
+ret
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test7.micro
+Key output:
+ Start of tinyOutput
+100
+
+Student output:
+ error on line 51 : illegal operand
+error on line 65 : illegal operand type
+error on line 68 : both  operands are memory refs
+error on line 69 : illegal operand type
+error on line 70 : both  operands are memory refs
+error on line 74 : both  operands are memory refs
+error on line 75 : illegal operand type
+error on line 76 : both  operands are memory refs
+error on line 79 : both  operands are memory refs
+error on line 80 : illegal operand type
+error on line 81 : both  operands are memory refs
+error on line 64 identifier r4 not defined
+error on line 65 identifier r4 not defined
+error on line 67 identifier r5 not defined
+error on line 68 identifier r6 not defined
+error on line 69 identifier r5 not defined
+error on line 69 identifier r6 not defined
+error on line 70 identifier r6 not defined
+error on line 73 identifier r7 not defined
+error on line 74 identifier r8 not defined
+error on line 75 identifier r7 not defined
+error on line 75 identifier r8 not defined
+error on line 76 identifier r8 not defined
+error on line 78 identifier r9 not defined
+error on line 79 identifier r10 not defined
+error on line 80 identifier r9 not defined
+error on line 80 identifier r10 not defined
+error on line 81 identifier r10 not defined
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test18.micro
+Key output:
+ Start of tinyOutput
+0.0005569
+
+Student output:
+ error on line 68 : illegal operand
+error on line 80 : illegal operand type
+error on line 81 : both  operands are memory refs
+error on line 82 : both  operands are memory refs
+error on line 83 : illegal operand type
+error on line 84 : both  operands are memory refs
+error on line 85 : illegal operand type
+error on line 86 : both  operands are memory refs
+error on line 87 : both  operands are memory refs
+error on line 88 : both  operands are memory refs
+error on line 89 : both  operands are memory refs
+error on line 90 : illegal operand type
+error on line 91 : both  operands are memory refs
+error on line 92 : illegal operand type
+error on line 93 : both  operands are memory refs
+error on line 95 : both  operands are memory refs
+error on line 96 : illegal operand type
+error on line 97 : both  operands are memory refs
+error on line 98 : both  operands are memory refs
+error on line 99 : illegal operand type
+error on line 100 : both  operands are memory refs
+error on line 101 : illegal operand type
+error on line 102 : both  operands are memory refs
+error on line 104 : both  operands are memory refs
+error on line 105 : illegal operand type
+error on line 106 : both  operands are memory refs
+error on line 107 : illegal operand type
+error on line 109 : both  operands are memory refs
+error on line 110 : both  operands are memory refs
+error on line 111 : both  operands are memory refs
+error on line 112 : illegal operand type
+error on line 113 : both  operands are memory refs
+error on line 114 : illegal operand type
+error on line 115 : both  operands are memory refs
+error on line 117 : both  operands are memory refs
+error on line 118 : illegal operand type
+error on line 119 : both  operands are memory refs
+error on line 120 : both  operands are memory refs
+error on line 121 : illegal operand type
+error on line 122 : both  operands are memory refs
+error on line 123 : illegal operand type
+error on line 124 : both  operands are memory refs
+error on line 79 identifier r4 not defined
+error on line 80 identifier r4 not defined
+error on line 81 identifier r4 not defined
+error on line 82 identifier r5 not defined
+error on line 83 identifier r5 not defined
+error on line 84 identifier r6 not defined
+error on line 85 identifier r5 not defined
+error on line 85 identifier r6 not defined
+error on line 86 identifier r6 not defined
+error on line 87 identifier r7 not defined
+error on line 88 identifier r7 not defined
+error on line 89 identifier r8 not defined
+error on line 90 identifier r8 not defined
+error on line 91 identifier r8 not defined
+error on line 91 identifier r9 not defined
+error on line 92 identifier r9 not defined
+error on line 93 identifier r9 not defined
+error on line 94 identifier r10 not defined
+error on line 95 identifier r10 not defined
+error on line 95 identifier r11 not defined
+error on line 96 identifier r11 not defined
+error on line 97 identifier r11 not defined
+error on line 98 identifier r12 not defined
+error on line 99 identifier r12 not defined
+error on line 100 identifier r13 not defined
+error on line 101 identifier r12 not defined
+error on line 101 identifier r13 not defined
+error on line 102 identifier r13 not defined
+error on line 104 identifier r14 not defined
+error on line 105 identifier r14 not defined
+error on line 106 identifier r15 not defined
+error on line 107 identifier r14 not defined
+error on line 107 identifier r15 not defined
+error on line 109 identifier r16 not defined
+error on line 110 identifier r16 not defined
+error on line 111 identifier r17 not defined
+error on line 112 identifier r17 not defined
+error on line 113 identifier r17 not defined
+error on line 113 identifier r18 not defined
+error on line 114 identifier r18 not defined
+error on line 115 identifier r18 not defined
+error on line 116 identifier r19 not defined
+error on line 117 identifier r19 not defined
+error on line 117 identifier r20 not defined
+error on line 118 identifier r20 not defined
+error on line 119 identifier r20 not defined
+error on line 120 identifier r21 not defined
+error on line 121 identifier r21 not defined
+error on line 122 identifier r22 not defined
+error on line 123 identifier r21 not defined
+error on line 123 identifier r22 not defined
+error on line 124 identifier r22 not defined
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test8.micro
+Key output:
+ Start of tinyOutput
+20365612258
+
+Student output:
+ error on line 76 : illegal operand
+error on line 95 : illegal operand type
+error on line 98 : both  operands are memory refs
+error on line 99 : illegal operand type
+error on line 100 : both  operands are memory refs
+error on line 105 : illegal operand type
+error on line 108 : both  operands are memory refs
+error on line 109 : illegal operand type
+error on line 110 : both  operands are memory refs
+error on line 115 : illegal operand type
+error on line 118 : both  operands are memory refs
+error on line 119 : illegal operand type
+error on line 120 : both  operands are memory refs
+error on line 129 : both  operands are memory refs
+error on line 130 : illegal operand type
+error on line 131 : both  operands are memory refs
+error on line 133 : both  operands are memory refs
+error on line 134 : illegal operand type
+error on line 135 : both  operands are memory refs
+error on line 94 identifier r4 not defined
+error on line 95 identifier r4 not defined
+error on line 97 identifier r5 not defined
+error on line 98 identifier r5 not defined
+error on line 98 identifier r6 not defined
+error on line 99 identifier r6 not defined
+error on line 100 identifier r6 not defined
+error on line 104 identifier r7 not defined
+error on line 105 identifier r7 not defined
+error on line 107 identifier r8 not defined
+error on line 108 identifier r8 not defined
+error on line 108 identifier r9 not defined
+error on line 109 identifier r9 not defined
+error on line 110 identifier r9 not defined
+error on line 114 identifier r10 not defined
+error on line 115 identifier r10 not defined
+error on line 117 identifier r11 not defined
+error on line 118 identifier r11 not defined
+error on line 118 identifier r12 not defined
+error on line 119 identifier r12 not defined
+error on line 120 identifier r12 not defined
+error on line 128 identifier r13 not defined
+error on line 129 identifier r14 not defined
+error on line 130 identifier r13 not defined
+error on line 130 identifier r14 not defined
+error on line 131 identifier r14 not defined
+error on line 132 identifier r15 not defined
+error on line 133 identifier r16 not defined
+error on line 134 identifier r15 not defined
+error on line 134 identifier r16 not defined
+error on line 135 identifier r16 not defined
+infix_pop ERROR: Popping from an empty stack.
+
+Printing AST Tree..
+PROGRAM: p
+DECL_LIST of 8 variables
+VAR_REF: outputStart
+VAR_REF: a
+VAR_REF: b
+VAR_REF: c
+VAR_REF: p
+VAR_REF: s
+VAR_REF: t
+VAR_REF: newline
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+ASSIGN NODE for: a
+ASSIGN NODE for: b
+ASSIGN NODE for: c
+ASSIGN NODE for: c
+ASSIGN NODE for: b
+ASSIGN NODE for: a
+WRITE_LIST: c 
+WRITE_LIST: newline 
+WRITE_LIST: b 
+WRITE_LIST: newline 
+WRITE_LIST: a 
+WRITE_LIST: newline 
+ASSIGN NODE for: p
+ASSIGN NODE for: s
+ASSIGN NODE for: t
+ASSIGN NODE for: t
+WRITE_LIST: t 
+WRITE_LIST: newline 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;STOREI 20 r0
+;STOREI r0 a
+;STOREI 30 r1
+;STOREI r1 b
+;STOREI 40 r2
+;STOREI r2 c
+;MULI a b r3
+;ADDI c r3 r4
+;MULI a b r5
+;ADDI r5 c r6
+;DIVI r6 a r7
+;ADDI r4 r7 r8
+;STOREI 20 r9
+;ADDI r8 r9 r10
+;STOREI r10 c
+;MULI b b r11
+;ADDI r11 a r12
+;STOREI r12 b
+;MULI b a r13
+;DIVI r13 a r14
+;STOREI r14 a
+;WRITEI c
+;WRITES newline
+;WRITEI b
+;WRITES newline
+;WRITEI a
+;WRITES newline
+;STOREF 2.5 r15
+;STOREF r15 p
+;STOREF 1.2 r16
+;STOREF r16 s
+;STOREF 0.7 r17
+;STOREF r17 t
+;MULF t p r18
+;SUBF r18 s r19
+;MULF p s r20
+;ADDF r19 r20 r21
+;STOREF r21 t
+;WRITEF t
+;WRITES newline
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var a
+var b
+var c
+var p
+var s
+var t
+str newline "\n"
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+move 20 r0
+move r0 a
+move 30 r1
+move r1 b
+move 40 r2
+move r2 c
+move a r3
+muli b r3
+move c r4
+addi r3 r4
+move a r5
+muli b r5
+move r5 r6
+addi c r6
+move r6 r7
+divi a r7
+move r4 r8
+addi r7 r8
+move 20 r9
+move r8 r10
+addi r9 r10
+move r10 c
+move b r11
+muli b r11
+move r11 r12
+addi a r12
+move r12 b
+move b r13
+muli a r13
+move r13 r14
+divi a r14
+move r14 a
+sys writei c
+sys writes newline
+sys writei b
+sys writes newline
+sys writei a
+sys writes newline
+move 2.5 r15
+move r15 p
+move 1.2 r16
+move r16 s
+move 0.7 r17
+move r17 t
+move t r18
+mulr p r18
+move r18 r19
+subr s r19
+move p r20
+mulr s r20
+move r19 r21
+addr r20 r21
+move r21 t
+sys writer t
+sys writes newline
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: p
+DECL_LIST of 4 variables
+VAR_REF: outputStart
+VAR_REF: a
+VAR_REF: b
+VAR_REF: c
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+READ_LIST: a b c 
+ASSIGN NODE for: c
+ASSIGN NODE for: b
+ASSIGN NODE for: a
+WRITE_LIST: c 
+WRITE_LIST: b 
+WRITE_LIST: a 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;READI a
+;READI b
+;READI c
+;MULI a b r0
+;ADDI c r0 r1
+;MULI a b r2
+;ADDI r2 c r3
+;DIVI r3 a r4
+;ADDI r1 r4 r5
+;STOREI 20 r6
+;ADDI r5 r6 r7
+;STOREI r7 c
+;MULI b b r8
+;ADDI r8 a r9
+;STOREI r9 b
+;MULI b a r10
+;DIVI r10 a r11
+;STOREI r11 a
+;WRITEI c
+;WRITEI b
+;WRITEI a
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var a
+var b
+var c
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+sys readi a
+sys readi b
+sys readi c
+move a r0
+muli b r0
+move c r1
+addi r0 r1
+move a r2
+muli b r2
+move r2 r3
+addi c r3
+move r3 r4
+divi a r4
+move r1 r5
+addi r4 r5
+move 20 r6
+move r5 r7
+addi r6 r7
+move r7 c
+move b r8
+muli b r8
+move r8 r9
+addi a r9
+move r9 b
+move b r10
+muli a r10
+move r10 r11
+divi a r11
+move r11 a
+sys writei c
+sys writei b
+sys writei a
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: test
+DECL_LIST of 10 variables
+VAR_REF: outputStart
+VAR_REF: a
+VAR_REF: b
+VAR_REF: c
+VAR_REF: x
+VAR_REF: y
+VAR_REF: z
+VAR_REF: h
+VAR_REF: j
+VAR_REF: k
+FUNC_printout
+PARAM_LIST with 3 parameters
+VAR_REF: a
+VAR_REF: b
+VAR_REF: c
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: a 
+WRITE_LIST: b 
+WRITE_LIST: c 
+RETURN_STMT to offset [9]
+RETURN LITERAL: 0
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+READ_LIST: a b c 
+ASSIGN NODE for: j
+IF_LIST
+COMP_NODE: 5
+IF_STMT_LIST
+ASSIGN NODE for: h
+ELSE_LIST
+STMT_LIST
+WHILE_LIST
+COMP_NODE: 3
+WHILE_STMT_LIST
+ASSIGN NODE for: a
+ASSIGN NODE for: j
+ENDWHILE
+ENDIF
+ASSIGN NODE for: c
+CALL_LIST with 3 arguments at line 26
+a [-2]
+b [-3]
+j [-9]
+RETURN_STMT to offset [6]
+RETURN EXPRESSION
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_printout
+;LINK
+;WRITEI $4
+;WRITEI $3
+;WRITEI $2
+;STOREI 0 r0
+;STOREI r0 $9
+;UNLINK
+;RET
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;READI a
+;READI b
+;READI c
+;STOREI 0 r1
+;STOREI r1 j
+;STOREI b r2
+;NEI a r2 ELSE_1
+;STOREI 0 r3
+;STOREI r3 h
+;JUMP END_IF_ELSE2
+;LABEL ELSE_1
+;LABEL WHILE_START_3
+;STOREI 10 r4
+;GTI j r4 WHILE_END_4
+;STOREI j r5
+;STOREI r5 a
+;STOREI 1 r6
+;ADDI j r6 r7
+;STOREI r7 j
+;JUMP WHILE_START_3
+;LABEL END_IF_ELSE2
+;PUSH
+;PUSHREGS
+;PUSH $-2
+;PUSH $-3
+;PUSH $-9
+;JSR FUNC_printout
+;POP
+;POP
+;POP
+;POPREGS
+;POP r8
+;STOREI r8 c
+;ADDI a b r9
+;STOREI r9 $6
+;UNLINK
+;RET
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var a
+var b
+var c
+var x
+var y
+var z
+var h
+var j
+var k
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_printout
+link
+sys writei $4
+sys writei $3
+sys writei $2
+move 0 r0
+move r0 $9
+unlnk
+ret
+label FUNC_main
+link
+sys writes outputStart
+sys readi a
+sys readi b
+sys readi c
+move 0 r1
+move r1 j
+move b r2
+cmpi a r2
+jne ELSE_1
+move 0 r3
+move r3 h
+jmp END_IF_ELSE2
+label ELSE_1
+label WHILE_START_3
+move 10 r4
+cmpi j r4
+jgt WHILE_END_4
+move j r5
+move r5 a
+move 1 r6
+move j r7
+addi r6 r7
+move r7 j
+jmp WHILE_START_3
+label WHILE_END_4
+label END_IF_ELSE2
+push
+push r0
+push r1
+push r2
+push r3
+push $-2
+push $-3
+push $-9
+jsr FUNC_printout
+pop r3
+pop r2
+pop r1
+pop r0
+pop r8
+move r8 c
+move a r9
+addi b r9
+move r9 $6
+unlnk
+ret
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: fibonacci2
+DECL_LIST of 4 variables
+VAR_REF: outputStart
+VAR_REF: input
+VAR_REF: space
+VAR_REF: eol
+FUNC_F
+PARAM_LIST with 1 parameters
+VAR_REF: n
+DECL_LIST of 2 variables
+VAR_REF: ret1
+VAR_REF: ret2
+STMT_LIST
+IF_LIST
+COMP_NODE: 0
+IF_STMT_LIST
+ASSIGN NODE for: ret1
+CALL_LIST with 1 arguments at line 13
+EXPRESSION
+ASSIGN NODE for: ret2
+CALL_LIST with 1 arguments at line 14
+EXPRESSION
+RETURN_STMT to offset [7]
+RETURN EXPRESSION
+ELSE_LIST
+STMT_LIST
+IF_LIST
+COMP_NODE: 5
+IF_STMT_LIST
+RETURN_STMT to offset [7]
+RETURN LITERAL: 0
+ELSE_LIST
+STMT_LIST
+IF_LIST
+COMP_NODE: 5
+IF_STMT_LIST
+RETURN_STMT to offset [7]
+RETURN LITERAL: 1
+ELSE_LIST
+STMT_LIST
+RETURN_STMT to offset [7]
+RETURN LITERAL: 1
+ENDIF
+ENDIF
+ENDIF
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 3 variables
+VAR_REF: i
+VAR_REF: final
+VAR_REF: result
+STMT_LIST
+WRITE_LIST: outputStart 
+WRITE_LIST: input 
+READ_LIST: final 
+ASSIGN NODE for: i
+WHILE_LIST
+COMP_NODE: 4
+WHILE_STMT_LIST
+ASSIGN NODE for: result
+CALL_LIST with 1 arguments at line 38
+i [-1]
+WRITE_LIST: i space 
+WRITE_LIST: result eol 
+ASSIGN NODE for: i
+ENDWHILE
+RETURN_STMT to offset [6]
+RETURN LITERAL: 0
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_F
+;LINK 2
+;STOREI 2 r0
+;LEI $2 r0 ELSE_1
+;STOREI 1 r1
+;SUBI $2 r1 r2
+;PUSH
+;PUSHREGS
+;PUSH r2
+;JSR FUNC_F
+;POP
+;POPREGS
+;POP r3
+;STOREI r3 $-1
+;STOREI 2 r4
+;SUBI $2 r4 r5
+;PUSH
+;PUSHREGS
+;PUSH r5
+;JSR FUNC_F
+;POP
+;POPREGS
+;POP r6
+;STOREI r6 $-2
+;ADDI $-1 $-2 r7
+;STOREI r7 $7
+;UNLINK
+;RET
+;JUMP END_IF_ELSE2
+;LABEL ELSE_1
+;STOREI 0 r8
+;NEI $2 r8 ELSE_3
+;STOREI 0 r9
+;STOREI r9 $7
+;UNLINK
+;RET
+;JUMP END_IF_ELSE4
+;LABEL ELSE_3
+;STOREI 1 r10
+;NEI $2 r10 ELSE_5
+;STOREI 1 r11
+;STOREI r11 $7
+;UNLINK
+;RET
+;JUMP END_IF_ELSE6
+;LABEL ELSE_5
+;STOREI 1 r12
+;STOREI r12 $7
+;UNLINK
+;RET
+;LABEL END_IF_ELSE6
+;LABEL END_IF_ELSE4
+;LABEL END_IF_ELSE2
+;LABEL FUNC_main
+;LINK 3
+;WRITES outputStart
+;WRITES input
+;READI $-2
+;STOREI 0 r13
+;STOREI r13 $-1
+;LABEL WHILE_START_7
+;STOREI $-2 r14
+;EQI $-1 r14 WHILE_END_8
+;PUSH
+;PUSHREGS
+;PUSH $-1
+;JSR FUNC_F
+;POP
+;POPREGS
+;POP r15
+;STOREI r15 $-3
+;WRITEI $-1
+;WRITES space
+;WRITEI $-3
+;WRITES eol
+;STOREI 1 r16
+;ADDI $-1 r16 r17
+;STOREI r17 $-1
+;JUMP WHILE_START_7
+;STOREI 0 r18
+;STOREI r18 $6
+;UNLINK
+;RET
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+str input "Please input an integer number: "
+str space " "
+str eol "\n"
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_F
+link 2
+move 2 r0
+cmpi $2 r0
+jle ELSE_1
+move 1 r1
+move $2 r2
+subi r1 r2
+push
+push r0
+push r1
+push r2
+push r3
+push r2
+jsr FUNC_F
+pop r3
+pop r2
+pop r1
+pop r0
+pop r3
+move r3 $-1
+move 2 r4
+move $2 r5
+subi r4 r5
+push
+push r0
+push r1
+push r2
+push r3
+push r5
+jsr FUNC_F
+pop r3
+pop r2
+pop r1
+pop r0
+pop r6
+move r6 $-2
+move $-1 r7
+addi $-2 r7
+move r7 $7
+unlnk
+ret
+jmp END_IF_ELSE2
+label ELSE_1
+move 0 r8
+cmpi $2 r8
+jne ELSE_3
+move 0 r9
+move r9 $7
+unlnk
+ret
+jmp END_IF_ELSE4
+label ELSE_3
+move 1 r10
+cmpi $2 r10
+jne ELSE_5
+move 1 r11
+move r11 $7
+unlnk
+ret
+jmp END_IF_ELSE6
+label ELSE_5
+move 1 r12
+move r12 $7
+unlnk
+ret
+label END_IF_ELSE6
+label END_IF_ELSE4
+label END_IF_ELSE2
+label FUNC_main
+link 3
+sys writes outputStart
+sys writes input
+sys readi $-2
+move 0 r13
+move r13 $-1
+label WHILE_START_7
+move $-2 r14
+cmpi $-1 r14
+jeq WHILE_END_8
+push
+push r0
+push r1
+push r2
+push r3
+push $-1
+jsr FUNC_F
+pop r3
+pop r2
+pop r1
+pop r0
+pop r15
+move r15 $-3
+sys writei $-1
+sys writes space
+sys writei $-3
+sys writes eol
+move 1 r16
+move $-1 r17
+addi r16 r17
+move r17 $-1
+jmp WHILE_START_7
+label WHILE_END_8
+move 0 r18
+move r18 $6
+unlnk
+ret
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: expr
+DECL_LIST of 10 variables
+VAR_REF: outputStart
+VAR_REF: a
+VAR_REF: b
+VAR_REF: c
+VAR_REF: d
+VAR_REF: x
+VAR_REF: y
+VAR_REF: z
+VAR_REF: t
+VAR_REF: newline
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+READ_LIST: a b c d x y z 
+WRITE_LIST: a newline 
+WRITE_LIST: b newline 
+WRITE_LIST: c newline 
+WRITE_LIST: d newline 
+ASSIGN NODE for: a
+WRITE_LIST: a newline 
+ASSIGN NODE for: b
+WRITE_LIST: b newline 
+ASSIGN NODE for: c
+WRITE_LIST: c newline 
+ASSIGN NODE for: d
+WRITE_LIST: d newline 
+ASSIGN NODE for: a
+WRITE_LIST: a newline 
+ASSIGN NODE for: a
+WRITE_LIST: a newline 
+ASSIGN NODE for: b
+WRITE_LIST: b newline 
+ASSIGN NODE for: c
+WRITE_LIST: c newline 
+WRITE_LIST: x newline 
+WRITE_LIST: z newline 
+WRITE_LIST: y newline 
+ASSIGN NODE for: x
+ASSIGN NODE for: y
+WRITE_LIST: x newline 
+WRITE_LIST: y newline 
+ASSIGN NODE for: t
+WRITE_LIST: t newline 
+ASSIGN NODE for: t
+WRITE_LIST: t newline 
+ASSIGN NODE for: t
+WRITE_LIST: t newline 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;READI a
+;READI b
+;READI c
+;READI d
+;READF x
+;READF y
+;READF z
+;WRITEI a
+;WRITES newline
+;WRITEI b
+;WRITES newline
+;WRITEI c
+;WRITES newline
+;WRITEI d
+;WRITES newline
+;ADDI a b r0
+;STOREI r0 a
+;WRITEI a
+;WRITES newline
+;MULI a c r1
+;STOREI r1 b
+;WRITEI b
+;WRITES newline
+;STOREI 0 r2
+;SUBI r2 a r3
+;ADDI r3 b r4
+;STOREI r4 c
+;WRITEI c
+;WRITES newline
+;STOREI 0 r5
+;SUBI r5 d r6
+;STOREI r6 d
+;WRITEI d
+;WRITES newline
+;ADDI a b r7
+;ADDI d c r8
+;MULI r7 r8 r9
+;ADDI c d r10
+;ADDI b r10 r11
+;ADDI a r11 r12
+;DIVI r12 a r13
+;SUBI r9 r13 r14
+;STOREI r14 a
+;WRITEI a
+;WRITES newline
+;STOREI 10 r15
+;ADDI a r15 r16
+;STOREI r16 a
+;WRITEI a
+;WRITES newline
+;STOREI 10 r17
+;ADDI a r17 r18
+;ADDI b r18 r19
+;STOREI r19 b
+;WRITEI b
+;WRITES newline
+;STOREI 0 r20
+;STOREI 10 r21
+;SUBI r20 r21 r22
+;STOREI r22 c
+;WRITEI c
+;WRITES newline
+;WRITEF x
+;WRITES newline
+;WRITEF z
+;WRITES newline
+;WRITEF y
+;WRITES newline
+;STOREF 2.0 r23
+;DIVF z r23 r24
+;STOREF r24 x
+;DIVF z y r25
+;STOREF r25 y
+;WRITEF x
+;WRITES newline
+;WRITEF y
+;WRITES newline
+;ADDF y z r26
+;ADDF x r26 r27
+;DIVF r27 z r28
+;STOREF r28 t
+;WRITEF t
+;WRITES newline
+;MULF t t r29
+;STOREF r29 t
+;WRITEF t
+;WRITES newline
+;STOREF 2.0 r30
+;DIVF t r30 r31
+;ADDF t r31 r32
+;ADDF z r32 r33
+;ADDF t r33 r34
+;STOREF 4.0 r35
+;DIVF z r35 r36
+;ADDF r34 r36 r37
+;STOREF 5.0 r38
+;DIVF z r38 r39
+;ADDF r37 r39 r40
+;STOREF 6.0 r41
+;DIVF z r41 r42
+;ADDF r40 r42 r43
+;STOREF 7.0 r44
+;DIVF z r44 r45
+;ADDF r43 r45 r46
+;STOREF r46 t
+;WRITEF t
+;WRITES newline
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var a
+var b
+var c
+var d
+var x
+var y
+var z
+var t
+str newline "\n"
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+sys readi a
+sys readi b
+sys readi c
+sys readi d
+sys readr x
+sys readr y
+sys readr z
+sys writei a
+sys writes newline
+sys writei b
+sys writes newline
+sys writei c
+sys writes newline
+sys writei d
+sys writes newline
+move a r0
+addi b r0
+move r0 a
+sys writei a
+sys writes newline
+move a r1
+muli c r1
+move r1 b
+sys writei b
+sys writes newline
+move 0 r2
+move r2 r3
+subi a r3
+move r3 r4
+addi b r4
+move r4 c
+sys writei c
+sys writes newline
+move 0 r5
+move r5 r6
+subi d r6
+move r6 d
+sys writei d
+sys writes newline
+move a r7
+addi b r7
+move d r8
+addi c r8
+move r7 r9
+muli r8 r9
+move c r10
+addi d r10
+move b r11
+addi r10 r11
+move a r12
+addi r11 r12
+move r12 r13
+divi a r13
+move r9 r14
+subi r13 r14
+move r14 a
+sys writei a
+sys writes newline
+move 10 r15
+move a r16
+addi r15 r16
+move r16 a
+sys writei a
+sys writes newline
+move 10 r17
+move a r18
+addi r17 r18
+move b r19
+addi r18 r19
+move r19 b
+sys writei b
+sys writes newline
+move 0 r20
+move 10 r21
+move r20 r22
+subi r21 r22
+move r22 c
+sys writei c
+sys writes newline
+sys writer x
+sys writes newline
+sys writer z
+sys writes newline
+sys writer y
+sys writes newline
+move 2.0 r23
+move z r24
+divr r23 r24
+move r24 x
+move z r25
+divr y r25
+move r25 y
+sys writer x
+sys writes newline
+sys writer y
+sys writes newline
+move y r26
+addr z r26
+move x r27
+addr r26 r27
+move r27 r28
+divr z r28
+move r28 t
+sys writer t
+sys writes newline
+move t r29
+mulr t r29
+move r29 t
+sys writer t
+sys writes newline
+move 2.0 r30
+move t r31
+divr r30 r31
+move t r32
+addr r31 r32
+move z r33
+addr r32 r33
+move t r34
+addr r33 r34
+move 4.0 r35
+move z r36
+divr r35 r36
+move r34 r37
+addr r36 r37
+move 5.0 r38
+move z r39
+divr r38 r39
+move r37 r40
+addr r39 r40
+move 6.0 r41
+move z r42
+divr r41 r42
+move r40 r43
+addr r42 r43
+move 7.0 r44
+move z r45
+divr r44 r45
+move r43 r46
+addr r45 r46
+move r46 t
+sys writer t
+sys writes newline
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: factorial
+DECL_LIST of 9 variables
+VAR_REF: outputStart
+VAR_REF: intro
+VAR_REF: first
+VAR_REF: second
+VAR_REF: third
+VAR_REF: eol
+VAR_REF: star
+VAR_REF: plus
+VAR_REF: equal
+FUNC_add
+PARAM_LIST with 2 parameters
+VAR_REF: a
+VAR_REF: b
+DECL_LIST of 1 variables
+VAR_REF: result
+STMT_LIST
+ASSIGN NODE for: result
+RETURN_STMT to offset [8]
+VAR_REF: result
+FUNC_multiply
+PARAM_LIST with 2 parameters
+VAR_REF: a
+VAR_REF: b
+DECL_LIST of 1 variables
+VAR_REF: result
+STMT_LIST
+ASSIGN NODE for: result
+RETURN_STMT to offset [8]
+VAR_REF: result
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 5 variables
+VAR_REF: a
+VAR_REF: b
+VAR_REF: c
+VAR_REF: addresult
+VAR_REF: multiplyresult
+STMT_LIST
+WRITE_LIST: outputStart 
+WRITE_LIST: intro first 
+READ_LIST: a 
+WRITE_LIST: second 
+READ_LIST: b 
+WRITE_LIST: third 
+READ_LIST: c 
+ASSIGN NODE for: multiplyresult
+CALL_LIST with 2 arguments at line 38
+a [-1]
+b [-2]
+ASSIGN NODE for: addresult
+CALL_LIST with 2 arguments at line 39
+multiplyresult [-5]
+c [-3]
+WRITE_LIST: a star b plus c equal addresult eol 
+RETURN_STMT to offset [6]
+RETURN LITERAL: 0
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_add
+;LINK 1
+;ADDF $3 $2 r0
+;STOREF r0 $-1
+;STOREF $-1 r1
+;STOREF r1 $8
+;UNLINK
+;RET
+;LABEL FUNC_multiply
+;LINK 1
+;MULF $3 $2 r2
+;STOREF r2 $-1
+;STOREF $-1 r3
+;STOREF r3 $8
+;UNLINK
+;RET
+;LABEL FUNC_main
+;LINK 5
+;WRITES outputStart
+;WRITES intro
+;WRITES first
+;READF $-1
+;WRITES second
+;READF $-2
+;WRITES third
+;READF $-3
+;PUSH
+;PUSHREGS
+;PUSH $-1
+;PUSH $-2
+;JSR FUNC_multiply
+;POP
+;POP
+;POPREGS
+;POP r4
+;STOREF r4 $-5
+;PUSH
+;PUSHREGS
+;PUSH $-5
+;PUSH $-3
+;JSR FUNC_add
+;POP
+;POP
+;POPREGS
+;POP r5
+;STOREF r5 $-4
+;WRITEF $-1
+;WRITES star
+;WRITEF $-2
+;WRITES plus
+;WRITEF $-3
+;WRITES equal
+;WRITEF $-4
+;WRITES eol
+;STOREI 0 r6
+;STOREI r6 $6
+;UNLINK
+;RET
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+str intro "You will be asked for three float numbers\n"
+str first "Please enter the first float number: "
+str second "Please enter the second float number: "
+str third "Please enter the third float number: "
+str eol "\n"
+str star "*"
+str plus "+"
+str equal "="
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_add
+link 1
+move $3 r0
+addr $2 r0
+move r0 $-1
+move $-1 r1
+move r1 $8
+unlnk
+ret
+label FUNC_multiply
+link 1
+move $3 r2
+mulr $2 r2
+move r2 $-1
+move $-1 r3
+move r3 $8
+unlnk
+ret
+label FUNC_main
+link 5
+sys writes outputStart
+sys writes intro
+sys writes first
+sys readr $-1
+sys writes second
+sys readr $-2
+sys writes third
+sys readr $-3
+push
+push r0
+push r1
+push r2
+push r3
+push $-1
+push $-2
+jsr FUNC_multiply
+pop r3
+pop r2
+pop r1
+pop r0
+pop r4
+move r4 $-5
+push
+push r0
+push r1
+push r2
+push r3
+push $-5
+push $-3
+jsr FUNC_add
+pop r3
+pop r2
+pop r1
+pop r0
+pop r5
+move r5 $-4
+sys writer $-1
+sys writes star
+sys writer $-2
+sys writes plus
+sys writer $-3
+sys writes equal
+sys writer $-4
+sys writes eol
+move 0 r6
+move r6 $6
+unlnk
+ret
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: factorial2
+DECL_LIST of 3 variables
+VAR_REF: outputStart
+VAR_REF: input
+VAR_REF: eol
+FUNC_factorial
+PARAM_LIST with 1 parameters
+VAR_REF: a
+DECL_LIST of 2 variables
+VAR_REF: ret
+VAR_REF: tret
+STMT_LIST
+IF_LIST
+COMP_NODE: 5
+IF_STMT_LIST
+RETURN_STMT to offset [7]
+RETURN LITERAL: 1
+ELSE_LIST
+STMT_LIST
+ASSIGN NODE for: tret
+CALL_LIST with 1 arguments at line 14
+EXPRESSION
+ASSIGN NODE for: ret
+ENDIF
+RETURN_STMT to offset [7]
+VAR_REF: ret
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 2 variables
+VAR_REF: num
+VAR_REF: result
+STMT_LIST
+WRITE_LIST: outputStart 
+WRITE_LIST: input 
+READ_LIST: num 
+IF_LIST
+COMP_NODE: 5
+IF_STMT_LIST
+ASSIGN NODE for: result
+ELSE_LIST
+STMT_LIST
+IF_LIST
+COMP_NODE: 0
+IF_STMT_LIST
+ASSIGN NODE for: result
+CALL_LIST with 1 arguments at line 32
+num [-1]
+ELSE_LIST
+STMT_LIST
+ASSIGN NODE for: result
+ENDIF
+ENDIF
+WRITE_LIST: result eol 
+RETURN_STMT to offset [6]
+RETURN LITERAL: 0
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_factorial
+;LINK 2
+;STOREI 1 r0
+;NEI $2 r0 ELSE_1
+;STOREI 1 r1
+;STOREI r1 $7
+;UNLINK
+;RET
+;JUMP END_IF_ELSE2
+;LABEL ELSE_1
+;STOREI 1 r2
+;SUBI $2 r2 r3
+;PUSH
+;PUSHREGS
+;PUSH r3
+;JSR FUNC_factorial
+;POP
+;POPREGS
+;POP r4
+;STOREI r4 $-2
+;MULI $-2 $2 r5
+;STOREI r5 $-1
+;LABEL END_IF_ELSE2
+;STOREI $-1 r6
+;STOREI r6 $7
+;UNLINK
+;RET
+;LABEL FUNC_main
+;LINK 2
+;WRITES outputStart
+;WRITES input
+;READI $-1
+;STOREI 1 r7
+;NEI $-1 r7 ELSE_3
+;STOREI 1 r8
+;STOREI r8 $-2
+;JUMP END_IF_ELSE4
+;LABEL ELSE_3
+;STOREI 1 r9
+;LEI $-1 r9 ELSE_5
+;PUSH
+;PUSHREGS
+;PUSH $-1
+;JSR FUNC_factorial
+;POP
+;POPREGS
+;POP r10
+;STOREI r10 $-2
+;JUMP END_IF_ELSE6
+;LABEL ELSE_5
+;STOREI 0 r11
+;STOREI r11 $-2
+;LABEL END_IF_ELSE6
+;LABEL END_IF_ELSE4
+;WRITEI $-2
+;WRITES eol
+;STOREI 0 r12
+;STOREI r12 $6
+;UNLINK
+;RET
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+str input "Please enter an integer number: "
+str eol "\n"
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_factorial
+link 2
+move 1 r0
+cmpi $2 r0
+jne ELSE_1
+move 1 r1
+move r1 $7
+unlnk
+ret
+jmp END_IF_ELSE2
+label ELSE_1
+move 1 r2
+move $2 r3
+subi r2 r3
+push
+push r0
+push r1
+push r2
+push r3
+push r3
+jsr FUNC_factorial
+pop r3
+pop r2
+pop r1
+pop r0
+pop r4
+move r4 $-2
+move $-2 r5
+muli $2 r5
+move r5 $-1
+label END_IF_ELSE2
+move $-1 r6
+move r6 $7
+unlnk
+ret
+label FUNC_main
+link 2
+sys writes outputStart
+sys writes input
+sys readi $-1
+move 1 r7
+cmpi $-1 r7
+jne ELSE_3
+move 1 r8
+move r8 $-2
+jmp END_IF_ELSE4
+label ELSE_3
+move 1 r9
+cmpi $-1 r9
+jle ELSE_5
+push
+push r0
+push r1
+push r2
+push r3
+push $-1
+jsr FUNC_factorial
+pop r3
+pop r2
+pop r1
+pop r0
+pop r10
+move r10 $-2
+jmp END_IF_ELSE6
+label ELSE_5
+move 0 r11
+move r11 $-2
+label END_IF_ELSE6
+label END_IF_ELSE4
+sys writei $-2
+sys writes eol
+move 0 r12
+move r12 $6
+unlnk
+ret
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: expr
+DECL_LIST of 7 variables
+VAR_REF: outputStart
+VAR_REF: a
+VAR_REF: b
+VAR_REF: c
+VAR_REF: d
+VAR_REF: e
+VAR_REF: newline
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+ASSIGN NODE for: a
+ASSIGN NODE for: b
+READ_LIST: c d 
+ASSIGN NODE for: e
+ASSIGN NODE for: a
+WRITE_LIST: a newline c newline d newline e newline 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;STOREI 1 r0
+;STOREI r0 a
+;STOREI 2 r1
+;STOREI r1 b
+;READI c
+;READI d
+;MULI a c r2
+;MULI b d r3
+;ADDI r2 r3 r4
+;STOREI r4 e
+;MULI c d r5
+;MULI b r5 r6
+;MULI a r6 r7
+;STOREI r7 a
+;WRITEI a
+;WRITES newline
+;WRITEI c
+;WRITES newline
+;WRITEI d
+;WRITES newline
+;WRITEI e
+;WRITES newline
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var a
+var b
+var c
+var d
+var e
+str newline "\n"
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+move 1 r0
+move r0 a
+move 2 r1
+move r1 b
+sys readi c
+sys readi d
+move a r2
+muli c r2
+move b r3
+muli d r3
+move r2 r4
+addi r3 r4
+move r4 e
+move c r5
+muli d r5
+move b r6
+muli r5 r6
+move a r7
+muli r6 r7
+move r7 a
+sys writei a
+sys writes newline
+sys writei c
+sys writes newline
+sys writei d
+sys writes newline
+sys writei e
+sys writes newline
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: nested
+DECL_LIST of 6 variables
+VAR_REF: outputStart
+VAR_REF: dummy
+VAR_REF: i
+VAR_REF: j
+VAR_REF: k
+VAR_REF: result
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+ASSIGN NODE for: i
+ASSIGN NODE for: j
+ASSIGN NODE for: k
+ASSIGN NODE for: result
+WHILE_LIST
+COMP_NODE: 3
+WHILE_STMT_LIST
+WHILE_LIST
+COMP_NODE: 3
+WHILE_STMT_LIST
+WHILE_LIST
+COMP_NODE: 2
+WHILE_STMT_LIST
+ASSIGN NODE for: result
+ASSIGN NODE for: k
+ENDWHILE
+ASSIGN NODE for: j
+ENDWHILE
+ASSIGN NODE for: i
+ENDWHILE
+WRITE_LIST: result 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;STOREI 0 r0
+;STOREI r0 i
+;STOREI 0 r1
+;STOREI r1 j
+;STOREI 0 r2
+;STOREI r2 k
+;STOREI 0 r3
+;STOREI r3 result
+;LABEL WHILE_START_1
+;STOREI 99 r4
+;GTI i r4 WHILE_END_2
+;LABEL WHILE_START_3
+;STOREI 99 r5
+;GTI j r5 WHILE_END_4
+;LABEL WHILE_START_5
+;STOREI 100 r6
+;GEI k r6 WHILE_END_6
+;STOREI 1 r7
+;ADDI result r7 r8
+;STOREI r8 result
+;STOREI 1 r9
+;ADDI k r9 r10
+;STOREI r10 k
+;JUMP WHILE_START_5
+;STOREI 1 r11
+;ADDI j r11 r12
+;STOREI r12 j
+;JUMP WHILE_START_3
+;STOREI 1 r13
+;ADDI i r13 r14
+;STOREI r14 i
+;JUMP WHILE_START_1
+;WRITEI result
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+str dummy "abcde"
+var i
+var j
+var k
+var result
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+move 0 r0
+move r0 i
+move 0 r1
+move r1 j
+move 0 r2
+move r2 k
+move 0 r3
+move r3 result
+label WHILE_START_1
+move 99 r4
+cmpi i r4
+jgt WHILE_END_2
+label WHILE_START_3
+move 99 r5
+cmpi j r5
+jgt WHILE_END_4
+label WHILE_START_5
+move 100 r6
+cmpi k r6
+jge WHILE_END_6
+move 1 r7
+move result r8
+addi r7 r8
+move r8 result
+move 1 r9
+move k r10
+addi r9 r10
+move r10 k
+jmp WHILE_START_5
+label WHILE_END_6
+move 1 r11
+move j r12
+addi r11 r12
+move r12 j
+jmp WHILE_START_3
+label WHILE_END_4
+move 1 r13
+move i r14
+addi r13 r14
+move r14 i
+jmp WHILE_START_1
+label WHILE_END_2
+sys writei result
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: test
+DECL_LIST of 15 variables
+VAR_REF: outputStart
+VAR_REF: test
+VAR_REF: a
+VAR_REF: b
+VAR_REF: c
+VAR_REF: g
+VAR_REF: h
+VAR_REF: i
+VAR_REF: j
+VAR_REF: k
+VAR_REF: l
+VAR_REF: p
+VAR_REF: o
+VAR_REF: u
+VAR_REF: y
+FUNC_main
+PARAM_LIST with 1 parameters
+VAR_REF: a
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+ASSIGN NODE for: i
+ASSIGN NODE for: j
+ASSIGN NODE for: b
+WHILE_LIST
+COMP_NODE: 3
+WHILE_STMT_LIST
+ASSIGN NODE for: a
+WHILE_LIST
+COMP_NODE: 3
+WHILE_STMT_LIST
+ASSIGN NODE for: a
+ENDWHILE
+ASSIGN NODE for: b
+ENDWHILE
+WRITE_LIST: a 
+RETURN_STMT to offset [7]
+RETURN EXPRESSION
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;STOREI 10 r0
+;STOREI r0 i
+;STOREI 10 r1
+;STOREI r1 j
+;STOREI 1 r2
+;STOREI r2 b
+;LABEL WHILE_START_1
+;STOREI 1 r3
+;SUBI i r3 r4
+;GTI b r4 WHILE_END_2
+;STOREI 1 r5
+;STOREI r5 a
+;LABEL WHILE_START_3
+;STOREI 1 r6
+;SUBI j r6 r7
+;GTI a r7 WHILE_END_4
+;STOREI 1 r8
+;ADDI a r8 r9
+;STOREI r9 a
+;JUMP WHILE_START_3
+;STOREI 1 r10
+;ADDI b r10 r11
+;STOREI r11 b
+;JUMP WHILE_START_1
+;WRITEI a
+;ADDI a b r12
+;STOREI r12 $7
+;UNLINK
+;RET
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+str test "test"
+var a
+var b
+var c
+var g
+var h
+var i
+var j
+var k
+var l
+var p
+var o
+var u
+var y
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+move 10 r0
+move r0 i
+move 10 r1
+move r1 j
+move 1 r2
+move r2 b
+label WHILE_START_1
+move 1 r3
+move i r4
+subi r3 r4
+cmpi b r4
+jgt WHILE_END_2
+move 1 r5
+move r5 a
+label WHILE_START_3
+move 1 r6
+move j r7
+subi r6 r7
+cmpi a r7
+jgt WHILE_END_4
+move 1 r8
+move a r9
+addi r8 r9
+move r9 a
+jmp WHILE_START_3
+label WHILE_END_4
+move 1 r10
+move b r11
+addi r10 r11
+move r11 b
+jmp WHILE_START_1
+label WHILE_END_2
+sys writei a
+move a r12
+addi b r12
+move r12 $7
+unlnk
+ret
+unlnk
+ret
+./runme: line 7: 32281 Segmentation fault      (core dumped) ./a.out $1 $2
+
+Printing AST Tree..
+PROGRAM: test
+DECL_LIST of 7 variables
+VAR_REF: outputStart
+VAR_REF: i
+VAR_REF: j
+VAR_REF: newapprox
+VAR_REF: approx
+VAR_REF: num
+VAR_REF: eol
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+READ_LIST: num 
+ASSIGN NODE for: j
+ASSIGN NODE for: approx
+ASSIGN NODE for: i
+WHILE_LIST
+COMP_NODE: 4
+WHILE_STMT_LIST
+ASSIGN NODE for: newapprox
+ASSIGN NODE for: approx
+ASSIGN NODE for: i
+ENDWHILE
+WRITE_LIST: approx eol 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;READF num
+;STOREI 1 r0
+;STOREI r0 j
+;STOREF num r1
+;STOREF r1 approx
+;STOREI 100 r2
+;STOREI r2 i
+;LABEL WHILE_START_1
+;STOREI 0 r3
+;EQI i r3 WHILE_END_2
+;STOREF 0.5 r4
+;DIVF num approx r5
+;ADDF approx r5 r6
+;MULF r4 r6 r7
+;STOREF r7 newapprox
+;STOREF newapprox r8
+;STOREF r8 approx
+;STOREI 1 r9
+;SUBI i r9 r10
+;STOREI r10 i
+;JUMP WHILE_START_1
+;WRITEF approx
+;WRITES eol
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var i
+var j
+var newapprox
+var approx
+var num
+str eol "\n"
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+sys readr num
+move 1 r0
+move r0 j
+move num r1
+move r1 approx
+move 100 r2
+move r2 i
+label WHILE_START_1
+move 0 r3
+cmpi i r3
+jeq WHILE_END_2
+move 0.5 r4
+move num r5
+divr approx r5
+move approx r6
+addr r5 r6
+move r4 r7
+mulr r6 r7
+move r7 newapprox
+move newapprox r8
+move r8 approx
+move 1 r9
+move i r10
+subi r9 r10
+move r10 i
+jmp WHILE_START_1
+label WHILE_END_2
+sys writer approx
+sys writes eol
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: test
+DECL_LIST of 10 variables
+VAR_REF: outputStart
+VAR_REF: count
+VAR_REF: enough
+VAR_REF: newapprox
+VAR_REF: approx
+VAR_REF: num
+VAR_REF: tolerance
+VAR_REF: diff
+VAR_REF: eol
+VAR_REF: space
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+ASSIGN NODE for: tolerance
+READ_LIST: num 
+ASSIGN NODE for: approx
+ASSIGN NODE for: count
+ASSIGN NODE for: diff
+ASSIGN NODE for: enough
+WHILE_LIST
+COMP_NODE: 4
+WHILE_STMT_LIST
+ASSIGN NODE for: count
+ASSIGN NODE for: newapprox
+ASSIGN NODE for: diff
+IF_LIST
+COMP_NODE: 0
+IF_STMT_LIST
+IF_LIST
+COMP_NODE: 2
+IF_STMT_LIST
+ASSIGN NODE for: enough
+ELSE_LIST
+STMT_LIST
+ENDIF
+ELSE_LIST
+STMT_LIST
+IF_LIST
+COMP_NODE: 0
+IF_STMT_LIST
+ASSIGN NODE for: enough
+ELSE_LIST
+STMT_LIST
+ENDIF
+ENDIF
+ASSIGN NODE for: approx
+ENDWHILE
+WRITE_LIST: approx space 
+WRITE_LIST: count eol 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;STOREF 0.0001 r0
+;STOREF r0 tolerance
+;READF num
+;STOREF num r1
+;STOREF r1 approx
+;STOREI 0 r2
+;STOREI r2 count
+;STOREF 0.0 r3
+;STOREF r3 diff
+;STOREI 0 r4
+;STOREI r4 enough
+;LABEL WHILE_START_1
+;STOREI 1 r5
+;EQI enough r5 WHILE_END_2
+;STOREI 1 r6
+;ADDI count r6 r7
+;STOREI r7 count
+;STOREF 0.5 r8
+;DIVF num approx r9
+;ADDF approx r9 r10
+;MULF r8 r10 r11
+;STOREF r11 newapprox
+;SUBF approx newapprox r12
+;STOREF r12 diff
+;STOREF 0.0 r13
+;LEF diff r13 ELSE_3
+;STOREF tolerance r14
+;GEF diff r14 ELSE_5
+;STOREI 1 r15
+;STOREI r15 enough
+;JUMP END_IF_ELSE6
+;LABEL ELSE_5
+;LABEL END_IF_ELSE6
+;JUMP END_IF_ELSE4
+;LABEL ELSE_3
+;STOREF 0.0 r16
+;SUBF r16 tolerance r17
+;LEF diff r17 ELSE_7
+;STOREI 1 r18
+;STOREI r18 enough
+;JUMP END_IF_ELSE8
+;LABEL ELSE_7
+;LABEL END_IF_ELSE8
+;LABEL END_IF_ELSE4
+;STOREF newapprox r19
+;STOREF r19 approx
+;JUMP WHILE_START_1
+;WRITEF approx
+;WRITES space
+;WRITEI count
+;WRITES eol
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var count
+var enough
+var newapprox
+var approx
+var num
+var tolerance
+var diff
+str eol "\n"
+str space " "
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+move 0.0001 r0
+move r0 tolerance
+sys readr num
+move num r1
+move r1 approx
+move 0 r2
+move r2 count
+move 0.0 r3
+move r3 diff
+move 0 r4
+move r4 enough
+label WHILE_START_1
+move 1 r5
+cmpi enough r5
+jeq WHILE_END_2
+move 1 r6
+move count r7
+addi r6 r7
+move r7 count
+move 0.5 r8
+move num r9
+divr approx r9
+move approx r10
+addr r9 r10
+move r8 r11
+mulr r10 r11
+move r11 newapprox
+move approx r12
+subr newapprox r12
+move r12 diff
+move 0.0 r13
+cmpr diff r13
+jle ELSE_3
+move tolerance r14
+cmpr diff r14
+jge ELSE_5
+move 1 r15
+move r15 enough
+jmp END_IF_ELSE6
+label ELSE_5
+label END_IF_ELSE6
+jmp END_IF_ELSE4
+label ELSE_3
+move 0.0 r16
+move r16 r17
+subr tolerance r17
+cmpr diff r17
+jle ELSE_7
+move 1 r18
+move r18 enough
+jmp END_IF_ELSE8
+label ELSE_7
+label END_IF_ELSE8
+label END_IF_ELSE4
+move newapprox r19
+move r19 approx
+jmp WHILE_START_1
+label WHILE_END_2
+sys writer approx
+sys writes space
+sys writei count
+sys writes eol
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: test
+DECL_LIST of 4 variables
+VAR_REF: outputStart
+VAR_REF: i
+VAR_REF: a
+VAR_REF: num
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+ASSIGN NODE for: num
+ASSIGN NODE for: i
+ASSIGN NODE for: a
+IF_LIST
+COMP_NODE: 2
+IF_STMT_LIST
+ASSIGN NODE for: num
+IF_LIST
+COMP_NODE: 2
+IF_STMT_LIST
+ASSIGN NODE for: num
+ELSE_LIST
+STMT_LIST
+ENDIF
+ELSE_LIST
+STMT_LIST
+IF_LIST
+COMP_NODE: 1
+IF_STMT_LIST
+ASSIGN NODE for: num
+ELSE_LIST
+STMT_LIST
+ENDIF
+ENDIF
+WRITE_LIST: num 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;STOREI 7 r0
+;STOREI r0 num
+;STOREI 2 r1
+;STOREI r1 i
+;STOREI 42 r2
+;STOREI r2 a
+;STOREI 5 r3
+;GEI i r3 ELSE_1
+;ADDI num a r4
+;STOREI r4 num
+;STOREI 3 r5
+;GEI i r5 ELSE_3
+;ADDI num a r6
+;STOREI r6 num
+;JUMP END_IF_ELSE4
+;LABEL ELSE_3
+;LABEL END_IF_ELSE4
+;JUMP END_IF_ELSE2
+;LABEL ELSE_1
+;STOREI 5 r7
+;LTI i r7 ELSE_5
+;SUBI num a r8
+;STOREI r8 num
+;JUMP END_IF_ELSE6
+;LABEL ELSE_5
+;LABEL END_IF_ELSE6
+;LABEL END_IF_ELSE2
+;WRITEI num
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var i
+var a
+var num
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+move 7 r0
+move r0 num
+move 2 r1
+move r1 i
+move 42 r2
+move r2 a
+move 5 r3
+cmpi i r3
+jge ELSE_1
+move num r4
+addi a r4
+move r4 num
+move 3 r5
+cmpi i r5
+jge ELSE_3
+move num r6
+addi a r6
+move r6 num
+jmp END_IF_ELSE4
+label ELSE_3
+label END_IF_ELSE4
+jmp END_IF_ELSE2
+label ELSE_1
+move 5 r7
+cmpi i r7
+jlt ELSE_5
+move num r8
+subi a r8
+move r8 num
+jmp END_IF_ELSE6
+label ELSE_5
+label END_IF_ELSE6
+label END_IF_ELSE2
+sys writei num
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: test
+DECL_LIST of 10 variables
+VAR_REF: outputStart
+VAR_REF: i
+VAR_REF: a
+VAR_REF: b
+VAR_REF: c
+VAR_REF: x
+VAR_REF: y
+VAR_REF: z
+VAR_REF: h
+VAR_REF: s1
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var i
+var a
+var b
+var c
+var x
+var y
+var z
+var h
+str s1 "string"
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: loop
+DECL_LIST of 9 variables
+VAR_REF: outputStart
+VAR_REF: guess
+VAR_REF: correct
+VAR_REF: wrong
+VAR_REF: out1
+VAR_REF: out2
+VAR_REF: i
+VAR_REF: j
+VAR_REF: k
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+ASSIGN NODE for: i
+ASSIGN NODE for: j
+ASSIGN NODE for: k
+WHILE_LIST
+COMP_NODE: 4
+WHILE_STMT_LIST
+WRITE_LIST: guess 
+READ_LIST: j 
+IF_LIST
+COMP_NODE: 5
+IF_STMT_LIST
+WRITE_LIST: correct 
+ELSE_LIST
+STMT_LIST
+WRITE_LIST: wrong 
+ENDIF
+ASSIGN NODE for: k
+ENDWHILE
+WRITE_LIST: out1 k out2 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;STOREI 17 r0
+;STOREI r0 i
+;STOREI 0 r1
+;STOREI r1 j
+;STOREI 0 r2
+;STOREI r2 k
+;LABEL WHILE_START_1
+;STOREI j r3
+;EQI i r3 WHILE_END_2
+;WRITES guess
+;READI j
+;STOREI j r4
+;NEI i r4 ELSE_3
+;WRITES correct
+;JUMP END_IF_ELSE4
+;LABEL ELSE_3
+;WRITES wrong
+;LABEL END_IF_ELSE4
+;STOREI 1 r5
+;ADDI k r5 r6
+;STOREI r6 k
+;JUMP WHILE_START_1
+;WRITES out1
+;WRITEI k
+;WRITES out2
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+str guess "Guess a number: "
+str correct "Correct!\n"
+str wrong "Wrong!\n"
+str out1 "It took you "
+str out2 " guesses"
+var i
+var j
+var k
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+move 17 r0
+move r0 i
+move 0 r1
+move r1 j
+move 0 r2
+move r2 k
+label WHILE_START_1
+move j r3
+cmpi i r3
+jeq WHILE_END_2
+sys writes guess
+sys readi j
+move j r4
+cmpi i r4
+jne ELSE_3
+sys writes correct
+jmp END_IF_ELSE4
+label ELSE_3
+sys writes wrong
+label END_IF_ELSE4
+move 1 r5
+move k r6
+addi r5 r6
+move r6 k
+jmp WHILE_START_1
+label WHILE_END_2
+sys writes out1
+sys writei k
+sys writes out2
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: sqrt
+DECL_LIST of 9 variables
+VAR_REF: outputStart
+VAR_REF: dummy
+VAR_REF: n
+VAR_REF: x1
+VAR_REF: x2
+VAR_REF: fx
+VAR_REF: dfx
+VAR_REF: error
+VAR_REF: i
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+ASSIGN NODE for: error
+READ_LIST: x1 n 
+ASSIGN NODE for: fx
+ASSIGN NODE for: dfx
+ASSIGN NODE for: x2
+ASSIGN NODE for: i
+WHILE_LIST
+COMP_NODE: 2
+WHILE_STMT_LIST
+ASSIGN NODE for: x1
+ASSIGN NODE for: fx
+ASSIGN NODE for: dfx
+ASSIGN NODE for: x2
+ASSIGN NODE for: i
+ENDWHILE
+WHILE_LIST
+COMP_NODE: 0
+WHILE_STMT_LIST
+ASSIGN NODE for: x1
+ASSIGN NODE for: fx
+ASSIGN NODE for: dfx
+ASSIGN NODE for: x2
+ENDWHILE
+WRITE_LIST: x2 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;STOREF 0.001 r0
+;STOREF r0 error
+;READF x1
+;READF n
+;MULF x1 x1 r1
+;SUBF r1 n r2
+;STOREF r2 fx
+;STOREF 2.0 r3
+;MULF r3 x1 r4
+;STOREF r4 dfx
+;DIVF fx dfx r5
+;SUBF x1 r5 r6
+;STOREF r6 x2
+;STOREI 0 r7
+;STOREI r7 i
+;LABEL WHILE_START_1
+;STOREI 2 r8
+;GEI i r8 WHILE_END_2
+;STOREF x2 r9
+;STOREF r9 x1
+;MULF x1 x1 r10
+;SUBF r10 n r11
+;STOREF r11 fx
+;STOREF 2.0 r12
+;MULF r12 x1 r13
+;STOREF r13 dfx
+;DIVF fx dfx r14
+;SUBF x1 r14 r15
+;STOREF r15 x2
+;STOREI 1 r16
+;ADDI i r16 r17
+;STOREI r17 i
+;JUMP WHILE_START_1
+;LABEL WHILE_START_3
+;SUBF x1 x2 r18
+;STOREF error r19
+;LEF r18 r19 WHILE_END_4
+;STOREF x2 r20
+;STOREF r20 x1
+;MULF x1 x1 r21
+;SUBF r21 n r22
+;STOREF r22 fx
+;STOREF 2.0 r23
+;MULF r23 x1 r24
+;STOREF r24 dfx
+;DIVF fx dfx r25
+;SUBF x1 r25 r26
+;STOREF r26 x2
+;JUMP WHILE_START_3
+;WRITEF x2
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+str dummy "abcde"
+var n
+var x1
+var x2
+var fx
+var dfx
+var error
+var i
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+move 0.001 r0
+move r0 error
+sys readr x1
+sys readr n
+move x1 r1
+mulr x1 r1
+move r1 r2
+subr n r2
+move r2 fx
+move 2.0 r3
+move r3 r4
+mulr x1 r4
+move r4 dfx
+move fx r5
+divr dfx r5
+move x1 r6
+subr r5 r6
+move r6 x2
+move 0 r7
+move r7 i
+label WHILE_START_1
+move 2 r8
+cmpi i r8
+jge WHILE_END_2
+move x2 r9
+move r9 x1
+move x1 r10
+mulr x1 r10
+move r10 r11
+subr n r11
+move r11 fx
+move 2.0 r12
+move r12 r13
+mulr x1 r13
+move r13 dfx
+move fx r14
+divr dfx r14
+move x1 r15
+subr r14 r15
+move r15 x2
+move 1 r16
+move i r17
+addi r16 r17
+move r17 i
+jmp WHILE_START_1
+label WHILE_END_2
+label WHILE_START_3
+move x1 r18
+subr x2 r18
+move error r19
+cmpr r18 r19
+jle WHILE_END_4
+move x2 r20
+move r20 x1
+move x1 r21
+mulr x1 r21
+move r21 r22
+subr n r22
+move r22 fx
+move 2.0 r23
+move r23 r24
+mulr x1 r24
+move r24 dfx
+move fx r25
+divr dfx r25
+move x1 r26
+subr r25 r26
+move r26 x2
+jmp WHILE_START_3
+label WHILE_END_4
+sys writer x2
+unlnk
+ret
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test17.micro
+Key output:
+ Start of tinyOutput
+Please input an integer number: 0 0
+1 1
+2 1
+3 2
+4 3
+5 5
+6 8
+7 13
+8 21
+9 34
+10 55
+11 89
+12 144
+13 233
+14 377
+15 610
+
+
+Student output:
+ 
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test20.micro
+Key output:
+ Start of tinyOutput
+692
+920
+920
+3.55
+
+
+Student output:
+ error on line 67 : illegal operand
+error on line 77 : both  operands are memory refs
+error on line 78 : illegal operand type
+error on line 79 : both  operands are memory refs
+error on line 80 : illegal operand type
+error on line 81 : both  operands are memory refs
+error on line 82 : illegal operand type
+error on line 83 : both  operands are memory refs
+error on line 84 : illegal operand type
+error on line 85 : both  operands are memory refs
+error on line 86 : illegal operand type
+error on line 88 : both  operands are memory refs
+error on line 89 : illegal operand type
+error on line 90 : both  operands are memory refs
+error on line 91 : both  operands are memory refs
+error on line 92 : illegal operand type
+error on line 93 : both  operands are memory refs
+error on line 94 : illegal operand type
+error on line 95 : both  operands are memory refs
+error on line 96 : both  operands are memory refs
+error on line 97 : illegal operand type
+error on line 98 : both  operands are memory refs
+error on line 99 : illegal operand type
+error on line 100 : both  operands are memory refs
+error on line 108 : both  operands are memory refs
+error on line 110 : both  operands are memory refs
+error on line 112 : both  operands are memory refs
+error on line 113 : both  operands are memory refs
+error on line 114 : illegal operand type
+error on line 115 : both  operands are memory refs
+error on line 116 : illegal operand type
+error on line 117 : both  operands are memory refs
+error on line 118 : illegal operand type
+error on line 119 : both  operands are memory refs
+error on line 120 : illegal operand type
+error on line 121 : both  operands are memory refs
+error on line 77 identifier r4 not defined
+error on line 78 identifier r4 not defined
+error on line 79 identifier r5 not defined
+error on line 80 identifier r5 not defined
+error on line 81 identifier r5 not defined
+error on line 81 identifier r6 not defined
+error on line 82 identifier r6 not defined
+error on line 83 identifier r6 not defined
+error on line 83 identifier r7 not defined
+error on line 84 identifier r7 not defined
+error on line 85 identifier r4 not defined
+error on line 85 identifier r8 not defined
+error on line 86 identifier r7 not defined
+error on line 86 identifier r8 not defined
+error on line 87 identifier r9 not defined
+error on line 88 identifier r8 not defined
+error on line 88 identifier r10 not defined
+error on line 89 identifier r9 not defined
+error on line 89 identifier r10 not defined
+error on line 90 identifier r10 not defined
+error on line 91 identifier r11 not defined
+error on line 92 identifier r11 not defined
+error on line 93 identifier r11 not defined
+error on line 93 identifier r12 not defined
+error on line 94 identifier r12 not defined
+error on line 95 identifier r12 not defined
+error on line 96 identifier r13 not defined
+error on line 97 identifier r13 not defined
+error on line 98 identifier r13 not defined
+error on line 98 identifier r14 not defined
+error on line 99 identifier r14 not defined
+error on line 100 identifier r14 not defined
+error on line 107 identifier r15 not defined
+error on line 108 identifier r15 not defined
+error on line 109 identifier r16 not defined
+error on line 110 identifier r16 not defined
+error on line 111 identifier r17 not defined
+error on line 112 identifier r17 not defined
+error on line 113 identifier r18 not defined
+error on line 114 identifier r18 not defined
+error on line 115 identifier r18 not defined
+error on line 115 identifier r19 not defined
+error on line 116 identifier r19 not defined
+error on line 117 identifier r20 not defined
+error on line 118 identifier r20 not defined
+error on line 119 identifier r19 not defined
+error on line 119 identifier r21 not defined
+error on line 120 identifier r20 not defined
+error on line 120 identifier r21 not defined
+error on line 121 identifier r21 not defined
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test19.micro
+Key output:
+ Start of tinyOutput
+698983568356
+
+Student output:
+ error on line 44 : illegal operand
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test13.micro
+Key output:
+ Start of tinyOutput
+109011
+
+Student output:
+ error on line 75 : illegal operand
+error on line 84 : illegal operand
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test2.micro
+Key output:
+ Start of tinyOutput
+Please input an integer number: 0 0
+1 1
+2 1
+3 2
+4 3
+5 5
+6 8
+7 13
+8 21
+9 34
+10 55
+11 89
+12 144
+13 233
+14 377
+15 610
+16 987
+17 1597
+18 2584
+19 4181
+
+
+Student output:
+ Start of tinyOutput
+Please input an integer number: 0 0
+1 1
+2 1
+3 2
+4 3
+5 5
+6 8
+7 13
+8 21
+9 34
+10 55
+11 89
+12 144
+13 233
+14 377
+15 610
+16 987
+17 1597
+18 2584
+19 4181
+
+
+Testing..... step8_test21.micro
+Key output:
+ Start of tinyOutput
+80
+6
+51
+73
+86
+4386
+4300
+-73
+18903043
+18903053
+18907449
+-10
+37.6029
+17.9694
+62.102
+8.98472
+0.289354
+1.5161
+2.29857
+37.3641
+
+
+Student output:
+ error on line 136 : illegal operand
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test3.micro
+Key output:
+ Start of tinyOutput
+You will be asked for three float numbers
+Please enter the first float number: Please enter the second float number: Please enter the third float number: 4.70708*89.7496+53.3753=475.834
+
+
+Student output:
+ Start of tinyOutput
+You will be asked for three float numbers
+Please enter the first float number: Please enter the second float number: Please enter the third float number: 4.70708*89.7496+53.3753=475.834
+
+
+Testing..... step8_test1.micro
+Key output:
+ Start of tinyOutput
+Please enter an integer number: 120
+
+
+Student output:
+ Start of tinyOutput
+Please enter an integer number: 120
+
+
+Testing..... step8_test12.micro
+Key output:
+ Start of tinyOutput
+750
+5
+75
+155
+
+
+Student output:
+ error on line 48 : illegal operand
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test5.micro
+Key output:
+ Start of tinyOutput
+100
+
+Student output:
+ error on line 58 : illegal operand
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test16.micro
+Key output:
+ Start of tinyOutput
+10
+
+Student output:
+ error on line 63 : illegal operand
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test14.micro
+Key output:
+ Start of tinyOutput
+75
+
+Student output:
+ 
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test10.micro
+Key output:
+ Start of tinyOutput
+9.65244
+
+
+Student output:
+ error on line 49 : illegal operand
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test9.micro
+Key output:
+ Start of tinyOutput
+6.8479 7
+
+
+Student output:
+ error on line 80 : illegal operand
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test11.micro
+Key output:
+ Start of tinyOutput
+91
+
+Student output:
+ error on line 51 : illegal operand
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test15.micro
+Key output:
+ Start of tinyOutput
+
+
+Student output:
+ error on line 29 : illegal operand
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test4.micro
+Key output:
+ Start of tinyOutput
+Guess a number: Correct!
+It took you 1 guesses
+
+Student output:
+ error on line 53 : illegal operand
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test6.micro
+Key output:
+ Start of tinyOutput
+9.21633
+
+Student output:
+ error on line 78 : illegal operand
+
+Number of lines to be diffd from students output is different than solution
+Printing AST Tree..
+PROGRAM: step4
+DECL_LIST of 5 variables
+VAR_REF: outputStart
+VAR_REF: a
+VAR_REF: b
+VAR_REF: i
+VAR_REF: p
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+ASSIGN NODE for: i
+ASSIGN NODE for: a
+ASSIGN NODE for: b
+WHILE_LIST
+COMP_NODE: 4
+WHILE_STMT_LIST
+READ_LIST: p 
+IF_LIST
+COMP_NODE: 0
+IF_STMT_LIST
+ASSIGN NODE for: a
+ELSE_LIST
+STMT_LIST
+ASSIGN NODE for: b
+ENDIF
+ASSIGN NODE for: i
+ENDWHILE
+WRITE_LIST: a 
+WRITE_LIST: b 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;STOREI 0 r0
+;STOREI r0 i
+;STOREI 0 r1
+;STOREI r1 a
+;STOREI 0 r2
+;STOREI r2 b
+;LABEL WHILE_START_1
+;STOREI 10 r3
+;EQI i r3 WHILE_END_2
+;READI p
+;STOREI 10 r4
+;LEI p r4 ELSE_3
+;STOREI 1 r5
+;ADDI a r5 r6
+;STOREI r6 a
+;JUMP END_IF_ELSE4
+;LABEL ELSE_3
+;STOREI 1 r7
+;ADDI b r7 r8
+;STOREI r8 b
+;LABEL END_IF_ELSE4
+;STOREI 1 r9
+;ADDI i r9 r10
+;STOREI r10 i
+;JUMP WHILE_START_1
+;WRITEI a
+;WRITEI b
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var a
+var b
+var i
+var p
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+move 0 r0
+move r0 i
+move 0 r1
+move r1 a
+move 0 r2
+move r2 b
+label WHILE_START_1
+move 10 r3
+cmpi i r3
+jeq WHILE_END_2
+sys readi p
+move 10 r4
+cmpi p r4
+jle ELSE_3
+move 1 r5
+move a r6
+addi r5 r6
+move r6 a
+jmp END_IF_ELSE4
+label ELSE_3
+move 1 r7
+move b r8
+addi r7 r8
+move r8 b
+label END_IF_ELSE4
+move 1 r9
+move i r10
+addi r9 r10
+move r10 i
+jmp WHILE_START_1
+label WHILE_END_2
+sys writei a
+sys writei b
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: sqrt
+DECL_LIST of 9 variables
+VAR_REF: outputStart
+VAR_REF: dummy
+VAR_REF: x1
+VAR_REF: x2
+VAR_REF: fx
+VAR_REF: dfx
+VAR_REF: error
+VAR_REF: i
+VAR_REF: n
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+ASSIGN NODE for: error
+READ_LIST: x1 
+ASSIGN NODE for: fx
+ASSIGN NODE for: dfx
+ASSIGN NODE for: x2
+ASSIGN NODE for: x1
+ASSIGN NODE for: fx
+ASSIGN NODE for: dfx
+ASSIGN NODE for: x2
+WHILE_LIST
+COMP_NODE: 1
+WHILE_STMT_LIST
+ASSIGN NODE for: x1
+ASSIGN NODE for: fx
+ASSIGN NODE for: dfx
+ASSIGN NODE for: x2
+ENDWHILE
+WRITE_LIST: x2 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;STOREF 0.001 r0
+;STOREF r0 error
+;READF x1
+;MULF x1 x1 r1
+;SUBF r1 n r2
+;STOREF r2 fx
+;STOREF 2.0 r3
+;MULF r3 x1 r4
+;STOREF r4 dfx
+;DIVF fx dfx r5
+;SUBF x1 r5 r6
+;STOREF r6 x2
+;STOREF x2 r7
+;STOREF r7 x1
+;MULF x1 x1 r8
+;SUBF r8 n r9
+;STOREF r9 fx
+;STOREF 2.0 r10
+;MULF r10 x1 r11
+;STOREF r11 dfx
+;DIVF fx dfx r12
+;SUBF x1 r12 r13
+;STOREF r13 x2
+;LABEL WHILE_START_1
+;SUBF x1 x2 r14
+;STOREF error r15
+;LTF r14 r15 WHILE_END_2
+;STOREF x2 r16
+;STOREF r16 x1
+;MULF x1 x1 r17
+;SUBF r17 n r18
+;STOREF r18 fx
+;STOREF 2.0 r19
+;MULF r19 x1 r20
+;STOREF r20 dfx
+;DIVF fx dfx r21
+;SUBF x1 r21 r22
+;STOREF r22 x2
+;JUMP WHILE_START_1
+;WRITEF x2
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+str dummy "abcde"
+var x1
+var x2
+var fx
+var dfx
+var error
+var i
+var n
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+move 0.001 r0
+move r0 error
+sys readr x1
+move x1 r1
+mulr x1 r1
+move r1 r2
+subr n r2
+move r2 fx
+move 2.0 r3
+move r3 r4
+mulr x1 r4
+move r4 dfx
+move fx r5
+divr dfx r5
+move x1 r6
+subr r5 r6
+move r6 x2
+move x2 r7
+move r7 x1
+move x1 r8
+mulr x1 r8
+move r8 r9
+subr n r9
+move r9 fx
+move 2.0 r10
+move r10 r11
+mulr x1 r11
+move r11 dfx
+move fx r12
+divr dfx r12
+move x1 r13
+subr r12 r13
+move r13 x2
+label WHILE_START_1
+move x1 r14
+subr x2 r14
+move error r15
+cmpr r14 r15
+jlt WHILE_END_2
+move x2 r16
+move r16 x1
+move x1 r17
+mulr x1 r17
+move r17 r18
+subr n r18
+move r18 fx
+move 2.0 r19
+move r19 r20
+mulr x1 r20
+move r20 dfx
+move fx r21
+divr dfx r21
+move x1 r22
+subr r21 r22
+move r22 x2
+jmp WHILE_START_1
+label WHILE_END_2
+sys writer x2
+unlnk
+ret
+
+Printing AST Tree..
+PROGRAM: p
+DECL_LIST of 7 variables
+VAR_REF: outputStart
+VAR_REF: a
+VAR_REF: b
+VAR_REF: k
+VAR_REF: g
+VAR_REF: p
+VAR_REF: u
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+READ_LIST: a b 
+WHILE_LIST
+COMP_NODE: 3
+WHILE_STMT_LIST
+IF_LIST
+COMP_NODE: 5
+IF_STMT_LIST
+ASSIGN NODE for: g
+WRITE_LIST: g 
+ELSE_LIST
+STMT_LIST
+IF_LIST
+COMP_NODE: 5
+IF_STMT_LIST
+ASSIGN NODE for: p
+WRITE_LIST: p 
+ELSE_LIST
+STMT_LIST
+IF_LIST
+COMP_NODE: 5
+IF_STMT_LIST
+ASSIGN NODE for: k
+WRITE_LIST: k 
+ELSE_LIST
+STMT_LIST
+IF_LIST
+COMP_NODE: 5
+IF_STMT_LIST
+ASSIGN NODE for: u
+WRITE_LIST: u 
+ELSE_LIST
+STMT_LIST
+ENDIF
+ENDIF
+ENDIF
+ENDIF
+ASSIGN NODE for: b
+ASSIGN NODE for: a
+ENDWHILE
+WRITE_LIST: a b 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;READI a
+;READI b
+;LABEL WHILE_START_1
+;STOREI 120 r0
+;GTI a r0 WHILE_END_2
+;STOREI 1 r1
+;NEI b r1 ELSE_3
+;STOREI 1 r2
+;MULI r2 a r3
+;STOREI r3 g
+;WRITEI g
+;JUMP END_IF_ELSE4
+;LABEL ELSE_3
+;STOREI 2 r4
+;NEI b r4 ELSE_5
+;STOREI 2 r5
+;MULI r5 a r6
+;STOREI r6 p
+;WRITEI p
+;JUMP END_IF_ELSE6
+;LABEL ELSE_5
+;STOREI 3 r7
+;NEI b r7 ELSE_7
+;STOREI 3 r8
+;MULI r8 a r9
+;STOREI r9 k
+;WRITEI k
+;JUMP END_IF_ELSE8
+;LABEL ELSE_7
+;STOREI 4 r10
+;NEI b r10 ELSE_9
+;STOREI 4 r11
+;MULI r11 a r12
+;STOREI r12 u
+;WRITEI u
+;JUMP END_IF_ELSE10
+;LABEL ELSE_9
+;LABEL END_IF_ELSE10
+;LABEL END_IF_ELSE8
+;LABEL END_IF_ELSE6
+;LABEL END_IF_ELSE4
+;STOREI 1 r13
+;ADDI b r13 r14
+;STOREI r14 b
+;STOREI 2 r15
+;ADDI a r15 r16
+;STOREI r16 a
+;JUMP WHILE_START_1
+;WRITEI a
+;WRITEI b
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var a
+var b
+var k
+var g
+var p
+var u
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+sys readi a
+sys readi b
+label WHILE_START_1
+move 120 r0
+cmpi a r0
+jgt WHILE_END_2
+move 1 r1
+cmpi b r1
+jne ELSE_3
+move 1 r2
+move r2 r3
+muli a r3
+move r3 g
+sys writei g
+jmp END_IF_ELSE4
+label ELSE_3
+move 2 r4
+cmpi b r4
+jne ELSE_5
+move 2 r5
+move r5 r6
+muli a r6
+move r6 p
+sys writei p
+jmp END_IF_ELSE6
+label ELSE_5
+move 3 r7
+cmpi b r7
+jne ELSE_7
+move 3 r8
+move r8 r9
+muli a r9
+move r9 k
+sys writei k
+jmp END_IF_ELSE8
+label ELSE_7
+move 4 r10
+cmpi b r10
+jne ELSE_9
+move 4 r11
+move r11 r12
+muli a r12
+move r12 u
+sys writei u
+jmp END_IF_ELSE10
+label ELSE_9
+label END_IF_ELSE10
+label END_IF_ELSE8
+label END_IF_ELSE6
+label END_IF_ELSE4
+move 1 r13
+move b r14
+addi r13 r14
+move r14 b
+move 2 r15
+move a r16
+addi r15 r16
+move r16 a
+jmp WHILE_START_1
+label WHILE_END_2
+sys writei a
+sys writei b
+unlnk
+ret
+infix_pop ERROR: Popping from an empty stack.
+
+Printing AST Tree..
+PROGRAM: p
+DECL_LIST of 8 variables
+VAR_REF: outputStart
+VAR_REF: a
+VAR_REF: b
+VAR_REF: c
+VAR_REF: p
+VAR_REF: s
+VAR_REF: t
+VAR_REF: newline
+FUNC_main
+PARAM_LIST with 0 parameters
+DECL_LIST of 0 variables
+STMT_LIST
+WRITE_LIST: outputStart 
+ASSIGN NODE for: a
+ASSIGN NODE for: b
+ASSIGN NODE for: c
+ASSIGN NODE for: c
+ASSIGN NODE for: b
+ASSIGN NODE for: a
+WRITE_LIST: c 
+WRITE_LIST: newline 
+WRITE_LIST: b 
+WRITE_LIST: newline 
+WRITE_LIST: a 
+WRITE_LIST: newline 
+ASSIGN NODE for: p
+ASSIGN NODE for: s
+ASSIGN NODE for: t
+ASSIGN NODE for: t
+WRITE_LIST: t 
+WRITE_LIST: newline 
+printing the IR Code..
+
+;IR code
+;PUSH
+;PUSHREGS
+;JSR FUNC_main
+;HALT
+;LABEL FUNC_main
+;LINK
+;WRITES outputStart
+;STOREI 20 r0
+;STOREI r0 a
+;STOREI 30 r1
+;STOREI r1 b
+;STOREI 40 r2
+;STOREI r2 c
+;MULI a b r3
+;ADDI c r3 r4
+;MULI a b r5
+;ADDI r5 c r6
+;DIVI r6 a r7
+;ADDI r4 r7 r8
+;STOREI 20 r9
+;ADDI r8 r9 r10
+;STOREI r10 c
+;MULI b b r11
+;ADDI r11 a r12
+;STOREI r12 b
+;MULI b a r13
+;DIVI r13 a r14
+;STOREI r14 a
+;WRITEI c
+;WRITES newline
+;WRITEI b
+;WRITES newline
+;WRITEI a
+;WRITES newline
+;STOREF 2.5 r15
+;STOREF r15 p
+;STOREF 1.2 r16
+;STOREF r16 s
+;STOREF 0.7 r17
+;STOREF r17 t
+;MULF t p r18
+;SUBF r18 s r19
+;MULF p s r20
+;ADDF r19 r20 r21
+;STOREF r21 t
+;WRITEF t
+;WRITES newline
+;UNLINK
+;RET
+
+
+printing the Tiny Code..
+
+str outputStart "Start of tinyOutput\n"
+var a
+var b
+var c
+var p
+var s
+var t
+str newline "\n"
+push
+push r0
+push r1
+push r2
+push r3
+jsr FUNC_main
+sys halt
+label FUNC_main
+link
+sys writes outputStart
+move 20 r0
+move r0 a
+move 30 r1
+move r1 b
+move 40 r2
+move r2 c
+move a r3
+muli b r3
+move c r4
+addi r3 r4
+move a r5
+muli b r5
+move r5 r6
+addi c r6
+move r6 r7
+divi a r7
+move r4 r8
+addi r7 r8
+move 20 r9
+move r8 r10
+addi r9 r10
+move r10 c
+move b r11
+muli b r11
+move r11 r12
+addi a r12
+move r12 b
+move b r13
+muli a r13
+move r13 r14
+divi a r14
+move r14 a
+sys writei c
+sys writes newline
+sys writei b
+sys writes newline
+sys writei a
+sys writes newline
+move 2.5 r15
+move r15 p
+move 1.2 r16
+move r16 s
+move 0.7 r17
+move r17 t
+move t r18
+mulr p r18
+move r18 r19
+subr s r19
+move p r20
+mulr s r20
+move r19 r21
+addr r20 r21
+move r21 t
+sys writer t
+sys writes newline
+unlnk
+ret
+
+Testing..... step8_test7.micro
+Key output:
+ Start of tinyOutput
+100
+
+Student output:
+ error on line 51 : illegal operand
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test18.micro
+Key output:
+ Start of tinyOutput
+0.0005569
+
+Student output:
+ error on line 68 : illegal operand
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test8.micro
+Key output:
+ Start of tinyOutput
+20365612258
+
+Student output:
+ error on line 76 : illegal operand
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test17.micro
+Key output:
+ Start of tinyOutput
+Please input an integer number: 0 0
+1 1
+2 1
+3 2
+4 3
+5 5
+6 8
+7 13
+8 21
+9 34
+10 55
+11 89
+12 144
+13 233
+14 377
+15 610
+
+
+Student output:
+ 
+
+Number of lines to be diffd from students output is different than solution
+Testing..... step8_test20.micro
+Key output:
+ Start of tinyOutput
+692
+920
+920
+3.55
+
+
+Student output:
+ error on line 67 : illegal operand
+
+Number of lines to be diffd from students output is different than solution
