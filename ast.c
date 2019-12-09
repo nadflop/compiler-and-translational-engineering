@@ -487,7 +487,7 @@ void ast_build_cfg(Tree * node){
 					cfg_update_node_pred(curr->succ_T, curr);
 					ast_build_cfg(curr->right);
 					curr->right->right->succ = curr; 
-					cfg_update_node_pred(curr, curr->right->right);
+					//cfg_update_node_pred(curr, curr->right->right);
 				}
 				curr->succ_F = curr->next; 
 			}

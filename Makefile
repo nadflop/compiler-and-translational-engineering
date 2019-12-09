@@ -41,6 +41,18 @@ test2: clean compiler
 test3: clean compiler
 		./runme step7/step7_test3.micro test3.out
 
+test4: clean compiler
+		./runme step7/step7_test4.micro test4.out
+
+test5: clean compiler
+		./runme step7/step7_test5.micro test5.out
+
+test6: clean compiler
+		./runme step7/step7_test6.micro test6.out
+
+test7: clean compiler
+		./runme step7/step7_test7.micro test7.out
+
 test12: clean compiler
 		./runme step7/step7_test12.micro test12.out
 

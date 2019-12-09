@@ -302,11 +302,26 @@ void generate_node_out(Tree * node){
 
 	Node * curr;
 
-	// only for statements with one successor (no succ_T or succ_F)
-	curr = node->succ->in_head; 
-	while(curr != NULL){
-		add_elem_to_node_out(node, curr->val);
-		curr = curr->next; 
+	if(node->node_type == IF_LIST || node->node_type == WHILE_LIST){
+		curr = node->succ_T->in_head;
+		while(curr != NULL){
+			add_elem_to_node_out(node, curr->val);
+			curr = curr->next; 
+		}
+
+		curr = node->succ_F->in_head;
+		while(curr != NULL){
+			add_elem_to_node_out(node, curr->val);
+			curr = curr->next; 
+		}
+	}
+	else{
+		// only for statements with one successor (no succ_T or succ_F)
+		curr = node->succ->in_head; 
+		while(curr != NULL){
+			add_elem_to_node_out(node, curr->val);
+			curr = curr->next; 
+		}
 	}
 
 }
@@ -493,13 +508,17 @@ void generate_node_in_out_sets(Tree * node){
 	// calculate out set
 	// check node_type for the number of successors
 	if(node->node_type == IF_LIST){
+		generate_node_out(node);
+		generate_node_in(node);
 	
 	}
 	else if(node->node_type == WHILE_LIST){
-	
+		generate_node_in(node);
+		generate_node_out(node);		
 	}
 	else if(node->node_type == RETURN_STMT){
-	
+		// for a return_stmt, OUT(s) is empty, so only generate IN(s)
+		generate_node_in(node);
 	}
 	else{
 		generate_node_out(node);
@@ -511,17 +530,24 @@ void generate_node_in_out_sets(Tree * node){
 }
 
 void traverse_backwards(Tree * node){
+
+	if(node == NULL){
+		return;
+	}
 	
 	//printf("now at node: %d\n", node->node_type);
 	if(node->node_type == ASSIGN_NODE){
 		//printf("lhs: %s --------\n", node->left->name);
 	}
-	else if(node->node_type == IF_LIST){
-		printf("Here\n");
+	
+	/*
+	if(node->node_type == IF_LIST){
+		printf("Here\n\n");
+		// check if all succ already has in/out sets, if not, go till the end
+		generate_node_in_out_sets(node); 
 		return;
 	}
-
-	// go through all predecessors of the node
+	*/
 
 	 Tree * curr_pred;
 	
@@ -531,7 +557,8 @@ void traverse_backwards(Tree * node){
 		generate_node_in_out_sets(node);
 	 }
 
-	 while(curr_pred != NULL){
+
+	while(curr_pred != NULL){
 		if(curr_pred->node_type == IF_LIST){
 			// IF_LIST can have three successors: succ, succ_T and succ_F
 			if(curr_pred->succ == node){
@@ -539,9 +566,15 @@ void traverse_backwards(Tree * node){
 			}
 			else{
 				// at this point, node must be an IF_LIST's succ_T or succ_F
-				traverse_backwards(curr_pred); 
-				return;
+				generate_node_in_out_sets(node);
+				traverse_backwards(curr_pred);
+				return; 
 			}
+		}
+
+		else if(curr_pred->node_type == WHILE_LIST){
+			generate_node_in_out_sets(node); 
+			traverse_backwards(curr_pred); 
 		}
 
 		//printf("PRED: %d\n", curr_pred->node_type);
@@ -551,17 +584,6 @@ void traverse_backwards(Tree * node){
 	 	curr_pred = curr_pred->pred_next; 
 	 }
 
-	/*
-	printf("node->pred_head: %d\n", node->pred_head->node_type);
-
-	printf("node->pred_head->next: %d\n", node->pred_head->pred_next->node_type);
-	printf("node->pred_head->pred_next->pred_head: %d\n", node->pred_head->pred_next->pred_head->node_type); 
-	printf("node->pred_head->pred_next->pred_head->pred_head: %d\n", node->pred_head->pred_next->pred_head->pred_head->node_type);
-	
-	printf("node->pred_head->pred_next->pred_next: %d\n", node->pred_head->pred_next->pred_next->node_type);
-	printf("b = 1000;s pred_head: %d with lhs %s\n", node->pred_tail->pred_head->node_type, node->pred_tail->left->name);
-	printf("3rd: %s\n", node->pred_head->pred_next->pred_next->left->name);
-	*/
 	
 }
 
@@ -578,7 +600,7 @@ void traverse_cfg(Tree * node) {
 		}
 	}
 	else if(node->node_type == FUNC_NODE){
-		printf("%s -----------\n", node->startlabel);
+		printf("%s ------------------------------------------\n", node->startlabel);
 		curr = node->succ; // go to first statement
 		while(curr != NULL){
 			traverse_cfg(curr); 
@@ -596,7 +618,7 @@ void traverse_cfg(Tree * node) {
 	
 	}
 	else if(node->node_type == ASSIGN_NODE){
-		printf("ASSIGN_NODE: %s\n", node->left->name);
+		printf("ASSIGN_NODE: %s = %d\n", node->left->name, node->right->node_type);
 		
 		// lhs should be a var_leaf: lhs is defined, add to def set
 		add_elem_to_node_kill(node, node->left);
@@ -634,10 +656,13 @@ void traverse_cfg(Tree * node) {
 		// go through write_list, and add var_refs found to gen(s)
 		curr = node->left; 
 		while(curr != NULL){
-			if(curr->node_type == VAR_REF){ 
+			if(curr->node_type == VAR_REF){
+				/*
 				if (strcmp(curr->type, "STRING") != 0){
 					add_elem_to_node_gen(node, curr); 
 				}
+				*/
+				add_elem_to_node_gen(node, curr);
 			}
 			curr = curr->next; 
 		}
@@ -736,7 +761,9 @@ void traverse_cfg(Tree * node) {
 
 		
 		// need to start generate
-		curr = node->pred_head; // start with the first predecessor
+		printf("\n\nRET_STMT: start backwards traverse\n");
+		traverse_backwards(node);
+
 	}
 
 }
