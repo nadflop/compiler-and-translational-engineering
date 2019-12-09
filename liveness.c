@@ -8,8 +8,8 @@
 
 extern FILE * yyout;
 
-node * createNode(char * val) {
-	node * head = (node*)malloc(sizeof(node));
+Node * createNode(char * val) {
+	Node * head = (Node*)malloc(sizeof(Node));
 	if (head == NULL) {
 		return;
 	}
@@ -20,8 +20,8 @@ node * createNode(char * val) {
 }
 
 //add a new node at the end of the list
-void insertNode(node * head, char * val) {
-	node * curr = head;
+void insertNode(Node * head, char * val) {
+	Node * curr = head;
 	while(curr->next != NULL) {
 		curr = curr->next;
 	}
@@ -29,8 +29,8 @@ void insertNode(node * head, char * val) {
 	curr->next = createNode(val);
 }
 
-void printList(node * head) {
-	node * ptr = head;
+void printList(Node * head) {
+	Node * ptr = head;
 
 	while (ptr != NULL) {
 		printf("%s\n", ptr->val);
@@ -38,8 +38,8 @@ void printList(node * head) {
 	}
 }
 
-int count(node * head) {
-	node * curr = head;
+int count(Node * head) {
+	Node * curr = head;
 	int c = 0;
 	while (curr != NULL) {
 		c++;
@@ -48,8 +48,8 @@ int count(node * head) {
 	return c;
 }
 //delete the whole list
-void deleteList(node * head){
-	node * curr, *temp;
+void deleteList(Node * head){
+	Node * curr, *temp;
 	if (head != NULL) {
 		curr = head->next;
 		head->next = NULL;
@@ -63,11 +63,11 @@ void deleteList(node * head){
 }
 
 //delete node from front of list
-node * deleteFrontNode(node * head) {
+Node * deleteFrontNode(Node * head) {
 	if (head == NULL) {
 		return NULL;
 	}
-	node * front =  head;
+	Node * front =  head;
 	head = head->next;
 	front->next = NULL;
 
@@ -79,33 +79,30 @@ node * deleteFrontNode(node * head) {
 }
 
 //delete node from back of list
-node * deleteBackNode(node * head) {
+Node * deleteBackNode(Node * head) {
 	if (head == NULL) {
 		return NULL;
 	}
-	node * curr = head;
-	node * back = NULL;
+	Node * curr = head;
+	Node * back = NULL;
 
 	while (curr->next != NULL) {
 		back = curr;
 		curr = curr->next;
 	}
-
 	if (back != NULL) {
 		back->next = NULL;
 	}
-
 	if (curr == head) {
 		head = NULL;
 	}
-
 	free(curr);
 	return head;
 
 }
 
 //delete a node from the list
-node * removeMiddleNode(node * head, node * nd) {
+Node * removeMiddleNode(Node * head, Node * nd) {
 	if (nd == NULL) {
 		return NULL;
 	}
@@ -117,21 +114,18 @@ node * removeMiddleNode(node * head, node * nd) {
 	if (nd->next == NULL) {
 		return deleteBackNode(head);
 	}
-
-	node * curr = head;
+	Node * curr = head;
 	while (curr != NULL) {
 		if (curr->next == nd)
 			break;
 		curr = curr->next;
 	}
-
 	if (curr != NULL) {
-		node * temp = curr->next;
+		Node * temp = curr->next;
 		curr->next = temp->next;
 		temp->next = NULL;
 		free(temp);
-	}
-	
+	}	
 	return head;
 }
 
@@ -227,6 +221,7 @@ void add_elem_to_node_gen(Tree * node, Tree * elem){
 	node->gen_tail->gen_next = elem;
 	node->gen_tail = node->gen_tail->gen_next;
 
+	/*
 	printf("New GEN(s): ");
 	curr = node->gen_head; 
 	while(curr != NULL){
@@ -234,6 +229,7 @@ void add_elem_to_node_gen(Tree * node, Tree * elem){
 		curr = curr->gen_next;
 	}
 	printf("\n");
+	*/
 }
 
 void enter_node_expression(Tree * node, Tree * expr){
@@ -254,110 +250,132 @@ void enter_node_expression(Tree * node, Tree * expr){
 	return;
 }
 
-void add_elem_to_node_out(Tree * node, Tree * elem){
+void add_elem_to_node_out(Tree * node, char * name){
+
+	Node * newnode; // just in case
 
 	// check if out set is empty
 	if(node->out_head == NULL){
-		node->out_head = elem;
-		node->out_tail = elem;
+		newnode = createNode(name);
+		node->out_head = newnode;
+		node->out_tail = newnode;
 		return;
 	}
 
 	// at this point, out set is not empty
-	Tree * curr = node->out_head;
+	Node * curr = node->out_head;
 	
 	//check if elem is in out set, if yes, return.
 	while(curr != NULL){
-		if(strcmp(curr->name,elem->name) == 0){
+		if(strcmp(curr->val,name) == 0){
 			return;
 		}
-		curr = curr->out_next;
+		curr = curr->next;
 	}
 
 	// at this point, elem is new; so add to set.
-	node->out_tail->out_next = elem;
-	node->out_tail = node->out_tail->out_next;
+	// create newnode
+	newnode = createNode(name);
 
+	node->out_tail->next = newnode;
+	node->out_tail = node->out_tail->next;
+
+	/*
 	printf("New OUT(s): ");
 	curr = node->out_head; 
 	while(curr != NULL){
-		printf("%s ", curr->name);
-		curr = curr->out_next;
+		printf("%s ", curr->val);
+		curr = curr->next;
 	}
 	printf("\n");
+	*/
+
 }
 
 
-void generate_node_out(Tree * node, Tree * in_head){
-	printf("Generating OUT(s)\n");
-
-	Tree * curr; 
-	curr = in_head; 
-	while(curr != NULL){
-		add_elem_to_node_out(node, curr);
-		curr = curr->in_next; 
+void generate_node_out(Tree * node){
+	//printf("Generating OUT(s)\n");
+	
+	if(node->succ == NULL){
+		return;
 	}
+
+	Node * curr;
+
+	// only for statements with one successor (no succ_T or succ_F)
+	curr = node->succ->in_head; 
+	while(curr != NULL){
+		add_elem_to_node_out(node, curr->val);
+		curr = curr->next; 
+	}
+
 }
 
-void add_elem_to_node_in(Tree * node, Tree * elem){
+void add_elem_to_node_in(Tree * node, char * name){
+
+	Node * newnode;
 	
 	// check if out set is empty
 	if(node->in_head == NULL){
-		node->in_head = elem;
-		node->in_tail = elem;
+		newnode = createNode(name);
+		node->in_head = newnode;
+		node->in_tail = newnode;
 		return;
 	}
 
 	// at this point, gen set is not empty
-	Tree * curr = node->in_head;
+	Node * curr = node->in_head;
 	
 	//check if elem is in IN set, if yes, return.
 	while(curr != NULL){
-		if(strcmp(curr->name,elem->name) == 0){
+		if(strcmp(curr->val,name) == 0){
 			return;
 		}
-		curr = curr->in_next;
+		curr = curr->next;
 	}
 
 	// at this point, elem is new; so add to set.
-	node->in_tail->in_next = elem;
-	node->in_tail = node->in_tail->in_next;
+	newnode = createNode(name);
+	node->in_tail->next = newnode;
+	node->in_tail = node->in_tail->next;
 
+	/*
 	printf("New IN(s): ");
 	curr = node->in_head; 
 	while(curr != NULL){
 		printf("%s ", curr->name);
-		curr = curr->in_next;
+		curr = curr->next;
 	}
 	printf("\n");
+	*/
 
 }
 
 void add_out_to_node_in(Tree * node){
 
-	Tree * curr; 
+	Node * curr; 
 	curr = node->out_head; 
 	while(curr != NULL){
-		add_elem_to_node_in(node, curr);
-		curr = curr->out_next;
+		add_elem_to_node_in(node, curr->val);
+		curr = curr->next;
 	}
 }
 
 void sub_kill_from_node_in(Tree * node){
 
-	Tree * curr_in; 
+	Node * curr_in; 
 	Tree * curr_kill; 
-	Tree * temp;
+	Node * temp;
 
 	curr_kill = node->kill_head; 
 	while(curr_kill != NULL){
-		printf("curr_kill: %s\n", curr_kill->name);
+		//printf("curr_kill: %s\n", curr_kill->name);
 		// check if in_head == curr_kill; 
-		if(strcmp(node->in_head->name, curr_kill->name) == 0){
+		if(strcmp(node->in_head->val, curr_kill->name) == 0){
 			// move in_head to the next one
 			temp = node->in_head; 
-			node->in_head = temp->in_next;
-			temp->in_next = NULL;
+			node->in_head = temp->next;
+			temp->next = NULL;
 			if(node->in_head == NULL){
 				node->in_tail = NULL;
 			}
@@ -366,20 +384,20 @@ void sub_kill_from_node_in(Tree * node){
 			// go through in set to find and eliminate curr_kill
 			curr_in = node->in_head; 
 			while(curr_in != NULL){
-				if(curr_in->in_next != NULL){
-					if(strcmp(curr_in->in_next->name, curr_kill->name) == 0){
-						if(curr_in->in_next == node->in_tail){
+				if(curr_in->next != NULL){
+					if(strcmp(curr_in->next->val, curr_kill->name) == 0){
+						if(curr_in->next == node->in_tail){
 							node->in_tail = curr_in;
-							curr_in->in_next = NULL; 
+							curr_in->next = NULL; 
 						}
 						else{
-							temp = curr_in->in_next; 
-							curr_in->in_next = temp->in_next; 
-							temp->in_next = NULL; 
+							temp = curr_in->next; 
+							curr_in->next = temp->next; 
+							temp->next = NULL; 
 						}
 					}
 				}
-				curr_in = curr_in->in_next; 
+				curr_in = curr_in->next; 
 			}
 		}
 		curr_kill = curr_kill->kill_next; 
@@ -392,57 +410,83 @@ void add_gen_to_node_in(Tree * node){
 	Tree * curr; 
 	curr = node->gen_head; 
 	while(curr != NULL){
-		add_elem_to_node_in(node, curr); 
+		add_elem_to_node_in(node, curr->name); 
 		curr = curr->gen_next; 
 	}
 
 }
 
 void generate_node_in(Tree * node){
-	printf("Generating IN(s)\n");
 
-	Tree * curr; 
+	Tree * curr_gk;
+	Node * curr; 
 	printf("GEN(s): ");
-	curr = node->gen_head; 
-	while(curr != NULL){
-		printf("%s ", curr->name);
-		curr = curr->gen_next;
+	curr_gk = node->gen_head; 
+	while(curr_gk != NULL){
+		printf("%s ", curr_gk->name);
+		curr_gk = curr_gk->gen_next;
 	}
 	printf("\n");
 
 	printf("KILL(s): ");
-	curr = node->kill_head; 
-	while(curr != NULL){
-		printf("%s ", curr->name);
-		curr = curr->kill_next;
+	curr_gk = node->kill_head; 
+	while(curr_gk != NULL){
+		printf("%s ", curr_gk->name);
+		curr_gk = curr_gk->kill_next;
 	}
 	printf("\n");
  
 	printf("OUT(s): ");
 	curr = node->out_head; 
 	while(curr != NULL){
-		printf("%s ", curr->name);
-		curr = curr->out_next;
+		printf("%s ", curr->val);
+		curr = curr->next;
 	}
 	printf("\n");
 	
 	// formula: in(s) = gen(s) U (out(s)-kill(s))
 	add_out_to_node_in(node);
+
+	/*
+	printf("AFTER ADDING OUT - IN(s): ");
+	curr = node->in_head; 
+	while(curr != NULL){
+		printf("%s ", curr->val);
+		curr = curr->next;
+	}
+	printf("\n");
+	*/
+
 	sub_kill_from_node_in(node);
+
+	/*
+	printf("AFTER SUB KILL - IN(s): ");
+	curr = node->in_head; 
+	while(curr != NULL){
+		printf("here?\n");
+		printf("%s ", curr->val);
+		curr = curr->next;
+	}
+	printf("\n");
+	*/
+	
 	add_gen_to_node_in(node);
  
 	printf("IN(s): ");
 	curr = node->in_head; 
 	while(curr != NULL){
-		printf("%s ", curr->name);
-		curr = curr->in_next;
+		printf("%s ", curr->val);
+		curr = curr->next;
 	}
 	printf("\n");
 
 }
 
-void generate_node_in_out_sets(Tree * node, Tree * pred){
+void generate_node_in_out_sets(Tree * node){
 	printf("\nGenerating IN and OUT at node %d\n", node->node_type);
+	if(node->node_type == ASSIGN_NODE){
+		printf("LHS: %s\n", node->left->name);
+	}
 
 	Tree * curr;
 
@@ -458,14 +502,67 @@ void generate_node_in_out_sets(Tree * node, Tree * pred){
 	
 	}
 	else{
-		// if node has no successor, out(s) is null
-		if(node->succ != NULL){
-			generate_node_out(node, node->succ->in_head);
-		}
+		generate_node_out(node);
 		generate_node_in(node);
-		generate_node_in_out_sets(pred, pred->pred_head);
 	}
 
+	
+
+}
+
+void traverse_backwards(Tree * node){
+	
+	//printf("now at node: %d\n", node->node_type);
+	if(node->node_type == ASSIGN_NODE){
+		//printf("lhs: %s --------\n", node->left->name);
+	}
+	else if(node->node_type == IF_LIST){
+		printf("Here\n");
+		return;
+	}
+
+	// go through all predecessors of the node
+
+	 Tree * curr_pred;
+	
+	 curr_pred = node->pred_head;
+	 if(curr_pred == NULL){
+	 	//printf("Here: %d lhs - %s\n", node->node_type, node->left->name);
+		generate_node_in_out_sets(node);
+	 }
+
+	 while(curr_pred != NULL){
+		if(curr_pred->node_type == IF_LIST){
+			// IF_LIST can have three successors: succ, succ_T and succ_F
+			if(curr_pred->succ == node){
+				curr_pred = curr_pred->pred_next;
+			}
+			else{
+				// at this point, node must be an IF_LIST's succ_T or succ_F
+				traverse_backwards(curr_pred); 
+				return;
+			}
+		}
+
+		//printf("PRED: %d\n", curr_pred->node_type);
+		generate_node_in_out_sets(node);
+		traverse_backwards(curr_pred);
+		
+	 	curr_pred = curr_pred->pred_next; 
+	 }
+
+	/*
+	printf("node->pred_head: %d\n", node->pred_head->node_type);
+
+	printf("node->pred_head->next: %d\n", node->pred_head->pred_next->node_type);
+	printf("node->pred_head->pred_next->pred_head: %d\n", node->pred_head->pred_next->pred_head->node_type); 
+	printf("node->pred_head->pred_next->pred_head->pred_head: %d\n", node->pred_head->pred_next->pred_head->pred_head->node_type);
+	
+	printf("node->pred_head->pred_next->pred_next: %d\n", node->pred_head->pred_next->pred_next->node_type);
+	printf("b = 1000;s pred_head: %d with lhs %s\n", node->pred_tail->pred_head->node_type, node->pred_tail->left->name);
+	printf("3rd: %s\n", node->pred_head->pred_next->pred_next->left->name);
+	*/
+	
 }
 
 //traverse the ast/cfg tree to compute gen,kill,in and out sets
@@ -494,14 +591,9 @@ void traverse_cfg(Tree * node) {
 		// at this point, curr is the last statement in func's stmt_list.
 		// start generating in and out sets
 		// go through curr's predecessors (pred_head through pred_tail)
-
-		Tree * curr_pred; 
-		curr_pred = curr->pred_head;
-		while(curr_pred != NULL){
-			generate_node_in_out_sets(curr, curr_pred); 
-			curr_pred = curr_pred->pred_next; 
-		}
-
+		printf("\n\nstart backwards traverse\n");
+		traverse_backwards(curr);
+	
 	}
 	else if(node->node_type == ASSIGN_NODE){
 		printf("ASSIGN_NODE: %s\n", node->left->name);
@@ -530,6 +622,11 @@ void traverse_cfg(Tree * node) {
 			// go into expression and update gen set
 			enter_node_expression(node, node->right);
 		}
+		else{
+			node->gen_head = NULL;
+			node->gen_tail = NULL;
+		}
+
 	}
 	else if(node->node_type == WRITE_LIST){
 		printf("WRITE_LIST\n");

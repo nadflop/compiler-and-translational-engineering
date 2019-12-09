@@ -98,13 +98,13 @@ typedef struct Tree {
 	struct Tree * kill_next;
 	struct Tree * kill_tail; 
 
-	struct Tree * in_head; // in set
-	struct Tree * in_next;
-	struct Tree * in_tail;
+	struct Node * in_head; // in set
+	struct Node * in_next;
+	struct Node * in_tail;
 
-	struct Tree * out_head; // out set
-	struct Tree * out_next;
-	struct Tree * out_tail; 
+	struct Node * out_head; // out set
+	struct Node * out_next;
+	struct Node * out_tail; 
 
 }Tree;
 

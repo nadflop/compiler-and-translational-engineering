@@ -9,21 +9,21 @@
 #include "hash_table.h"
 #include "addgen.h"
 
-typedef struct node {
+typedef struct Node {
 	char * val;
-	struct node * next;
-}node;
+	struct Node * next;
+}Node;
 
 //need a linked list set for gen, kill, in and out
 
-node * createNode(char * val);
-void insertNode(node * head, char * val);
-void printList(node * head);
-int count(node * head);
-void deleteList(node * head);
-node * deleteFrontNode (node * head);
-node * deleteBackNode (node * head);
-node * deleteMiddleNode (node * head, node * nd);
+Node * createNode(char * val);
+void insertNode(Node * head, char * val);
+void printList(Node * head);
+int count(Node * head);
+void deleteList(Node * head);
+Node * deleteFrontNode (Node * head);
+Node * deleteBackNode (Node * head);
+Node * deleteMiddleNode (Node * head, Node * nd);
 void traverse_cfg(Tree * root);
 
 #endif
