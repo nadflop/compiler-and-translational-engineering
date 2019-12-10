@@ -57,14 +57,14 @@ test12: clean compiler
 		./runme step7/step7_test12.micro test12.out
 
 testall: clean compiler
-		for value in {1..21} ; do \
+		for value in {5..6} ; do \
 			echo Testing test$$value ; \
 			./runme step7/step7_test$$value.micro test$$value.out ; \
+			./tiny test$$value.out < step7/step7_test$$value.input ; \
 		done
 
-tiny1: test1
-		./tiny step6/output/step6_test1.out < step6/input/step6_test1.input
-		./tiny test1.out < step6/input/step6_test1.input
+tiny4: test4
+		./tiny test4.out < step7/step7_test1.input
 
 tiny2: test2
 		./tiny step6/output/step6_test2.out < step6/input/step6_test2.input

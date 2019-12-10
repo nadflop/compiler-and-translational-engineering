@@ -850,14 +850,8 @@ void walkAST(Tree * node) {
 	else if(node->node_type == FUNC_NODE) {
 		printf("label %s\n", node->startlabel);
 		fprintf(yyout,"label %s\n", node->startlabel);
-		if (node->left->next->varcount == 0) {
-			printf("link\n");
-			fprintf(yyout,"link\n");
-		}
-		else {
-			printf("link %d\n", node->left->next->varcount);
-			fprintf(yyout, "link %d\n", node->left->next->varcount);
-		}
+		printf("link %d\n", node->left->next->varcount);
+		fprintf(yyout, "link %d\n", node->left->next->varcount);
 		Tree * curr0 = node;
 		if (curr0->left != NULL) {
 			walkAST(curr0->left);
