@@ -197,13 +197,15 @@ program: 	_PROG id _BEGIN
 				ast_print(prog_node);
 				printf("printing the IR Code..\n\n");
 				generate_code(prog_node);
-				printf("\n\nprinting the Tiny Code..\n\n");
-				walkAST(prog_node);
 				printf("\n\n\nCFG------\n\n");
 				ast_build_cfg(prog_node);
 				ast_cfg_print(prog_node);
 				printf("\n\nTraversing CFG to create GEN/KILL\n");
 				traverse_cfg(prog_node);
+				printf("\n\nprinting the Tiny Code..\n\n");
+				//generate_reg_list();
+				walkAST(prog_node);
+
 			}
 ;
 id: IDENTIFIER

@@ -7,7 +7,7 @@
 
 #include "ast.h"
 #include "hash_table.h"
-//#include "liveness.h"
+#include "liveness.h"
 
 /*IR Nodes*/
 typedef struct data_object {
@@ -26,6 +26,7 @@ typedef struct CodeObject {
 }CodeObject;
 
 void generate_reg_list();
+void check_status(Tree * root, char * var);
 void ensure(Tree * var);
 void ensure_both(Tree * var);
 void free_everything();
