@@ -2,7 +2,6 @@
 #define AST
 
 #include "hash_table.h"
-//#include "liveness.h"
 
 /*Declare different type of nodes*/
 typedef enum NodeType { 
@@ -106,12 +105,6 @@ typedef struct Tree {
 	struct Node * out_head; // out set
 	struct Node * out_next;
 	struct Node * out_tail; 
-
-	// Liveness set stuff
-	struct Node * gen;
-	struct Node * kill;
-	struct Node * in;
-	struct Node * out;
 
 }Tree;
 

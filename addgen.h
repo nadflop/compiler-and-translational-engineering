@@ -6,8 +6,6 @@
 #include <string.h>
 
 #include "ast.h"
-#include "hash_table.h"
-//#include "liveness.h"
 
 /*IR Nodes*/
 typedef struct data_object {
@@ -25,11 +23,6 @@ typedef struct CodeObject {
 	struct data_object * data;
 }CodeObject;
 
-void generate_reg_list();
-void ensure(Tree * var);
-void ensure_both(Tree * var);
-void free_everything();
-void allocate(Tree * parent, char * var);
 void newTemp(char * s);
 CodeObject * new_data();
 void generate_self (Tree * node);

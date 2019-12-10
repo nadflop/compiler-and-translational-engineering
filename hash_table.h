@@ -28,6 +28,6 @@ void ht_del_hash_table(ht_hash_table * ht);
 unsigned int ht_hash(const char * key, const int size);
 void ht_insert(ht_hash_table * ht, const char * key, const char * name, const char * type, const char * strval);
 int ht_search(ht_hash_table * ht, const char * key, const char * name);
-ht_item * ht_get_item(ht_hash_table * ht, const char * key, const char * name);
+ht_item * ht_get_item(ht_hash_table * ht, const char * key, const char * name); 
 
 #endif
